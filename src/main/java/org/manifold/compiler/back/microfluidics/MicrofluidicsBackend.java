@@ -58,8 +58,8 @@ public class MicrofluidicsBackend implements Backend {
     } catch (Exception e) {
       log.error(
           "process parameters could not be loaded;"
-          + " specify them with either '-bset-process-file=<filename>'"
-          + "or '-bset-process-<param>=<value>'");
+          + " specify them with either '-bProcessFile <filename>'"
+          + "or '-bProcess<param> <value>'");
       throw e;
     }
   }
