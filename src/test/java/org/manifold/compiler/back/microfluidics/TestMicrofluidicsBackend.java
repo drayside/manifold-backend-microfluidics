@@ -9,6 +9,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.PatternLayout;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.manifold.compiler.MultipleDefinitionException;
+import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
   
@@ -62,6 +64,22 @@ public class TestMicrofluidicsBackend {
       "-bProcessCriticalCrossingAngle", "wow"
     };
     backend.readArguments(args);
+  }
+  
+  @Test
+  public void testInvokeBackend_EmptySchematic() 
+      throws Exception {
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    String[] args = {
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      "-bProcessCriticalCrossingAngle", "0.0872664626"
+    };
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("test");
+    backend.invokeBackend(schematic, args); 
   }
   
 }
