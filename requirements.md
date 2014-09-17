@@ -57,3 +57,9 @@ Initial Target
 (i.e. look "through" the crossing to find the pressure)
 * Voltage control points use V=IR where the fluid acts like a resistor -- need more information here
 * SMT2 placement constraints
+
+Iteration 2
+-----------
+
+* Long channels "packed" into small area (curved, snakeform)
+* Placement on an infinite (or very large) chip, followed by area reduction
