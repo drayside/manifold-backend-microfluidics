@@ -2,12 +2,17 @@ package org.manifold.compiler.back.microfluidics.smt2;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ParenList implements SExpression {
+import com.google.common.collect.ImmutableList;
+
+public class ParenList extends SExpression {
 
   private List<SExpression> exprs = new ArrayList<>();
+  public List<SExpression> getExprs() {
+    return ImmutableList.copyOf(exprs);
+  }
   
   public ParenList() { }
   

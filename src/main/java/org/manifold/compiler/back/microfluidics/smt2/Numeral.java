@@ -3,7 +3,7 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.io.IOException;
 import java.io.Writer;
 
-public class Numeral implements SExpression {
+public class Numeral extends SExpression {
   private long value;
   public long getValue() {
     return this.value;

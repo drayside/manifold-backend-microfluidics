@@ -3,7 +3,7 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.io.IOException;
 import java.io.Writer;
 
-public class Symbol implements SExpression {
+public class Symbol extends SExpression {
   private String name;
   public String getName() {
     return name;

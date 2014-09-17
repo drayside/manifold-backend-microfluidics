@@ -30,12 +30,17 @@ public class QFNRA {
     return new ParenList(exprs);
   }
   
-  public static SExpression equal(SExpression e1, SExpression e2) {
-    SExpression exprs[] = new SExpression[] {
+  public static SExpression assertEqual(SExpression e1, SExpression e2) {
+    SExpression equalExprs[] = new SExpression[] {
       new Symbol("="),
       e1,
       e2
     };
-    return new ParenList(exprs);
+    SExpression equalExpr = new ParenList(equalExprs);
+    SExpression assertExprs[] = new SExpression[] {
+      new Symbol("assert"),
+      equalExpr
+    };
+    return new ParenList(assertExprs);
   }
 }

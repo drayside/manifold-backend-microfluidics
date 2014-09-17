@@ -3,7 +3,7 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.io.IOException;
 import java.io.Writer;
 
-public class Decimal implements SExpression {
+public class Decimal extends SExpression {
 
   private String repr;
   public String getRepresentation() {
