@@ -15,10 +15,15 @@ import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
 public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
-
+  
   @Override
-  public List<SExpression> translationStep(Schematic schematic, 
+  protected List<SExpression> translationStep(Schematic schematic, 
       ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    return translationStep(schematic, typeTable);
+  }
+
+  protected List<SExpression> translationStep(Schematic schematic, 
       PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
     // consider all pairs of distinct nodes
@@ -28,7 +33,9 @@ public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
           continue;
         }
         // see if there is a channel connecting these nodes
-        ConnectionValue channel = getConnectingChannel(schematic, n1, n2);
+        // (use directed search as we want to avoid duplicates)
+        ConnectionValue channel = getConnectingChannel(schematic, typeTable,
+            n1, n2, true);
         if (channel != null) {
           exprs.add(generateLengthAssertion(schematic, n1, n2, channel));
         }
@@ -54,7 +61,7 @@ public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
     SExpression bSquared = QFNRA.pow(sideB, new Numeral(2));
     SExpression aSquaredPlusBSquared = QFNRA.add(aSquared, bSquared);
     SExpression cSquared = QFNRA.pow(chLen, new Numeral(2));
-    return QFNRA.equal(aSquaredPlusBSquared, cSquared);
+    return QFNRA.assertEqual(aSquaredPlusBSquared, cSquared);
   }
   
 }

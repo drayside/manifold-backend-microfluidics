@@ -1,9 +1,6 @@
 package org.manifold.compiler.back.microfluidics;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,11 +11,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
-import org.manifold.compiler.ConnectionType;
-import org.manifold.compiler.NodeTypeValue;
-import org.manifold.compiler.PortTypeValue;
-import org.manifold.compiler.TypeValue;
-import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.middle.Schematic;
 
 public class MicrofluidicsBackend implements Backend {
@@ -107,32 +99,35 @@ public class MicrofluidicsBackend implements Backend {
   public PrimitiveTypeTable getPrimitiveTypes() {
     return primitiveTypes;
   }
+  public static PrimitiveTypeTable constructTypeTable(Schematic schematic) {
+    PrimitiveTypeTable typeTable = new PrimitiveTypeTable();
+    typeTable.retrieveBaseTypes(schematic);
+    checkTypeHierarchy(typeTable);
+    typeTable.addDerivedPressureControlPointNodeTypes(
+        typeTable.retrieveDerivedNodeTypes(schematic, 
+            typeTable.getPressureControlPointNodeType()));
+    typeTable.addDerivedVoltageControlPointNodeTypes(
+        typeTable.retrieveDerivedNodeTypes(schematic, 
+            typeTable.getVoltageControlPointNodeType()));
+    return typeTable;
+  }
   
-  private void checkTypeHierarchy() {
+  private static void checkTypeHierarchy(PrimitiveTypeTable typeTable) {
     // Look for subtypes of controlPointNode
-    if (!primitiveTypes.getPressureControlPointNodeType()
-        .isSubtypeOf(primitiveTypes.getControlPointNodeType())) {
-      err("schematic type incompatibility:"
+    if (!typeTable.getPressureControlPointNodeType()
+        .isSubtypeOf(typeTable.getControlPointNodeType())) {
+      throw new CodeGenerationError("schematic type incompatibility:"
           + "pressureControlPoint must be a subtype of controlPoint");
     }
-    if (!primitiveTypes.getVoltageControlPointNodeType()
-        .isSubtypeOf(primitiveTypes.getControlPointNodeType())) {
-      err("schematic type incompatibility:"
+    if (!typeTable.getVoltageControlPointNodeType()
+        .isSubtypeOf(typeTable.getControlPointNodeType())) {
+      throw new CodeGenerationError("schematic type incompatibility:"
           + "voltageControlPoint must be a subtype of controlPoint");
     }
   }
   
   public void run(Schematic schematic) {
-    primitiveTypes.retrieveBaseTypes(schematic);
-    log.debug("base types OK");
-    checkTypeHierarchy();
-    log.debug("type hierarchy OK");
-    primitiveTypes.addDerivedPressureControlPointNodeTypes(
-        primitiveTypes.retrieveDerivedNodeTypes(schematic, 
-            primitiveTypes.getPressureControlPointNodeType()));
-    primitiveTypes.addDerivedVoltageControlPointNodeTypes(
-        primitiveTypes.retrieveDerivedNodeTypes(schematic, 
-            primitiveTypes.getVoltageControlPointNodeType()));
+    primitiveTypes = constructTypeTable(schematic);
   }
   
 }

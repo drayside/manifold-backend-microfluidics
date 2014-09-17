@@ -3,8 +3,6 @@ package org.manifold.compiler.back.microfluidics;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.manifold.compiler.BooleanTypeValue;
-import org.manifold.compiler.BooleanValue;
 import org.manifold.compiler.ConnectionType;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.InvalidAttributeException;
@@ -152,4 +150,5 @@ public class UtilSchematicConstruction {
         from, to, noAttributes);
     return channel;
   }
+  
 }
