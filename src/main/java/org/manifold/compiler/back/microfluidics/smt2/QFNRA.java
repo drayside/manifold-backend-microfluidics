@@ -1,7 +1,7 @@
 package org.manifold.compiler.back.microfluidics.smt2;
 
 // Helper class for generating valid QF_NRA S-expressions.
-public class QF_NRA {
+public class QFNRA {
   
   public static SExpression add(SExpression e1, SExpression e2) {
     SExpression exprs[] = new SExpression[] {

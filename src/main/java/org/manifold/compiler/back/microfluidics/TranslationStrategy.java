@@ -24,13 +24,13 @@ public abstract class TranslationStrategy {
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable) {
     invalidateCache();
-    cachedExprs.addAll(_translate(schematic, processParams, typeTable));
+    cachedExprs.addAll(translationStep(schematic, processParams, typeTable));
     cacheIsValid();
     return cachedExprs;
   }
   
   // Cache-oblivious "real" translation step, overridden by implementors.
-  protected abstract List<SExpression> _translate(Schematic schematic,
+  protected abstract List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable);
   

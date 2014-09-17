@@ -40,8 +40,12 @@ public class Symbol implements SExpression {
   
   @Override
   public boolean equals(Object other) {
-    if (this == other) return true;
-    if (!(other instanceof Symbol)) return false;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Symbol)) {
+      return false;
+    }
     Symbol that = (Symbol) other;
     return (this.getName().equals(that.getName()));
   }

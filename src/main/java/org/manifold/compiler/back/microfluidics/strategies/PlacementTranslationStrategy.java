@@ -26,7 +26,8 @@ public class PlacementTranslationStrategy extends TranslationStrategy {
   }
   
   @Override
-  protected List<SExpression> _translate(Schematic schematic, ProcessParameters processParams,
+  protected List<SExpression> translationStep(Schematic schematic, 
+      ProcessParameters processParams,
       PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
     exprs.addAll(lengthRuleStrategy.translate(

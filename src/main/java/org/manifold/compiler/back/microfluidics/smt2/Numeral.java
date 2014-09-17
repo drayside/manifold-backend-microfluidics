@@ -15,8 +15,12 @@ public class Numeral implements SExpression {
 
   @Override
   public boolean equals(Object other) {
-    if (this == other) return true;
-    if (!(other instanceof Numeral)) return false;
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Numeral)) {
+      return false;
+    }
     Numeral that = (Numeral) other;
     return (this.getValue() == that.getValue());
   }
