@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.manifold.compiler.ConnectionType;
+import org.manifold.compiler.ConstraintType;
 import org.manifold.compiler.NodeTypeValue;
 import org.manifold.compiler.PortTypeValue;
 import org.manifold.compiler.UndeclaredIdentifierException;
@@ -58,6 +59,7 @@ public class PrimitiveTypeTable {
   public ConnectionType getMicrofluidChannelType() {
     return microfluidChannelType;
   }
+
   
   public void retrieveBaseTypes(Schematic schematic) {
     try {
@@ -88,6 +90,23 @@ public class PrimitiveTypeTable {
       }
     }
     return derivedTypes;
+  }
+  
+  private ConstraintType controlPointPlacementConstraintType = null;
+  public ConstraintType getControlPointPlacementConstraintType() {
+    return controlPointPlacementConstraintType;
+  }
+  
+  public void retrieveConstraintTypes(Schematic schematic) {
+    try {
+      controlPointPlacementConstraintType =
+          schematic.getConstraintType("controlPointPlacementConstraint");
+    } catch (UndeclaredIdentifierException e) {
+      throw new CodeGenerationError(
+          "could not find required microfluidic schematic constraint type '"
+          + e.getIdentifier() + "'; schematic version mismatch or "
+          + " not a microfluidic schematic");
+    }
   }
   
 }
