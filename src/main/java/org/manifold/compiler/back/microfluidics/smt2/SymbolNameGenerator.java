@@ -1,7 +1,5 @@
 package org.manifold.compiler.back.microfluidics.smt2;
 
-import java.util.Map;
-
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.middle.Schematic;
@@ -31,17 +29,7 @@ public class SymbolNameGenerator {
    */
   public static Symbol getsym_ChannelLength(Schematic schematic, 
       ConnectionValue ch) {
-    // TODO schematic.getConnectionName()
-    String chName = null;
-    for (Map.Entry<String, ConnectionValue> conn 
-        : schematic.getConnections().entrySet()) {
-      if (conn.getValue().equals(ch)) {
-        chName = conn.getKey();
-      }
-    }
-    if (ch == null) {
-      throw new IllegalArgumentException("connection not found in schematic");
-    }
+    String chName = schematic.getConnectionName(ch);
     return new Symbol(chName.concat("_pos_x"));
   }
   
