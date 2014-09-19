@@ -36,6 +36,19 @@ public class QFNRA {
     return assertThat(infix(e1, "=", e2));
   }
   
+  public static SExpression assertLessThan(SExpression e1, SExpression e2) {
+    return assertThat(infix(e1, "<", e2));
+  }
+  
+  public static SExpression assertGreater(SExpression e1, SExpression e2) {
+    return assertThat(infix(e1, ">", e2));
+  }
+  
+  public static SExpression assertLessThanEqual(
+      SExpression e1, SExpression e2) {
+    return assertThat(infix(e1, "<=", e2));
+  }
+  
   public static SExpression assertGreaterEqual(SExpression e1, SExpression e2) {
     return assertThat(infix(e1, ">=", e2));
   }
