@@ -3,58 +3,40 @@ package org.manifold.compiler.back.microfluidics.smt2;
 // Helper class for generating valid QF_NRA S-expressions.
 public class QFNRA {
   
-  public static SExpression add(SExpression e1, SExpression e2) {
+  private static SExpression infix(SExpression e1, String op, SExpression e2) {
     SExpression exprs[] = new SExpression[] {
-      new Symbol("+"),
+      new Symbol(op),
       e1,
       e2
     };
     return new ParenList(exprs);
+  }
+  
+  public static SExpression add(SExpression e1, SExpression e2) {
+    return infix(e1, "+", e2);
   }
   
   public static SExpression subtract(SExpression e1, SExpression e2) {
-    SExpression exprs[] = new SExpression[] {
-      new Symbol("-"),
-      e1,
-      e2
-    };
-    return new ParenList(exprs);
+    return infix(e1, "-", e2);
   }
   
   public static SExpression pow(SExpression base, SExpression exp) {
-    SExpression exprs[] = new SExpression[] {
-      new Symbol("^"),
-      base,
-      exp
+    return infix(base, "^", exp);
+  }
+  
+  public static SExpression assertThat(SExpression term) {
+    SExpression assertExprs[] = new SExpression[] {
+      new Symbol("assert"),
+      term
     };
-    return new ParenList(exprs);
+    return new ParenList(assertExprs);
   }
   
   public static SExpression assertEqual(SExpression e1, SExpression e2) {
-    SExpression equalExprs[] = new SExpression[] {
-      new Symbol("="),
-      e1,
-      e2
-    };
-    SExpression equalExpr = new ParenList(equalExprs);
-    SExpression assertExprs[] = new SExpression[] {
-      new Symbol("assert"),
-      equalExpr
-    };
-    return new ParenList(assertExprs);
+    return assertThat(infix(e1, "=", e2));
   }
   
   public static SExpression assertGreaterEqual(SExpression e1, SExpression e2) {
-    SExpression equalExprs[] = new SExpression[] {
-      new Symbol(">="),
-      e1,
-      e2
-    };
-    SExpression equalExpr = new ParenList(equalExprs);
-    SExpression assertExprs[] = new SExpression[] {
-      new Symbol("assert"),
-      equalExpr
-    };
-    return new ParenList(assertExprs);
+    return assertThat(infix(e1, ">=", e2));
   }
 }
