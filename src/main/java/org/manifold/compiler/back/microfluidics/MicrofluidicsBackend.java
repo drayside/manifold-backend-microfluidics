@@ -109,6 +109,7 @@ public class MicrofluidicsBackend implements Backend {
     typeTable.addDerivedVoltageControlPointNodeTypes(
         typeTable.retrieveDerivedNodeTypes(schematic, 
             typeTable.getVoltageControlPointNodeType()));
+    typeTable.retrieveConstraintTypes(schematic);
     return typeTable;
   }
   

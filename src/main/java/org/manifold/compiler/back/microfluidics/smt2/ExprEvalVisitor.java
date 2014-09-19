@@ -77,6 +77,9 @@ public class ExprEvalVisitor implements SExpressionVisitor {
     } else if (func.equals(new Symbol("-"))) {
       value = vLeft - vRight;
       return true;
+    } else if (func.equals(new Symbol("*"))) {
+      value = vLeft * vRight;
+      return true;
     } else if (func.equals(new Symbol("^"))) {
       value = Math.pow(vLeft, vRight);
       return true;

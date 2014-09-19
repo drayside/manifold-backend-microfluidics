@@ -71,9 +71,9 @@ public class UtilSchematicConstruction {
     
     // controlPointPlacementConstraint(microfluidChannel node, Real x, Real y)
     Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
-    cxtCPPlaceAttrs.put("channel", microfluidChannelType);
-    cxtCPPlaceAttrs.put("x", RealTypeValue.getInstance());
-    cxtCPPlaceAttrs.put("y", RealTypeValue.getInstance());
+    cxtChanPlaceAttrs.put("channel", microfluidChannelType);
+    cxtChanPlaceAttrs.put("x", RealTypeValue.getInstance());
+    cxtChanPlaceAttrs.put("y", RealTypeValue.getInstance());
     channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
     
     setUp = true;
