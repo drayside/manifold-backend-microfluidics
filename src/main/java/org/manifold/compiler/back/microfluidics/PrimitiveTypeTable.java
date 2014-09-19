@@ -97,10 +97,17 @@ public class PrimitiveTypeTable {
     return controlPointPlacementConstraintType;
   }
   
+  private ConstraintType channelPlacementConstraintType = null;
+  public ConstraintType getChannelPlacementConstraintType() {
+    return channelPlacementConstraintType;
+  }
+  
   public void retrieveConstraintTypes(Schematic schematic) {
     try {
       controlPointPlacementConstraintType =
           schematic.getConstraintType("controlPointPlacementConstraint");
+      channelPlacementConstraintType =
+          schematic.getConstraintType("channelPlacementConstraint");
     } catch (UndeclaredIdentifierException e) {
       throw new CodeGenerationError(
           "could not find required microfluidic schematic constraint type '"

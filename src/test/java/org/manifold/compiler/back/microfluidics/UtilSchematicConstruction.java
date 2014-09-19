@@ -41,6 +41,7 @@ public class UtilSchematicConstruction {
   private static ConnectionType microfluidChannelType;
 
   private static ConstraintType controlPointPlacementConstraintType;
+  private static ConstraintType channelPlacementConstraintType;
   
   public static void setupIntermediateTypes() {
 
@@ -68,6 +69,13 @@ public class UtilSchematicConstruction {
     cxtCPPlaceAttrs.put("y", RealTypeValue.getInstance());
     controlPointPlacementConstraintType = new ConstraintType(cxtCPPlaceAttrs);
     
+    // controlPointPlacementConstraint(microfluidChannel node, Real x, Real y)
+    Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
+    cxtCPPlaceAttrs.put("channel", microfluidChannelType);
+    cxtCPPlaceAttrs.put("x", RealTypeValue.getInstance());
+    cxtCPPlaceAttrs.put("y", RealTypeValue.getInstance());
+    channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
+    
     setUp = true;
   }
 
@@ -90,6 +98,9 @@ public class UtilSchematicConstruction {
     s.addConstraintType(
         "controlPointPlacementConstraint",
         controlPointPlacementConstraintType);
+    s.addConstraintType(
+        "channelPlacementConstraint",
+        channelPlacementConstraintType);
 
     return s;
   }
@@ -177,6 +188,19 @@ public class UtilSchematicConstruction {
     attrs.put("y", new RealValue(y));
     ConstraintValue cxt = new ConstraintValue(
         controlPointPlacementConstraintType, attrs);
+    return cxt;
+  }
+  
+  public static ConstraintValue instantiateChannelPlacementConstraint(
+      ConnectionValue channel, Double x, Double y) 
+      throws UndeclaredAttributeException, InvalidAttributeException, 
+        TypeMismatchException {
+    Map<String, Value> attrs = new HashMap<>();
+    attrs.put("channel", channel);
+    attrs.put("x", new RealValue(x));
+    attrs.put("y", new RealValue(y));
+    ConstraintValue cxt = new ConstraintValue(
+        channelPlacementConstraintType, attrs);
     return cxt;
   }
   

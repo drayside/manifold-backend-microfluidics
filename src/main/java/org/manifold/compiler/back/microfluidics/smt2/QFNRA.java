@@ -20,6 +20,10 @@ public class QFNRA {
     return infix(e1, "-", e2);
   }
   
+  public static SExpression multiply(SExpression e1, SExpression e2) {
+    return infix(e1, "*", e2);
+  }
+  
   public static SExpression pow(SExpression base, SExpression exp) {
     return infix(base, "^", exp);
   }
