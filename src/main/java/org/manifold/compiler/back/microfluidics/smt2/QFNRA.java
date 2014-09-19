@@ -43,4 +43,18 @@ public class QFNRA {
     };
     return new ParenList(assertExprs);
   }
+  
+  public static SExpression assertGreaterEqual(SExpression e1, SExpression e2) {
+    SExpression equalExprs[] = new SExpression[] {
+      new Symbol(">="),
+      e1,
+      e2
+    };
+    SExpression equalExpr = new ParenList(equalExprs);
+    SExpression assertExprs[] = new SExpression[] {
+      new Symbol("assert"),
+      equalExpr
+    };
+    return new ParenList(assertExprs);
+  }
 }
