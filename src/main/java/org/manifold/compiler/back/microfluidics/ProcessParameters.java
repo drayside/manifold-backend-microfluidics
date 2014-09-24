@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -57,6 +56,14 @@ public class ProcessParameters {
     this.maximumChipSizeX = maximumChipSizeX;
     this.maximumChipSizeY = maximumChipSizeY;
     this.criticalCrossingAngle = criticalCrossingAngle;
+  }
+  
+  public static ProcessParameters loadTestData() {
+    // TODO refactor test cases that use this to load from another source
+    return new ProcessParameters(
+        0.001, 0.00001,
+        0.05, 0.05,
+        0.0872664626);
   }
   
   private static double readJsonDouble(JsonObject input, String key) {

@@ -52,6 +52,11 @@ public class UtilSchematicConstruction {
     voltageCPNodeType = new NodeTypeValue(noTypeAttributes, noPorts, 
         controlPointNodeType);
     Map<String, PortTypeValue> channelCrossingPorts = new HashMap<>();
+    //       B0
+    //        |
+    // A0 --- + --- A1
+    //        |
+    //       B1
     channelCrossingPorts.put("channelA0", microfluidPortType);
     channelCrossingPorts.put("channelA1", microfluidPortType);
     channelCrossingPorts.put("channelB0", microfluidPortType);
