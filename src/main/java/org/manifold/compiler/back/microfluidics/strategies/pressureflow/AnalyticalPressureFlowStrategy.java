@@ -95,7 +95,7 @@ public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
           ConnectionValue channelPost = expansion.connections.get(i);
           Symbol flowPost = SymbolNameGenerator.getsym_ChannelFlowRate(
               schematic, channelPost);
-          ConnectionValue channelPre = expansion.connections.get(i-1);
+          ConnectionValue channelPre = expansion.connections.get(i - 1);
           Symbol flowPre = SymbolNameGenerator.getsym_ChannelFlowRate(
               schematic, channelPre);
           // get all four ports
@@ -146,7 +146,7 @@ public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
       PortValue destPort = null;
       if (nextConn.getFrom().equals(nextPort)) {
         destPort = nextConn.getTo();
-      } else if(nextConn.getTo().equals(nextPort)) {
+      } else if (nextConn.getTo().equals(nextPort)) {
         destPort = nextConn.getFrom();
       }
       if (destPort == null) {
