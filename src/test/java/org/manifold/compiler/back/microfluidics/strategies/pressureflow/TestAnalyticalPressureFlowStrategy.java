@@ -22,7 +22,7 @@ public class TestAnalyticalPressureFlowStrategy {
 
   @Test
   public void testTwoNodes() throws SchematicException {
- // create this schematic:
+    // create this schematic:
     // (n1) --- (n2)
     Schematic sch = UtilSchematicConstruction.instantiateSchematic("test");
     NodeValue n1 = UtilSchematicConstruction.instantiatePressureControlPoint(
