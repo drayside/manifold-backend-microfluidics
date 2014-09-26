@@ -1,6 +1,5 @@
 package org.manifold.compiler.back.microfluidics.strategies.placement;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -11,9 +10,8 @@ import org.manifold.compiler.ConstraintValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.back.microfluidics.MicrofluidicsBackend;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
-import org.manifold.compiler.back.microfluidics.UtilSExpression;
 import org.manifold.compiler.back.microfluidics.UtilSchematicConstruction;
-import org.manifold.compiler.back.microfluidics.smt2.ExprEvalVisitor;
+import org.manifold.compiler.back.microfluidics.smt2.AssertionChecker;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
@@ -56,11 +54,6 @@ public class TestChannelPlacementConstraintStrategy {
       fail("too many expressions generated in translation");
     }
     
-    SExpression exprLeft = UtilSExpression
-        .findAssertEqual(exprs.get(0)).getExprs().get(1);
-    SExpression exprRight = UtilSExpression
-        .findAssertEqual(exprs.get(0)).getExprs().get(2);
-    
     // now we need to find symbols corresponding to the node x and y position
     Symbol n1x = SymbolNameGenerator.getsym_NodeX(sch, n1);
     Symbol n1y = SymbolNameGenerator.getsym_NodeY(sch, n1);
@@ -74,16 +67,14 @@ public class TestChannelPlacementConstraintStrategy {
     double y1 = 2.0;
     double x2 = 3.0;
     double y2 = -2.0;
-    ExprEvalVisitor eval = new ExprEvalVisitor();
-    eval.addBinding(n1x, x1);
-    eval.addBinding(n1y, y1);
-    eval.addBinding(n2x, x2);
-    eval.addBinding(n2y, y2);
+    AssertionChecker check = new AssertionChecker();
+    check.addBinding(n1x, x1);
+    check.addBinding(n1y, y1);
+    check.addBinding(n2x, x2);
+    check.addBinding(n2y, y2);
     
-    exprLeft.accept(eval);
-    double lhs = eval.getValue();
-    exprRight.accept(eval);
-    double rhs = eval.getValue();
-    assertEquals(rhs, lhs, 0.000001);
+    if (!check.verify(exprs)) {
+      fail("assertion failed: " + check.getLastFailingExpression().toString());
+    }
   }
 }

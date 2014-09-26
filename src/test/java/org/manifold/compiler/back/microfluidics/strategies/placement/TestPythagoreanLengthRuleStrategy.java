@@ -1,6 +1,5 @@
 package org.manifold.compiler.back.microfluidics.strategies.placement;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -10,9 +9,8 @@ import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.back.microfluidics.MicrofluidicsBackend;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
-import org.manifold.compiler.back.microfluidics.UtilSExpression;
 import org.manifold.compiler.back.microfluidics.UtilSchematicConstruction;
-import org.manifold.compiler.back.microfluidics.smt2.ExprEvalVisitor;
+import org.manifold.compiler.back.microfluidics.smt2.AssertionChecker;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
@@ -49,11 +47,6 @@ public class TestPythagoreanLengthRuleStrategy {
       fail("too many expressions generated in translation");
     }
     
-    SExpression exprLeft = UtilSExpression
-        .findAssertEqual(exprs.get(0)).getExprs().get(1);
-    SExpression exprRight = UtilSExpression
-        .findAssertEqual(exprs.get(0)).getExprs().get(2);
-    
     // now we need to find symbols corresponding to the node x and y position
     // as well as the connection length
     Symbol n1x = SymbolNameGenerator.getsym_NodeX(sch, n1);
@@ -69,18 +62,16 @@ public class TestPythagoreanLengthRuleStrategy {
     double deltaX = -3.0;
     double deltaY = 4.0;
     double lengthHypotenuse = 5.0;
-    ExprEvalVisitor eval = new ExprEvalVisitor();
-    eval.addBinding(n1x, originX);
-    eval.addBinding(n1y, originY);
-    eval.addBinding(n2x, originX + deltaX);
-    eval.addBinding(n2y, originY + deltaY);
-    eval.addBinding(ch0Len, lengthHypotenuse);
+    AssertionChecker check = new AssertionChecker();
+    check.addBinding(n1x, originX);
+    check.addBinding(n1y, originY);
+    check.addBinding(n2x, originX + deltaX);
+    check.addBinding(n2y, originY + deltaY);
+    check.addBinding(ch0Len, lengthHypotenuse);
     
-    exprLeft.accept(eval);
-    double lhs = eval.getValue();
-    exprRight.accept(eval);
-    double rhs = eval.getValue();
-    assertEquals(rhs, lhs, 0.000001);
+    if (!check.verify(exprs)) {
+      fail("assertion failed: " + check.getLastFailingExpression().toString());
+    }
     
   }
 
