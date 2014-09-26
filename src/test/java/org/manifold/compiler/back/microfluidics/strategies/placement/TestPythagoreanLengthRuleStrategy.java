@@ -70,7 +70,7 @@ public class TestPythagoreanLengthRuleStrategy {
     check.addBinding(ch0Len, lengthHypotenuse);
     
     if (!check.verify(exprs)) {
-      fail("assertion failed: " + check.getLastFailingExpression().toString());
+      fail("assertion failed: " + check.getLastExpression().toString());
     }
     
   }

@@ -11,7 +11,10 @@ public class AssertionChecker {
     nonAssertionsAreErrors = b;
   }
   
-  // TODO delta for comparisons
+  private double delta = 0.000001;
+  public void setDelta(double d) {
+    delta = d;
+  }
   
   private ExprEvalVisitor evaluator = new ExprEvalVisitor();
   
@@ -21,15 +24,23 @@ public class AssertionChecker {
   
   public AssertionChecker() { }
   
-  private SExpression lastFailingExpression = null;
-  public SExpression getLastFailingExpression() {
-    return lastFailingExpression;
+  private SExpression lastExpression = null;
+  public SExpression getLastExpression() {
+    return lastExpression;
+  }
+  
+  private double lastLHS = Double.NaN;
+  private double lastRHS = Double.NaN;
+  public double getLastLHS() {
+    return lastLHS;
+  }
+  public double getLastRHS() {
+    return lastRHS;
   }
   
   public boolean verify(List<SExpression> exprs) {
     for (SExpression expr : exprs) {
       if (!verify(expr)) {
-        lastFailingExpression = expr;
         return false;
       }
     }
@@ -37,6 +48,9 @@ public class AssertionChecker {
   }
   
   public boolean verify(SExpression expr) {
+    lastExpression = expr;
+    lastLHS = Double.NaN;
+    lastRHS = Double.NaN;
     if (isNonAssertion(expr)) {
       if (nonAssertionsAreErrors) {
         return false;
@@ -60,21 +74,23 @@ public class AssertionChecker {
     try {
       eLeft.accept(evaluator);
       valLeft = evaluator.getValue();
+      lastLHS = valLeft;
       eRight.accept(evaluator);
       valRight = evaluator.getValue();
+      lastRHS = valRight;
     } catch (Exception e) {
       return false;
     }
     if (booleanSym.equals(new Symbol("="))) {
-      return (valLeft == valRight);
+      return Math.abs(valLeft - valRight) < delta;
     } else if (booleanSym.equals(new Symbol("<"))) {
-      return (valLeft < valRight);
+      return valLeft < valRight;
     } else if (booleanSym.equals(new Symbol("<="))) {
-      return (valLeft <= valRight);
+      return valLeft <= valRight;
     } else if (booleanSym.equals(new Symbol(">"))) {
-      return (valLeft > valRight);
+      return valLeft > valRight;
     } else if (booleanSym.equals(new Symbol(">="))) {
-      return (valLeft >= valRight);
+      return valLeft >= valRight;
     } else {
       // unknown operator
       return false;
