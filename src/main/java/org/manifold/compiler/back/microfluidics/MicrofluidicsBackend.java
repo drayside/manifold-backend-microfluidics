@@ -3,11 +3,9 @@ package org.manifold.compiler.back.microfluidics;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
@@ -23,15 +21,13 @@ public class MicrofluidicsBackend implements Backend {
     throw new CodeGenerationError(message);
   }
   
-  private Options options;
-  
   @Override
   public String getBackendName() {
     return "microfluidics";
   }
 
   @SuppressWarnings("static-access")
-  private void createOptionProcessParameters() {
+  private void createOptionProcessParameters(Options options) {
     Option processFile = OptionBuilder.withArgName("file")
         .hasArg()
         .withDescription("load process parameters from given JSON file")
@@ -69,29 +65,19 @@ public class MicrofluidicsBackend implements Backend {
     }
   }
   
-  private void createOptionDefinitions() {
-    options = new Options();
-    createOptionProcessParameters();
+  @Override
+  public void registerArguments(Options options) {
+    createOptionProcessParameters(options);
   }
   
   private void collectOptions(CommandLine cmd) throws IOException {
     collectOptionProcessParameters(cmd);
   }
-  
-  public void readArguments(String[] args) throws ParseException, IOException {
-    // set up options for command-line parsing
-    createOptionDefinitions();
-    // parse command line
-    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
-    CommandLine cmd = parser.parse(options, args);
-    // retrieve command-line options
-    collectOptions(cmd);
-  }
-  
+
   @Override
-  public void invokeBackend(Schematic schematic, String[] args)
+  public void invokeBackend(Schematic schematic, CommandLine cmd)
       throws Exception {
-    readArguments(args);
+    collectOptions(cmd);
     run(schematic);
   }
 
