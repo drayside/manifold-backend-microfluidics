@@ -117,9 +117,9 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
             QFNRA.multiply(
                 QFNRA.subtract(QFNRA.divide(pi, new Numeral(4)), 
                     QFNRA.multiply(new Decimal(0.5), 
-                        QFNRA.arcsin(QFNRA.subtract(
-                        new Numeral(1), QFNRA.divide(w, wIn))
-                    ))), 
+                        QFNRA.arcsin(
+                            QFNRA.subtract(new Numeral(1), QFNRA.divide(w, wIn))
+              ))), 
                 QFNRA.pow(QFNRA.divide(wIn, w), new Numeral(2))), 
             QFNRA.multiply(
                 new Decimal(-0.5),
@@ -129,8 +129,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                         QFNRA.multiply(new Numeral(2), 
                             QFNRA.divide(wIn, w)), new Numeral(1)), 
                             new Decimal(0.5))
-                    )
-                )),
+          )
+        )),
         QFNRA.add(
             QFNRA.divide(pi, new Numeral(8)),
             QFNRA.multiply(
@@ -142,13 +142,13 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                         QFNRA.multiply(QFNRA.subtract(
                             QFNRA.divide(pi, new Numeral(2)), 
                             QFNRA.arcsin(QFNRA.subtract(
-                                new Numeral(1),QFNRA.divide(w, wIn)))), 
+                                new Numeral(1), QFNRA.divide(w, wIn)))), 
                             QFNRA.divide(wIn, w)),
                         QFNRA.divide(pi, new Numeral(2))), 
-                    QFNRA.divide(h,w))
-                )
-            )
-        );
+                    QFNRA.divide(h, w))
+        )
+      )
+    );
     
     SExpression normalizedVFill = QFNRA.conditional(
         QFNRA.lessThanEqual(wIn, w),
@@ -168,14 +168,15 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                     QFNRA.multiply(
                         QFNRA.subtract(wIn, hwParallel),
                         QFNRA.subtract(w, hwParallel)
-                        )), new Decimal(0.5))));
+            )), new Decimal(0.5))));
     // rFill = max(w, wIn)
     SExpression rFill = QFNRA.conditional(
         QFNRA.greater(w, wIn), w, wIn);
     SExpression alpha = QFNRA.multiply(
         QFNRA.subtract(new Numeral(1), QFNRA.divide(pi, new Numeral(4))),
         QFNRA.multiply(
-            QFNRA.pow(QFNRA.subtract(new Numeral(1), qGutterByQC), new Numeral(-1)),
+            QFNRA.pow(QFNRA.subtract(new Numeral(1), qGutterByQC), 
+                new Numeral(-1)),
             QFNRA.add(
                 QFNRA.subtract(
                     QFNRA.pow(QFNRA.divide(rPinch, w), new Numeral(2)), 
@@ -184,8 +185,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                     QFNRA.subtract(
                         QFNRA.divide(rPinch, w), 
                         QFNRA.divide(rFill, w)),
-                    QFNRA.divide(h, w)
-                    )))));
+                    QFNRA.divide(h, w))))));
     // the droplet volume at the output (Voutput) is given by
     // Voutput/hw^2 = Vfill/hw^2 + alpha * Qd/Qc
     Symbol vOutput = SymbolNameGenerator
