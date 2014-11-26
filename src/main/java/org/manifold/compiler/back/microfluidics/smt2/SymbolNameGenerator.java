@@ -13,6 +13,13 @@ import org.manifold.compiler.middle.Schematic;
 public class SymbolNameGenerator {
 
   /**
+   * Retrieves the symbol whose value is the mathematical constant "pi".
+   */
+  public static Symbol getsym_constant_pi() {
+    return new Symbol("PI");
+  }
+  
+  /**
    * Retrieves the symbol that defines the x-coordinate of a node's position.
    */
   public static Symbol getsym_NodeX(Schematic schematic, NodeValue node) {
@@ -89,5 +96,34 @@ public class SymbolNameGenerator {
     String chName = schematic.getConnectionName(ch);
     return new Symbol(chName.concat("_resistance"));
   }
+
+  /**
+   * Retrieves the symbol that defines the volume of a droplet 
+   * emitted by a channel.
+   */
+  public static Symbol getsym_ChannelDropletVolume(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_volume"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the height of a (rectangular) channel.
+   */
+  public static Symbol getsym_ChannelHeight(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_height"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the width of a (rectangular) channel.
+   */
+  public static Symbol getsym_ChannelWidth(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_width"));
+  }
+
   
 }

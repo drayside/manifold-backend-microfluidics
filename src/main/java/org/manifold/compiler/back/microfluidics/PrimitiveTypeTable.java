@@ -60,6 +60,10 @@ public class PrimitiveTypeTable {
     return microfluidChannelType;
   }
 
+  private NodeTypeValue tJunctionNodeType = null;
+  public NodeTypeValue getTJunctionNodetype() {
+    return tJunctionNodeType;
+  }
   
   public void retrieveBaseTypes(Schematic schematic) {
     try {
@@ -73,6 +77,8 @@ public class PrimitiveTypeTable {
           schematic.getNodeType("channelCrossing");
       microfluidChannelType =
           schematic.getConnectionType("microfluidChannel");
+      tJunctionNodeType = 
+          schematic.getNodeType("tJunction");
     } catch (UndeclaredIdentifierException e) {
       throw new CodeGenerationError(
           "could not find required microfluidic schematic type '"
