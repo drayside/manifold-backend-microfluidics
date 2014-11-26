@@ -87,6 +87,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         .getsym_ChannelFlowRate(schematic, chContinuous);
     Symbol qD = SymbolNameGenerator
         .getsym_ChannelFlowRate(schematic, chDispersed);
+    Symbol epsilon = null; // TODO (node parameter, probably given)
+    Symbol qGutterByQC = null; // TODO (node parameter, probably given)
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
     
     // TODO physical constraints (e.g. channel dimension equality)
@@ -106,13 +108,84 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                 QFNRA.subtract(new Numeral(1), 
                     QFNRA.divide(pi, new Numeral(4)))), 
                 QFNRA.divide(h, w)));
-    SExpression vFillComplex = null; // TODO
+    
+    
+    // for the case where wIn > w:
+    // things get a lot more interesting
+    SExpression vFillComplex = QFNRA.add(
+        QFNRA.add(
+            QFNRA.multiply(
+                QFNRA.subtract(QFNRA.divide(pi, new Numeral(4)), 
+                    QFNRA.multiply(new Decimal(0.5), 
+                        QFNRA.arcsin(QFNRA.subtract(
+                        new Numeral(1), QFNRA.divide(w, wIn))
+                    ))), 
+                QFNRA.pow(QFNRA.divide(wIn, w), new Numeral(2))), 
+            QFNRA.multiply(
+                new Decimal(-0.5),
+                QFNRA.multiply(
+                    QFNRA.subtract(QFNRA.divide(wIn, w), new Numeral(1)),
+                    QFNRA.pow(QFNRA.subtract(
+                        QFNRA.multiply(new Numeral(2), 
+                            QFNRA.divide(wIn, w)), new Numeral(1)), 
+                            new Decimal(0.5))
+                    )
+                )),
+        QFNRA.add(
+            QFNRA.divide(pi, new Numeral(8)),
+            QFNRA.multiply(
+                QFNRA.multiply(new Decimal(-0.5), 
+                    QFNRA.subtract(new Numeral(1), 
+                        QFNRA.divide(pi, new Numeral(4)))),
+                QFNRA.multiply(
+                    QFNRA.add(
+                        QFNRA.multiply(QFNRA.subtract(
+                            QFNRA.divide(pi, new Numeral(2)), 
+                            QFNRA.arcsin(QFNRA.subtract(
+                                new Numeral(1),QFNRA.divide(w, wIn)))), 
+                            QFNRA.divide(wIn, w)),
+                        QFNRA.divide(pi, new Numeral(2))), 
+                    QFNRA.divide(h,w))
+                )
+            )
+        );
+    
     SExpression normalizedVFill = QFNRA.conditional(
         QFNRA.lessThanEqual(wIn, w),
         vFillSimple,
         vFillComplex);
     
-    SExpression alpha = null; // TODO
+    // alpha depends on these intermediate expressions
+    // this first one appears at least three times as a subexpression of rPinch
+    SExpression hwParallel = 
+        QFNRA.divide(QFNRA.multiply(h, w), QFNRA.add(h, w));
+    SExpression rPinch = QFNRA.add(
+        w,
+        QFNRA.add(
+            QFNRA.subtract(wIn, QFNRA.subtract(hwParallel, epsilon)),
+            QFNRA.pow(
+                QFNRA.multiply(new Numeral(2),
+                    QFNRA.multiply(
+                        QFNRA.subtract(wIn, hwParallel),
+                        QFNRA.subtract(w, hwParallel)
+                        )), new Decimal(0.5))));
+    // rFill = max(w, wIn)
+    SExpression rFill = QFNRA.conditional(
+        QFNRA.greater(w, wIn), w, wIn);
+    SExpression alpha = QFNRA.multiply(
+        QFNRA.subtract(new Numeral(1), QFNRA.divide(pi, new Numeral(4))),
+        QFNRA.multiply(
+            QFNRA.pow(QFNRA.subtract(new Numeral(1), qGutterByQC), new Numeral(-1)),
+            QFNRA.add(
+                QFNRA.subtract(
+                    QFNRA.pow(QFNRA.divide(rPinch, w), new Numeral(2)), 
+                    QFNRA.pow(QFNRA.divide(rFill, w), new Numeral(2))),
+                QFNRA.multiply(QFNRA.divide(pi, new Numeral(4)), QFNRA.multiply(
+                    QFNRA.subtract(
+                        QFNRA.divide(rPinch, w), 
+                        QFNRA.divide(rFill, w)),
+                    QFNRA.divide(h, w)
+                    )))));
     // the droplet volume at the output (Voutput) is given by
     // Voutput/hw^2 = Vfill/hw^2 + alpha * Qd/Qc
     Symbol vOutput = SymbolNameGenerator

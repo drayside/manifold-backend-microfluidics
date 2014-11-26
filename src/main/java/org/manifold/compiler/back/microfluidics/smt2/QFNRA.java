@@ -32,6 +32,14 @@ public class QFNRA {
     return infix(base, "^", exp);
   }
   
+  public static SExpression arcsin(SExpression argument) {
+    SExpression fExprs[] = new SExpression[] {
+      new Symbol("arcsin"),
+      argument
+    };
+    return new ParenList(fExprs);
+  }
+  
   public static SExpression assertThat(SExpression term) {
     SExpression assertExprs[] = new SExpression[] {
       new Symbol("assert"),
