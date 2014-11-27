@@ -125,5 +125,14 @@ public class SymbolNameGenerator {
     return new Symbol(chName.concat("_width"));
   }
 
+  /**
+   * Retrieves the symbol that defines the "sharpness" of the corners
+   * of a T-junction.
+   */
+  public static Symbol getsym_TJunctionEpsilon(Schematic schematic,
+      NodeValue junc) {
+    String jName = schematic.getNodeName(junc);
+    return new Symbol(jName.concat("_epsilon"));
+  }
   
 }

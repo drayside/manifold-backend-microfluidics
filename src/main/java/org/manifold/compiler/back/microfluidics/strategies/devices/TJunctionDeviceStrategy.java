@@ -60,6 +60,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
             + schematic.getNodeName(node) + "'; "
             + "possible schematic version mismatch");
       }
+      // TODO: look for all constraints relating to this T-junction
     }
     return exprs;
   }
@@ -87,11 +88,30 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         .getsym_ChannelFlowRate(schematic, chContinuous);
     Symbol qD = SymbolNameGenerator
         .getsym_ChannelFlowRate(schematic, chDispersed);
-    Symbol epsilon = null; // TODO (node parameter, probably given)
-    Symbol qGutterByQC = null; // TODO (node parameter, probably given)
+    Symbol epsilon = SymbolNameGenerator
+        .getsym_TJunctionEpsilon(schematic, junction);
+    SExpression qGutterByQC = new Decimal(0.1);
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
     
-    // TODO physical constraints (e.g. channel dimension equality)
+    // TODO constraint: all channels must be rectangular
+    // TODO constraint: flow rates must be positive into the junction
+    // (check channel direction)
+    
+    // constraint: channel width must be equal at the continuous medium
+    // port and the output port
+    exprs.add(QFNRA.assertEqual(w, 
+        SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput)));
+    
+    // constraint: the height of all connected channels is equal
+    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chDispersed)));
+    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chOutput)));
+    
+    // constraint: epsilon is non-negative
+    exprs.add(QFNRA.assertGreaterEqual(epsilon, new Numeral(0)));
     
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;
