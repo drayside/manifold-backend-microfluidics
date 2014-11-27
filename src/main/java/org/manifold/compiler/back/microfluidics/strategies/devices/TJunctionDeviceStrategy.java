@@ -46,6 +46,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       }
       // pull connections out of the node
       try {
+        // TODO refactor these into constants
         ConnectionValue chContinuous = getConnection(
             schematic, node.getPort("continuous"));
         ConnectionValue chDispersed = getConnection(
@@ -65,10 +66,42 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     return exprs;
   }
 
+  /**
+   *  Constrain the direction of flow in a channel
+   *  given the desired direction of flow and the port into or out of which
+   *  the flow passes.
+   */
+  private SExpression constrainFlowDirection(Schematic schematic,
+      PortValue port, ConnectionValue channel, boolean isOutput) {
+    boolean connectedIntoJunction;
+    // check which way the channel is connected
+    if (channel.getFrom().equals(port)) {
+      connectedIntoJunction = false;
+    } else if (channel.getTo().equals(port)) {
+      connectedIntoJunction = true;
+    } else {
+      throw new CodeGenerationError("attempt to generate flow direction "
+          + "constraint for a channel that is disconnected from the "
+          + "target port");
+    }
+    Symbol flowRate = SymbolNameGenerator
+        .getsym_ChannelFlowRate(schematic, channel);
+    // if the connection direction and constraint direction are different,
+    // the flow rate must be negative; otherwise the flow is in
+    // the same direction as the channel and so the flow is positive
+    if (connectedIntoJunction ^ isOutput) {
+      // negative flow
+      return(QFNRA.assertLessThan(flowRate, new Numeral(0)));
+    } else {
+      // positive flow
+      return(QFNRA.assertGreater(flowRate, new Numeral(0)));
+    }
+  }
+  
   private List<SExpression> translateTJunction(Schematic schematic,
       NodeValue junction,
       ConnectionValue chContinuous, ConnectionValue chDispersed,
-      ConnectionValue chOutput) {
+      ConnectionValue chOutput) throws UndeclaredIdentifierException {
     /* Predictive model for the size of bubbles and droplets 
      * created in microfluidic T-junctions.
      * van Steijn, Kleijn, and Kreutzer.
@@ -94,9 +127,17 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
     
     // TODO constraint: all channels must be rectangular
-    // TODO constraint: flow rates must be positive into the junction
-    // (check channel direction)
-    
+    // constraint: flow rates must be positive into the junction at inputs
+    PortValue pContinuous = junction.getPort("continuous");
+    exprs.add(constrainFlowDirection(
+        schematic, pContinuous, chContinuous, false));
+    PortValue pDispersed = junction.getPort("dispersed");
+    exprs.add(constrainFlowDirection(
+        schematic, pDispersed, chDispersed, false));
+    // constraint: flow rate must be positive out of the junction at output
+    PortValue pOutput = junction.getPort("output");
+    exprs.add(constrainFlowDirection(
+        schematic, pOutput, chOutput, true));
     // constraint: channel width must be equal at the continuous medium
     // port and the output port
     exprs.add(QFNRA.assertEqual(w, 
