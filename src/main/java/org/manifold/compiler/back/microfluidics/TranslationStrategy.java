@@ -67,10 +67,7 @@ public abstract class TranslationStrategy {
       PrimitiveTypeTable typeTable,
       NodeValue n1, NodeValue n2, boolean directed) {
     for (ConnectionValue conn : schematic.getConnections().values()) {
-      // we are only interested in channels
-      if (!(conn.getType().isSubtypeOf(typeTable.getMicrofluidChannelType()))) {
-        continue;
-      }
+      // TODO check whether the port types are correct
       for (PortValue p1 : n1.getPorts().values()) {
         for (PortValue p2 : n2.getPorts().values()) {
           // check if we have n1 --(conn)-> n2 (forward direction)
