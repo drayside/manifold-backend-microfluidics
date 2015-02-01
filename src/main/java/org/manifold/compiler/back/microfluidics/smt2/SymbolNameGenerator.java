@@ -88,6 +88,16 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the viscosity of fluid
+   * present in a channel.
+   */
+  public static Symbol getsym_ChannelViscosity(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_viscosity"));
+  }
+  
+  /**
    * Retrieves the symbol that defines the hydrodynamic resistance
    * of a channel.
    */

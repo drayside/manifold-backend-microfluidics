@@ -12,6 +12,14 @@ public class QFNRA {
     return new ParenList(exprs);
   }
   
+  public static SExpression useQFNRA() {
+    SExpression exprs[] = new SExpression[] {
+        new Symbol("set-logic"),
+        new Symbol("QF_NRA")
+    };
+    return new ParenList(exprs);
+  }
+  
   public static SExpression add(SExpression e1, SExpression e2) {
     return infix(e1, "+", e2);
   }

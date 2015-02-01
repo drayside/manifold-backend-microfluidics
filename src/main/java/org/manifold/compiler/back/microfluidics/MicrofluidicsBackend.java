@@ -1,6 +1,10 @@
 package org.manifold.compiler.back.microfluidics;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -9,6 +13,13 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
+import org.manifold.compiler.back.microfluidics.smt2.ParenList;
+import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
+import org.manifold.compiler.back.microfluidics.smt2.SExpression;
+import org.manifold.compiler.back.microfluidics.smt2.Symbol;
+import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet;
+import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
+import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
 import org.manifold.compiler.middle.Schematic;
 
 public class MicrofluidicsBackend implements Backend {
@@ -113,8 +124,39 @@ public class MicrofluidicsBackend implements Backend {
     }
   }
   
-  public void run(Schematic schematic) {
+  public void run(Schematic schematic) throws IOException {
     primitiveTypes = constructTypeTable(schematic);
+    // translation step
+    // for now: one pass
+    List<SExpression> exprs = new LinkedList<>();
+    exprs.add(QFNRA.useQFNRA());
+    
+    PlacementTranslationStrategySet placeSet = 
+        new PlacementTranslationStrategySet();
+    exprs.addAll(placeSet.translate(
+        schematic, processParams, primitiveTypes));
+    MultiPhaseStrategySet multiPhase = new MultiPhaseStrategySet();
+    exprs.addAll(multiPhase.translate(
+        schematic, processParams, primitiveTypes));
+    PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
+    exprs.addAll(pressureFlow.translate(
+        schematic, processParams, primitiveTypes));
+    
+    // (check-sat) (exit)
+    exprs.add(new ParenList(new SExpression[] {
+        new Symbol("check-sat")
+    }));
+    exprs.add(new ParenList(new SExpression[] {
+        new Symbol("exit")
+    }));
+    // write to "schematic-name.smt2"
+    String filename = schematic.getName() + ".smt2";
+    try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+      for (SExpression expr : exprs) {
+        expr.write(writer);
+        writer.newLine();
+      }
+    }
   }
   
 }

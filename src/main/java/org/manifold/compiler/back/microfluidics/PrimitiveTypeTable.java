@@ -15,7 +15,20 @@ public class PrimitiveTypeTable {
   public PortTypeValue getMicrofluidPortType() {
     return microfluidPortType;
   }
+
+  // multi-phase stuff
   
+  private NodeTypeValue fluidEntryNodeType = null;
+  public NodeTypeValue getFluidEntryNodeType() {
+    return fluidEntryNodeType;
+  }
+  
+  private NodeTypeValue tJunctionNodeType = null;
+  public NodeTypeValue getTJunctionNodeType() {
+    return tJunctionNodeType;
+  }
+  
+  // single-phase stuff, probably out of date
   private NodeTypeValue controlPointNodeType = null;
   public NodeTypeValue getControlPointNodeType() {
     return controlPointNodeType;
@@ -52,11 +65,6 @@ public class PrimitiveTypeTable {
   private NodeTypeValue channelCrossingNodeType = null;
   public NodeTypeValue getChannelCrossingNodeType() {
     return channelCrossingNodeType;
-  }
-
-  private NodeTypeValue tJunctionNodeType = null;
-  public NodeTypeValue getTJunctionNodetype() {
-    return tJunctionNodeType;
   }
   
   public void retrieveBaseTypes(Schematic schematic) {
@@ -100,12 +108,19 @@ public class PrimitiveTypeTable {
     return channelPlacementConstraintType;
   }
   
+  private ConstraintType channelDropletVolumeConstraintType = null;
+  public ConstraintType getchannelDropletVolumeConstraintType() {
+    return channelDropletVolumeConstraintType;
+  }
+  
   public void retrieveConstraintTypes(Schematic schematic) {
     try {
       controlPointPlacementConstraintType =
           schematic.getConstraintType("controlPointPlacementConstraint");
       channelPlacementConstraintType =
           schematic.getConstraintType("channelPlacementConstraint");
+      channelDropletVolumeConstraintType =
+          schematic.getConstraintType("channelDropletVolumeConstraint");
     } catch (UndeclaredIdentifierException e) {
       throw new CodeGenerationError(
           "could not find required microfluidic schematic constraint type '"

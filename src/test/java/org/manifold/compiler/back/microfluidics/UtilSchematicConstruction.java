@@ -43,6 +43,7 @@ public class UtilSchematicConstruction {
 
   private static ConstraintType controlPointPlacementConstraintType;
   private static ConstraintType channelPlacementConstraintType;
+  private static ConstraintType channelDropletVolumeConstraintType;
   
   public static void setupIntermediateTypes() {
 
@@ -81,12 +82,19 @@ public class UtilSchematicConstruction {
     cxtCPPlaceAttrs.put("y", RealTypeValue.getInstance());
     controlPointPlacementConstraintType = new ConstraintType(cxtCPPlaceAttrs);
     
-    // controlPointPlacementConstraint(microfluidChannel node, Real x, Real y)
+    // channelPlacementConstraint(Connection channel, Real x, Real y)
     Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
     cxtChanPlaceAttrs.put("channel", ConnectionTypeValue.getInstance());
     cxtChanPlaceAttrs.put("x", RealTypeValue.getInstance());
     cxtChanPlaceAttrs.put("y", RealTypeValue.getInstance());
     channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
+    
+    // channelDropletVolumeConstraint(Connection channel, Real volume)
+    Map<String, TypeValue> cxtChanDropVolAttrs = new HashMap<>();
+    cxtChanDropVolAttrs.put("channel", ConnectionTypeValue.getInstance());
+    cxtChanDropVolAttrs.put("volume", RealTypeValue.getInstance());
+    channelDropletVolumeConstraintType = 
+        new ConstraintType(cxtChanDropVolAttrs);
     
     setUp = true;
   }
@@ -112,6 +120,9 @@ public class UtilSchematicConstruction {
     s.addConstraintType(
         "channelPlacementConstraint",
         channelPlacementConstraintType);
+    s.addConstraintType(
+        "channelDropletVolumeConstraint",
+        channelDropletVolumeConstraintType);
 
     return s;
   }
@@ -211,6 +222,18 @@ public class UtilSchematicConstruction {
     attrs.put("y", new RealValue(y));
     ConstraintValue cxt = new ConstraintValue(
         channelPlacementConstraintType, attrs);
+    return cxt;
+  }
+ 
+  public static ConstraintValue instantiateChannelDropletVolumeConstraint(
+      ConnectionValue channel, Double volume) 
+      throws UndeclaredAttributeException, InvalidAttributeException, 
+        TypeMismatchException {
+    Map<String, Value> attrs = new HashMap<>();
+    attrs.put("channel", channel);
+    attrs.put("volume", new RealValue(volume));
+    ConstraintValue cxt = new ConstraintValue(
+        channelDropletVolumeConstraintType, attrs);
     return cxt;
   }
   

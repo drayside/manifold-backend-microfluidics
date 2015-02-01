@@ -1,10 +1,15 @@
 package org.manifold.compiler.back.microfluidics;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PatternLayout;
 import org.junit.BeforeClass;
+import org.junit.Test;
+import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
   
@@ -15,7 +20,31 @@ public class TestMicrofluidicsBackend {
         "%-5p [%t]: %m%n");
     LogManager.getRootLogger().addAppender(
         new ConsoleAppender(layout, ConsoleAppender.SYSTEM_ERR));
+    
+    UtilSchematicConstruction.setupIntermediateTypes();
   }
+  
+  @Test
+  public void testTJunctionSynthesis() throws Exception {
+    String[] args = {
+        "-bProcessMinimumNodeDistance", "0.0001",
+        "-bProcessMinimumChannelLength", "0.0001",
+        "-bProcessMaximumChipSizeX", "0.04",
+        "-bProcessMaximumChipSizeY", "0.04",
+        "-bProcessCriticalCrossingAngle", "0.0872664626"
+      };
+    
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("test");
+    
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    Options options = new Options();
+    backend.registerArguments(options);
+    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
+    CommandLine cmd = parser.parse(options, args);
+    backend.invokeBackend(schematic, cmd);
+  }
+  
   // TODO update test for new interface
   /*
   @Test

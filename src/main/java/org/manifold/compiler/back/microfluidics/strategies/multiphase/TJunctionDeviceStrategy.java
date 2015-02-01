@@ -1,4 +1,4 @@
-package org.manifold.compiler.back.microfluidics.strategies.devices;
+package org.manifold.compiler.back.microfluidics.strategies.multiphase;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
     // look for all T-junctions
-    NodeTypeValue targetNode = typeTable.getTJunctionNodetype();
+    NodeTypeValue targetNode = typeTable.getTJunctionNodeType();
     for (NodeValue node : schematic.getNodes().values()) {
       if (!(node.getType().isSubtypeOf(targetNode))) {
         continue;
@@ -127,6 +127,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
     
     // TODO constraint: all channels must be rectangular
+    // TODO (?) constraint: continuous and output channel must be parallel
+    // TODO (?) constraint: disperse and output channel must be perpendicular
     // constraint: flow rates must be positive into the junction at inputs
     PortValue pContinuous = junction.getPort("continuous");
     exprs.add(constrainFlowDirection(
