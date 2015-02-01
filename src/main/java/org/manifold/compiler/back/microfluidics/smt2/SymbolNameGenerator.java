@@ -73,7 +73,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelLength(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_pos_x"));
+    return new Symbol(chName.concat("_length"));
   }
   
   /**
