@@ -4,38 +4,40 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class Symbol extends SExpression {
-  // TODO symbol names do not always need to be escaped
-  // so only add |s if it is absolutely necessary
-  
+ 
   private String name;
   public String getName() {
     return name;
   }
   
+  private static String otherLegalChars = "+-/*=%?!.%_!&^<>@";
+  
   private void validateName(String name) {
-    // A symbol is a any sequence of printable ASCII characters (including 
-    // space, tab, and line-breaking characters) except for the 
-    // backslash character \, that starts and ends with | 
-    // and does not otherwise contain |.
-    if (!name.startsWith("|")) {
-      throw new IllegalArgumentException("symbol must start with '|'");
+    // A symbol is a non-empty sequence of letters, digits, and the characters
+    // + - / * = % ? ! . $ _ ~ & ^ < > @
+    // that does not start with a digit.
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException(
+          "symbol name cannot be empty");
     }
-    if (!name.endsWith("|")) {
-      throw new IllegalArgumentException("symbol must end with '|'");
+    if (Character.isDigit(name.charAt(0))) {
+      throw new IllegalArgumentException(
+          "symbol name cannot start with a digit");
     }
-    if (name.indexOf('\\') != -1) {
-      throw new IllegalArgumentException("symbol cannot contain '\\'");
+    for (int i = 0; i < name.length(); ++i) {
+      char c = name.charAt(i);
+      if (Character.isAlphabetic(c)) {
+        continue;
+      } else if (Character.isDigit(c)) {
+        continue;
+      } else if (otherLegalChars.indexOf(c) == -1) {
+        throw new IllegalArgumentException("character '" + c + "'"
+            + " cannot appear in a symbol name");
+      }
     }
   }
   
   public Symbol(String name) {
-    // If the name isn't delimited by |s, add them.
-    if (!name.startsWith("|")) {
-      name = "|" + name;
-    }
-    if (!name.endsWith("|")) {
-      name = name + "|";
-    }
     validateName(name);
     this.name = name;
   }
