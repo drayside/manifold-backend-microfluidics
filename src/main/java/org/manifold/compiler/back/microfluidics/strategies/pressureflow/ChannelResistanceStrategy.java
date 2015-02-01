@@ -42,6 +42,13 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
     Symbol h = SymbolNameGenerator.getsym_ChannelHeight(schematic, channel);
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, channel);
     Symbol L = SymbolNameGenerator.getsym_ChannelLength(schematic, channel);
+    
+    exprs.add(QFNRA.declareRealVariable(R));
+    exprs.add(QFNRA.declareRealVariable(w));
+    exprs.add(QFNRA.declareRealVariable(h));
+    exprs.add(QFNRA.declareRealVariable(mu));
+    exprs.add(QFNRA.declareRealVariable(L));
+    
     SExpression resistanceRectangular = QFNRA.assertEqual(R,
         QFNRA.divide(QFNRA.multiply(new Decimal(12.0), QFNRA.multiply(mu, L)), 
             QFNRA.multiply(w, QFNRA.multiply(QFNRA.pow(h, new Decimal(3.0)),
