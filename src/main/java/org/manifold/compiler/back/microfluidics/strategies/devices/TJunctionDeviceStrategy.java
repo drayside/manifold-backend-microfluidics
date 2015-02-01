@@ -91,10 +91,10 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     // the same direction as the channel and so the flow is positive
     if (connectedIntoJunction ^ isOutput) {
       // negative flow
-      return(QFNRA.assertLessThan(flowRate, new Numeral(0)));
+      return (QFNRA.assertLessThan(flowRate, new Numeral(0)));
     } else {
       // positive flow
-      return(QFNRA.assertGreater(flowRate, new Numeral(0)));
+      return (QFNRA.assertGreater(flowRate, new Numeral(0)));
     }
   }
   
