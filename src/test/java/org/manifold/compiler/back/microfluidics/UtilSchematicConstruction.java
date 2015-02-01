@@ -38,6 +38,7 @@ public class UtilSchematicConstruction {
   private static NodeTypeValue voltageCPNodeType; 
   private static NodeTypeValue pressureCPNodeType;
   private static NodeTypeValue channelCrossingNodeType;
+  private static NodeTypeValue tJunctionNodeType;
   private static ConnectionType microfluidChannelType;
 
   private static ConstraintType controlPointPlacementConstraintType;
@@ -64,6 +65,13 @@ public class UtilSchematicConstruction {
     channelCrossingNodeType = new NodeTypeValue(noTypeAttributes, 
         channelCrossingPorts);
 
+    Map<String, PortTypeValue> tJunctionPorts = new HashMap<>();
+    tJunctionPorts.put("continuous", microfluidPortType);
+    tJunctionPorts.put("dispersed", microfluidPortType);
+    tJunctionPorts.put("output", microfluidPortType);
+    // TODO attributes
+    tJunctionNodeType = new NodeTypeValue(noTypeAttributes, tJunctionPorts);
+    
     // TODO channel geometry enum -- once we have enums in the intermediate
     microfluidChannelType = new ConnectionType(noTypeAttributes);
     
@@ -97,6 +105,7 @@ public class UtilSchematicConstruction {
     s.addNodeType("pressureControlPoint", pressureCPNodeType);
     s.addNodeType("voltageControlPoint", voltageCPNodeType);
     s.addNodeType("channelCrossing", channelCrossingNodeType);
+    s.addNodeType("tJunction", tJunctionNodeType);
 
     s.addConnectionType("microfluidChannel", microfluidChannelType);
     
