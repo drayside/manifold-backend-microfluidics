@@ -19,11 +19,9 @@ public class FiniteChipAreaRuleStrategy extends ChipAreaRuleStrategy {
   protected List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
-    // loop through all control points
+    // loop through all nodes
     for (NodeValue n : schematic.getNodes().values()) {
-      if (!(n.getType().isSubtypeOf(typeTable.getControlPointNodeType()))) {
-        continue;
-      }
+      // TODO is microfluidic node?
       Symbol nodeX = SymbolNameGenerator.getsym_NodeX(schematic, n);
       Symbol nodeY = SymbolNameGenerator.getsym_NodeY(schematic, n);
       exprs.add(QFNRA.assertGreater(nodeX, new Decimal(0.0)));
