@@ -124,6 +124,41 @@ public class MicrofluidicsBackend implements Backend {
     }
   }
   
+  // Sort a list of unsorted expressions so that all declarations (declare-fun)
+  // come before all assertions (assert).
+  public List<SExpression> sortExprs(List<SExpression> unsorted) {
+    List<SExpression> retval = new LinkedList<>();
+    List<SExpression> decls = new LinkedList<>();
+    List<SExpression> asserts = new LinkedList<>();
+    List<SExpression> others = new LinkedList<>();
+    
+    for (SExpression expr : unsorted) {
+      if (expr instanceof ParenList) {
+        ParenList list = (ParenList) expr;
+        SExpression head = list.getExprs().get(0);
+        if (head instanceof Symbol) {
+          Symbol s = (Symbol) head;
+          if (s.getName().equals("declare-fun")) {
+            decls.add(expr);
+          } else if(s.getName().equals("assert")) {
+            asserts.add(expr);
+          } else {
+            others.add(expr);
+          }
+        } else {
+          others.add(expr);
+        }
+      } else {
+        others.add(expr);
+      }
+    }
+    
+    retval.addAll(decls);
+    retval.addAll(asserts);
+    retval.addAll(others);
+    return retval;
+  }
+  
   public void run(Schematic schematic) throws IOException {
     primitiveTypes = constructTypeTable(schematic);
     // translation step
@@ -131,16 +166,20 @@ public class MicrofluidicsBackend implements Backend {
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.useQFNRA());
     
+    List<SExpression> unsortedExprs = new LinkedList<>();
+    
     PlacementTranslationStrategySet placeSet = 
         new PlacementTranslationStrategySet();
-    exprs.addAll(placeSet.translate(
+    unsortedExprs.addAll(placeSet.translate(
         schematic, processParams, primitiveTypes));
     MultiPhaseStrategySet multiPhase = new MultiPhaseStrategySet();
-    exprs.addAll(multiPhase.translate(
+    unsortedExprs.addAll(multiPhase.translate(
         schematic, processParams, primitiveTypes));
     PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
-    exprs.addAll(pressureFlow.translate(
+    unsortedExprs.addAll(pressureFlow.translate(
         schematic, processParams, primitiveTypes));
+    
+    exprs.addAll(sortExprs(unsortedExprs));
     
     // (check-sat) (exit)
     exprs.add(new ParenList(new SExpression[] {
