@@ -3,7 +3,6 @@ package org.manifold.compiler.back.microfluidics;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.manifold.compiler.ConnectionType;
 import org.manifold.compiler.ConstraintType;
 import org.manifold.compiler.NodeTypeValue;
 import org.manifold.compiler.PortTypeValue;
@@ -54,11 +53,6 @@ public class PrimitiveTypeTable {
   public NodeTypeValue getChannelCrossingNodeType() {
     return channelCrossingNodeType;
   }
-  
-  private ConnectionType microfluidChannelType = null;
-  public ConnectionType getMicrofluidChannelType() {
-    return microfluidChannelType;
-  }
 
   private NodeTypeValue tJunctionNodeType = null;
   public NodeTypeValue getTJunctionNodetype() {
@@ -75,8 +69,6 @@ public class PrimitiveTypeTable {
           schematic.getNodeType("voltageControlPoint");
       channelCrossingNodeType =
           schematic.getNodeType("channelCrossing");
-      microfluidChannelType =
-          schematic.getConnectionType("microfluidChannel");
       tJunctionNodeType = 
           schematic.getNodeType("tJunction");
     } catch (UndeclaredIdentifierException e) {

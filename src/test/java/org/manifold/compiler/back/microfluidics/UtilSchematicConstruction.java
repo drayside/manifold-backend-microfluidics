@@ -3,12 +3,13 @@ package org.manifold.compiler.back.microfluidics;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.manifold.compiler.ConnectionType;
+import org.manifold.compiler.ConnectionTypeValue;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.ConstraintType;
 import org.manifold.compiler.ConstraintValue;
 import org.manifold.compiler.InvalidAttributeException;
 import org.manifold.compiler.MultipleDefinitionException;
+import org.manifold.compiler.NilTypeValue;
 import org.manifold.compiler.NodeTypeValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.PortTypeValue;
@@ -39,14 +40,15 @@ public class UtilSchematicConstruction {
   private static NodeTypeValue pressureCPNodeType;
   private static NodeTypeValue channelCrossingNodeType;
   private static NodeTypeValue tJunctionNodeType;
-  private static ConnectionType microfluidChannelType;
 
   private static ConstraintType controlPointPlacementConstraintType;
   private static ConstraintType channelPlacementConstraintType;
   
   public static void setupIntermediateTypes() {
 
-    microfluidPortType = new PortTypeValue(noTypeAttributes);
+    // TODO which signal type do we want here?
+    microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
+        noTypeAttributes);
     controlPointNodeType = new NodeTypeValue(noTypeAttributes, noPorts);
     pressureCPNodeType = new NodeTypeValue(noTypeAttributes, noPorts, 
         controlPointNodeType);
@@ -72,9 +74,6 @@ public class UtilSchematicConstruction {
     // TODO attributes
     tJunctionNodeType = new NodeTypeValue(noTypeAttributes, tJunctionPorts);
     
-    // TODO channel geometry enum -- once we have enums in the intermediate
-    microfluidChannelType = new ConnectionType(noTypeAttributes);
-    
     // controlPointPlacementConstraint(ControlPointNode node, Real x, Real y)
     Map<String, TypeValue> cxtCPPlaceAttrs = new HashMap<>();
     cxtCPPlaceAttrs.put("node", controlPointNodeType);
@@ -84,7 +83,7 @@ public class UtilSchematicConstruction {
     
     // controlPointPlacementConstraint(microfluidChannel node, Real x, Real y)
     Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
-    cxtChanPlaceAttrs.put("channel", microfluidChannelType);
+    cxtChanPlaceAttrs.put("channel", ConnectionTypeValue.getInstance());
     cxtChanPlaceAttrs.put("x", RealTypeValue.getInstance());
     cxtChanPlaceAttrs.put("y", RealTypeValue.getInstance());
     channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
@@ -106,8 +105,6 @@ public class UtilSchematicConstruction {
     s.addNodeType("voltageControlPoint", voltageCPNodeType);
     s.addNodeType("channelCrossing", channelCrossingNodeType);
     s.addNodeType("tJunction", tJunctionNodeType);
-
-    s.addConnectionType("microfluidChannel", microfluidChannelType);
     
     s.addConstraintType(
         "controlPointPlacementConstraint",
@@ -188,8 +185,7 @@ public class UtilSchematicConstruction {
   public static ConnectionValue instantiateChannel(PortValue from, PortValue to)
       throws UndeclaredAttributeException, InvalidAttributeException,
       TypeMismatchException {
-    ConnectionValue channel = new ConnectionValue(microfluidChannelType, 
-        from, to, noAttributes);
+    ConnectionValue channel = new ConnectionValue(from, to, noAttributes);
     return channel;
   }
   

@@ -23,9 +23,7 @@ public class MinimumChannelLengthStrategy extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
     // Iterate over all channels
     for (ConnectionValue c : schematic.getConnections().values()) {
-      if (!(c.getType().isSubtypeOf(typeTable.getMicrofluidChannelType()))) {
-        continue;
-      }
+      // TODO check port types
       Symbol channelLengthSym = SymbolNameGenerator.
           getsym_ChannelLength(schematic, c);
       exprs.add(QFNRA.assertGreaterEqual(
