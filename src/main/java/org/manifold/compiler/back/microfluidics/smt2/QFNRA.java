@@ -20,6 +20,16 @@ public class QFNRA {
     return new ParenList(exprs);
   }
   
+  public static SExpression declareRealVariable(Symbol var) {
+    SExpression exprs[] = new SExpression[] {
+        new Symbol("declare-fun"),
+        var,
+        new ParenList(),
+        new Symbol("Real")
+    };
+    return new ParenList(exprs);
+  }
+  
   public static SExpression add(SExpression e1, SExpression e2) {
     return infix(e1, "+", e2);
   }

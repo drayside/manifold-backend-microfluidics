@@ -9,6 +9,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.PatternLayout;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.manifold.compiler.ConnectionValue;
+import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
@@ -36,6 +38,19 @@ public class TestMicrofluidicsBackend {
     
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("test");
+    
+    // Make a very simple schematic:
+    // (fluidEntry) ---> (fluidExit)
+    // Water has a viscosity of 0.001002 Pa*s
+    NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
+        schematic, 0.001002);
+    schematic.addNode("n_entry", entry);
+    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
+    schematic.addNode("n_exit", exit);
+    ConnectionValue entryToExit = UtilSchematicConstruction.instantiateChannel(
+        entry.getPort("output"), exit.getPort("input"));
+    schematic.addConnection("c_entry_to_exit", entryToExit);
+    // TODO constrain the pressure in the channel to be 0.001 Pa
     
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     Options options = new Options();

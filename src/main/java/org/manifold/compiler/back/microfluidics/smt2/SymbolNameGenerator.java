@@ -32,7 +32,7 @@ public class SymbolNameGenerator {
    */
   public static Symbol getsym_NodeY(Schematic schematic, NodeValue node) {
     String nodeName = schematic.getNodeName(node);
-    return new Symbol(nodeName.concat("_pos_Y"));
+    return new Symbol(nodeName.concat("_pos_y"));
   }
   
   /**

@@ -23,6 +23,11 @@ public class PrimitiveTypeTable {
     return fluidEntryNodeType;
   }
   
+  private NodeTypeValue fluidExitNodeType = null;
+  public NodeTypeValue getFluidExitNodeType() {
+    return fluidExitNodeType;
+  }
+  
   private NodeTypeValue tJunctionNodeType = null;
   public NodeTypeValue getTJunctionNodeType() {
     return tJunctionNodeType;
@@ -70,6 +75,16 @@ public class PrimitiveTypeTable {
   public void retrieveBaseTypes(Schematic schematic) {
     try {
       microfluidPortType = schematic.getPortType("microfluidPort");
+      
+      // multi-phase
+      fluidEntryNodeType = 
+          schematic.getNodeType("fluidEntry");
+      fluidExitNodeType = 
+          schematic.getNodeType("fluidExit");
+      tJunctionNodeType = 
+          schematic.getNodeType("tJunction");
+      
+      // single-phase
       controlPointNodeType = schematic.getNodeType("controlPoint");
       pressureControlPointNodeType = 
           schematic.getNodeType("pressureControlPoint");
@@ -77,8 +92,6 @@ public class PrimitiveTypeTable {
           schematic.getNodeType("voltageControlPoint");
       channelCrossingNodeType =
           schematic.getNodeType("channelCrossing");
-      tJunctionNodeType = 
-          schematic.getNodeType("tJunction");
     } catch (UndeclaredIdentifierException e) {
       throw new CodeGenerationError(
           "could not find required microfluidic schematic type '"
