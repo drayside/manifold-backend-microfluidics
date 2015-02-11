@@ -9,6 +9,8 @@ import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.ChannelResistanceStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.FluidEntryExitDeviceStrategy;
+import org.manifold.compiler.back.microfluidics.strategies.pressureflow.PressureFlowStrategy;
+import org.manifold.compiler.back.microfluidics.strategies.pressureflow.SimplePressureFlowStrategy;
 import org.manifold.compiler.middle.Schematic;
 
 public class PressureFlowStrategySet extends TranslationStrategy {
@@ -25,9 +27,15 @@ public class PressureFlowStrategySet extends TranslationStrategy {
     this.entryExitStrategy = strat;
   }
   
+  private PressureFlowStrategy pressureFlow;
+  public void usePressureFlowStrategy(PressureFlowStrategy strat) {
+    this.pressureFlow = strat;
+  }
+  
   public PressureFlowStrategySet() {
     channelResistanceStrategy = new ChannelResistanceStrategy();
     entryExitStrategy = new FluidEntryExitDeviceStrategy();
+    pressureFlow = new SimplePressureFlowStrategy();
   }
   
   @Override
@@ -37,6 +45,8 @@ public class PressureFlowStrategySet extends TranslationStrategy {
     exprs.addAll(channelResistanceStrategy.translate(
         schematic, processParams, typeTable));
     exprs.addAll(entryExitStrategy.translate(
+        schematic, processParams, typeTable));
+    exprs.addAll(pressureFlow.translate(
         schematic, processParams, typeTable));
     return exprs;
   }
