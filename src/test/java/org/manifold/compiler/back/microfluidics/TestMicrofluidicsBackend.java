@@ -60,6 +60,28 @@ public class TestMicrofluidicsBackend {
     backend.invokeBackend(schematic, cmd);
   }
   
+  @Test
+  public void testElectrophoreticSynthesis() throws Exception {
+    Schematic schematic = UtilSchematicConstruction.
+      instantiateSchematic("test");
+
+    NodeValue electrophoreticNode = UtilSchematicConstruction.
+        instantiateElectrophoreticNode(schematic);
+    schematic.addNode("n_electrophoretic", electrophoreticNode);
+    NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
+        schematic, 0.001002);
+    schematic.addNode("n_entry", entry);
+    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
+    schematic.addNode("n_exit", exit);
+    ConnectionValue entryChannel = UtilSchematicConstruction.
+        instantiateChannel(entry.getPort("output"), 
+        electrophoreticNode.getPort("sampleIn"));
+    schematic.addConnection("c_entry", entryChannel);
+    ConnectionValue exitChannel = UtilSchematicConstruction.instantiateChannel(
+        electrophoreticNode.getPort("wasteOut"), exit.getPort("input"));
+    schematic.addConnection("c_exit", exitChannel);
+  }
+
   // TODO update test for new interface
   /*
   @Test
