@@ -1,0 +1,14 @@
+/**
+*Constrainti
+* Colinearity of the channels
+* rc_collection + rc_dispense = length
+* Perpendicar(Ch1 and Rc_collection), same for ch2 and rc_collection
+* Placement of rc_collection and rc_dispense has to be within chip
+*Attributes
+*- position of the crossing point
+*- width of the node(length of channels)
+*- length of the node
+* - rc_collection length
+* - rc_dispense length
+**/
+

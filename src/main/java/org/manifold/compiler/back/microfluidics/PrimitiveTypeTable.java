@@ -71,7 +71,12 @@ public class PrimitiveTypeTable {
   public NodeTypeValue getChannelCrossingNodeType() {
     return channelCrossingNodeType;
   }
-  
+ 
+  private NodeTypeValue electrophoreticNodeType = null;
+  public NodeTypeValue getElectrophoreticNodeType(){
+	  return electrophoreticNodeType;
+  }  
+ 
   public void retrieveBaseTypes(Schematic schematic) {
     try {
       microfluidPortType = schematic.getPortType("microfluidPort");
@@ -92,6 +97,8 @@ public class PrimitiveTypeTable {
           schematic.getNodeType("voltageControlPoint");
       channelCrossingNodeType =
           schematic.getNodeType("channelCrossing");
+      electrophoreticNodeType =
+          schematic.getNodeType("electrophoreticNodeType");
     } catch (UndeclaredIdentifierException e) {
       throw new CodeGenerationError(
           "could not find required microfluidic schematic type '"
