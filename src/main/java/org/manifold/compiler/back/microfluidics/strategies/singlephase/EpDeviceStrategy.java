@@ -41,7 +41,7 @@ public class EpDeviceStrategy extends TranslationStrategy {
   //get the connection associated with this port
   // TODO this is VERY EXPENSIVE, find an optimization
   protected ConnectionValue getConnection(
-     Schematic schematic, PortValue port) {
+      Schematic schematic, PortValue port) {
     for (ConnectionValue conn : schematic.getConnections().values()) {
       if (conn.getFrom().equals(port) || conn.getTo().equals(port)) {
         return conn;
@@ -54,8 +54,8 @@ public class EpDeviceStrategy extends TranslationStrategy {
   protected List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
-    // look for all T-junctions
-    NodeTypeValue targetNode = typeTable.getTJunctionNodeType();
+    // look for all electrophoretic nodes
+    NodeTypeValue targetNode = typeTable.getElectrophoreticNodeType();
     for (NodeValue node : schematic.getNodes().values()) {
       if (!(node.getType().isSubtypeOf(targetNode))) {
         continue;
@@ -63,21 +63,18 @@ public class EpDeviceStrategy extends TranslationStrategy {
       // pull connections out of the node
       try {
         // TODO refactor these into constants
-        ConnectionValue chContinuous = getConnection(
-            schematic, node.getPort("continuous"));
-        ConnectionValue chDispersed = getConnection(
-            schematic, node.getPort("dispersed"));
-        ConnectionValue chOutput = getConnection(
-            schematic, node.getPort("output"));
-        exprs.addAll(translateTJunction(schematic, node, 
-            chContinuous, chDispersed, chOutput));
+        ConnectionValue entryChannel = getConnection(
+            schematic, node.getPort("sampleIn"));
+        ConnectionValue exitChannel = getConnection(
+            schematic, node.getPort("wasteOut"));
+        exprs.addAll(translateElectrophoreticDevice(schematic, node, 
+            entryChannel, exitChannel));
       } catch (UndeclaredIdentifierException e) {
         throw new CodeGenerationError("undeclared identifier '" 
-            + e.getIdentifier() + "' when inspecting T-junction node '"
+            + e.getIdentifier() + "' when inspecting electrophoretic node '"
             + schematic.getNodeName(node) + "'; "
             + "possible schematic version mismatch");
       }
-      // TODO: look for all constraints relating to this T-junction
     }
     return exprs;
   }
@@ -114,34 +111,22 @@ public class EpDeviceStrategy extends TranslationStrategy {
     }
   }
   
-  private List<SExpression> translateTJunction(Schematic schematic,
-      NodeValue junction,
-      ConnectionValue chContinuous, ConnectionValue chDispersed,
-      ConnectionValue chOutput) throws UndeclaredIdentifierException {
-    /* Predictive model for the size of bubbles and droplets 
-     * created in microfluidic T-junctions.
-     * van Steijn, Kleijn, and Kreutzer.
-     * Lab Chip, 2010, 10, 2513.
-     * doi:10.1039/c002625e
-     */
+  private List<SExpression> translateElectrophoreticDevice(Schematic schematic,
+      NodeValue electrophoreticNode, ConnectionValue entryChannel, 
+      ConnectionValue exitChannel) throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
 
-    // channel/junction characteristics
-    Symbol h = SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chContinuous);
-    Symbol w = SymbolNameGenerator
-        .getsym_ChannelWidth(schematic, chContinuous);
-    Symbol wIn = SymbolNameGenerator
-        .getsym_ChannelWidth(schematic, chDispersed);
-    Symbol qC = SymbolNameGenerator
-        .getsym_ChannelFlowRate(schematic, chContinuous);
-    Symbol qD = SymbolNameGenerator
-        .getsym_ChannelFlowRate(schematic, chDispersed);
-    Symbol epsilon = SymbolNameGenerator
-        .getsym_TJunctionEpsilon(schematic, junction);
-    SExpression qGutterByQC = new Decimal(0.1);
-    Symbol pi = SymbolNameGenerator.getsym_constant_pi();
-    
+    // channel/node characteristics
+    Symbol hEntry = SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, entryChannel);
+    Symbol wEntry = SymbolNameGenerator
+        .getsym_ChannelWidth(schematic, entryChannel);
+    Symbol hExit = SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, exitChannel);
+    Symbol wExit = SymbolNameGenerator
+        .getsym_ChannelWidth(schematic, exitChannel);
+
+/*
     // TODO constraint: all channels must be rectangular
     // TODO (?) constraint: continuous and output channel must be parallel
     // TODO (?) constraint: disperse and output channel must be perpendicular
@@ -171,13 +156,13 @@ public class EpDeviceStrategy extends TranslationStrategy {
     
     // constraint: epsilon is non-negative
     exprs.add(QFNRA.assertGreaterEqual(epsilon, new Numeral(0)));
-    
+*/    
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;
      * the complex expression applies when wIn > w.
      * This requires a conditional expression to do correctly.
      */
-    
+ /*   
     // for the case where wIn <= w:
     // normalizedVFill = 3pi/8 - (pi/2)(1 - pi/4)(h/w)
     SExpression vFillSimple = QFNRA.subtract(
@@ -273,7 +258,7 @@ public class EpDeviceStrategy extends TranslationStrategy {
         QFNRA.multiply(QFNRA.multiply(h, QFNRA.multiply(w, w)), 
             QFNRA.add(normalizedVFill, 
                 QFNRA.multiply(alpha, QFNRA.divide(qD, qC))))));
-    
+*/    
     return exprs;
   }
   
