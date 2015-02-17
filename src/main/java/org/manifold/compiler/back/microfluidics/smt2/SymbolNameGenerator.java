@@ -144,5 +144,33 @@ public class SymbolNameGenerator {
     String jName = schematic.getNodeName(junc);
     return new Symbol(jName.concat("_epsilon"));
   }
+
+  /**
+   * Retrieves the symbol that defines the width of an electrophoretic node.
+   */
+  public static Symbol getsym_ElectrophoreticNodeWidth(Schematic schematic,
+      NodeValue electrophoreticNode) {
+    String nodeName = schematic.getNodeName(electrophoreticNode);
+    return new Symbol(nodeName.concat("_width"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the length of the upper portion of an 
+   * electrophoretic node.
+   **/
+  public static Symbol getsym_ElectrophoreticNodeUpperLength(
+      Schematic schematic, NodeValue electrophoreticNode) {
+    String nodeName = schematic.getNodeName(electrophoreticNode);
+    return new Symbol(nodeName.concat("_upperLength"));
+  }
   
+  /**
+   * Retrieves the symbol that defines the length of the lower portion of an 
+   * electrophoretic node.
+   **/
+  public static Symbol getsym_ElectrophoreticNodeLowerLength(
+      Schematic schematic, NodeValue electrophoreticNode) {
+    String nodeName = schematic.getNodeName(electrophoreticNode);
+    return new Symbol(nodeName.concat("_lowerLength"));
+  }
 }

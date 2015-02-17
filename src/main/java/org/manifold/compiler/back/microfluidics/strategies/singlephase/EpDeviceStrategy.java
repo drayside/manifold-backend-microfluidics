@@ -116,15 +116,30 @@ public class EpDeviceStrategy extends TranslationStrategy {
       ConnectionValue exitChannel) throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
 
-    // channel/node characteristics
+    // attributes for channels and node
     Symbol hEntry = SymbolNameGenerator
         .getsym_ChannelHeight(schematic, entryChannel);
     Symbol wEntry = SymbolNameGenerator
         .getsym_ChannelWidth(schematic, entryChannel);
+    Symbol lenEntry = SymbolNameGenerator
+        .getsym_ChannelLength(schematic, entryChannel);
     Symbol hExit = SymbolNameGenerator
         .getsym_ChannelHeight(schematic, exitChannel);
     Symbol wExit = SymbolNameGenerator
         .getsym_ChannelWidth(schematic, exitChannel);
+    Symbol lenExit = SymbolNameGenerator
+        .getsym_ChannelLength(schematic, exitChannel);
+    Symbol wNode = SymbolNameGenerator
+        .getsym_ElectrophoreticNodeWidth(schematic, electrophoreticNode);
+
+    // constrain sample entry and exit channels to have equal 
+    // cross-sectional width and height
+    exprs.add(QFNRA.assertEqual(hEntry, hExit));
+    exprs.add(QFNRA.assertEqual(wEntry, wExit));
+
+    // constrain width of electrophoretic node to be less than sum of lengths 
+    // of sample entry and exit channels
+    exprs.add(QFNRA.assertLessThan(wNode, QFNRA.add(lenEntry, lenExit))); 
 
 /*
     // TODO constraint: all channels must be rectangular
