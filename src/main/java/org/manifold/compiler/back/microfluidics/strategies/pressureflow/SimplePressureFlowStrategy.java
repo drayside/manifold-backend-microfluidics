@@ -27,14 +27,14 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
   private SExpression translate(ConnectionValue conn, 
       Schematic schematic) {
     // for each channel, generate an expression of the form dP = V*R
-    Symbol P1 = SymbolNameGenerator.getSym_PortPressure(schematic, 
+    Symbol p1 = SymbolNameGenerator.getSym_PortPressure(schematic, 
         conn.getFrom());
-    Symbol P2 = SymbolNameGenerator.getSym_PortPressure(schematic,
+    Symbol p2 = SymbolNameGenerator.getSym_PortPressure(schematic,
         conn.getTo());
-    Symbol V = SymbolNameGenerator.getsym_ChannelFlowRate(schematic, conn);
-    Symbol R = SymbolNameGenerator.getsym_ChannelResistance(schematic, conn);
-    return QFNRA.assertEqual(QFNRA.subtract(P1, P2),
-        QFNRA.multiply(V, R));
+    Symbol chV = SymbolNameGenerator.getsym_ChannelFlowRate(schematic, conn);
+    Symbol chR = SymbolNameGenerator.getsym_ChannelResistance(schematic, conn);
+    return QFNRA.assertEqual(QFNRA.subtract(p1, p2),
+        QFNRA.multiply(chV, chR));
   }
   
 }

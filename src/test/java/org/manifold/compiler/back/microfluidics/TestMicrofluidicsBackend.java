@@ -29,12 +29,12 @@ public class TestMicrofluidicsBackend {
   @Test
   public void testTJunctionSynthesis() throws Exception {
     String[] args = {
-        "-bProcessMinimumNodeDistance", "0.0001",
-        "-bProcessMinimumChannelLength", "0.0001",
-        "-bProcessMaximumChipSizeX", "0.04",
-        "-bProcessMaximumChipSizeY", "0.04",
-        "-bProcessCriticalCrossingAngle", "0.0872664626"
-      };
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      "-bProcessCriticalCrossingAngle", "0.0872664626"
+    };
     
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("test");
