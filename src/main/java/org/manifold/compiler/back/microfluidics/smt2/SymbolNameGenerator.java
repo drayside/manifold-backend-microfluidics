@@ -173,4 +173,57 @@ public class SymbolNameGenerator {
     String nodeName = schematic.getNodeName(electrophoreticNode);
     return new Symbol(nodeName.concat("_lowerLength"));
   }
+  
+  /**
+   * Retrieves the symbol that defines the length of an electrophoretic 
+   * cross's channel tail.
+   **/
+  public static Symbol getsym_ElectrophoreticCrossTailLength(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_tailLength"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the length of an electrophoretic 
+   * cross's separation channel.
+   **/
+  public static Symbol getsym_ElectrophoreticCrossSeparationLength(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_separationLength"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the voltage applied at the sample  
+   * reservoir of an electrophoretic cross during injection.
+   * TODO: Refactor out to separate "reservoir" node?
+   **/
+  public static Symbol getsym_ElectrophoreticCrossInjectionSampleVoltage(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionSampleVoltage"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the voltage applied at the waste  
+   * reservoir of an electrophoretic cross during injection.
+   * TODO: Refactor out to separate "reservoir" node?
+   **/
+  public static Symbol getsym_ElectrophoreticCrossInjectionWasteVoltage(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionWasteVoltage"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the voltage applied at the cathode 
+   * reservoir of an electrophoretic cross during injection.
+   * TODO: Refactor out to separate "reservoir" node?
+   **/
+  public static Symbol getsym_ElectrophoreticCrossInjectionCathodeVoltage(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionCathodeVoltage"));
+  }
 }

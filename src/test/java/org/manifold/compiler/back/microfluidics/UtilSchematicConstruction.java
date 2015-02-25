@@ -44,7 +44,8 @@ public class UtilSchematicConstruction {
   private static NodeTypeValue voltageCPNodeType; 
   private static NodeTypeValue pressureCPNodeType;
   private static NodeTypeValue channelCrossingNodeType;
-  private static NodeTypeValue electrophoreticNodeType; 
+  private static NodeTypeValue electrophoreticNodeType;
+  private static NodeTypeValue electrophoreticCrossType;
 
   private static ConstraintType controlPointPlacementConstraintType;
   private static ConstraintType channelPlacementConstraintType;
@@ -96,11 +97,17 @@ public class UtilSchematicConstruction {
         channelCrossingPorts);
 
     // single-phase electrophoresis
+    // TODO: remove all references to this
     Map<String, PortTypeValue> electrophoreticNodePorts = new HashMap<>();
     electrophoreticNodePorts.put("sampleIn", microfluidPortType);
     electrophoreticNodePorts.put("wasteOut", microfluidPortType);
     electrophoreticNodeType = new NodeTypeValue(noTypeAttributes,
         electrophoreticNodePorts);
+
+    // single-phase electrophoretic cross
+    Map<String, PortTypeValue> electrophoreticCrossPorts = new HashMap<>();
+    electrophoreticCrossType = new NodeTypeValue(noTypeAttributes,
+        electrophoreticCrossPorts);
     
     // controlPointPlacementConstraint(ControlPointNode node, Real x, Real y)
     Map<String, TypeValue> cxtCPPlaceAttrs = new HashMap<>();
@@ -145,6 +152,7 @@ public class UtilSchematicConstruction {
     s.addNodeType("voltageControlPoint", voltageCPNodeType);
     s.addNodeType("channelCrossing", channelCrossingNodeType);
     s.addNodeType("electrophoreticNode", electrophoreticNodeType);
+    s.addNodeType("electrophoreticCross", electrophoreticCrossType);
     
     s.addConstraintType(
         "controlPointPlacementConstraint",
