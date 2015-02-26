@@ -46,6 +46,7 @@ public class UtilSchematicConstruction {
   private static NodeTypeValue channelCrossingNodeType;
   private static NodeTypeValue electrophoreticNodeType;
   private static NodeTypeValue electrophoreticCrossType;
+  private static NodeTypeValue reservoirType;
 
   private static ConstraintType controlPointPlacementConstraintType;
   private static ConstraintType channelPlacementConstraintType;
@@ -106,9 +107,18 @@ public class UtilSchematicConstruction {
 
     // single-phase electrophoretic cross
     Map<String, PortTypeValue> electrophoreticCrossPorts = new HashMap<>();
+    electrophoreticCrossPorts.put("sample", microfluidPortType);
+    electrophoreticCrossPorts.put("waste", microfluidPortType);
+    electrophoreticCrossPorts.put("cathode", microfluidPortType);
+    electrophoreticCrossPorts.put("anode", microfluidPortType);
     electrophoreticCrossType = new NodeTypeValue(noTypeAttributes,
         electrophoreticCrossPorts);
-    
+  
+    // reservoir
+    Map<String, PortTypeValue> reservoirPorts = new HashMap<>();
+    reservoirPorts.put("opening", microfluidPortType);
+    reservoirType = new NodeTypeValue(noTypeAttributes, reservoirPorts); 
+
     // controlPointPlacementConstraint(ControlPointNode node, Real x, Real y)
     Map<String, TypeValue> cxtCPPlaceAttrs = new HashMap<>();
     cxtCPPlaceAttrs.put("node", controlPointNodeType);
@@ -153,7 +163,8 @@ public class UtilSchematicConstruction {
     s.addNodeType("channelCrossing", channelCrossingNodeType);
     s.addNodeType("electrophoreticNode", electrophoreticNodeType);
     s.addNodeType("electrophoreticCross", electrophoreticCrossType);
-    
+    s.addNodeType("reservoir", reservoirType);
+
     s.addConstraintType(
         "controlPointPlacementConstraint",
         controlPointPlacementConstraintType);
@@ -211,6 +222,28 @@ public class UtilSchematicConstruction {
         schematic.getNodeType("electrophoreticNode"), 
         noAttributes, portAttrsMap);
     return electrophoreticNode;
+  }
+
+  public static NodeValue instantiateElectrophoreticCross(Schematic schematic)
+      throws SchematicException {
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("sample", noAttributes);
+    portAttrsMap.put("waste", noAttributes);
+    portAttrsMap.put("cathode", noAttributes);
+    portAttrsMap.put("anode", noAttributes);
+    NodeValue electrophoreticCross = new NodeValue(
+        schematic.getNodeType("electrophoreticCross"),
+        noAttributes, portAttrsMap);
+    return electrophoreticCross;
+  }
+  
+  public static NodeValue instantiateReservoir(Schematic schematic)
+      throws SchematicException {
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("opening", noAttributes);
+    NodeValue reservoir = new NodeValue(
+        schematic.getNodeType("reservoir"), noAttributes, portAttrsMap);
+    return reservoir;
   }
   
   /**

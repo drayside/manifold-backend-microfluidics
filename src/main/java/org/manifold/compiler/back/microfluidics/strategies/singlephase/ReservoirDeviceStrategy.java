@@ -20,7 +20,7 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
-public class ElectrophoreticCrossStrategy extends TranslationStrategy {
+public class ReservoirDeviceStrategy extends TranslationStrategy {
 
   //get the connection associated with this port
   // TODO this is VERY EXPENSIVE, find an optimization
@@ -39,7 +39,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
     // look for all electrophoretic nodes
-    NodeTypeValue targetNode = typeTable.getElectrophoreticCrossType();
+    NodeTypeValue targetNode = typeTable.getReservoirType();
     for (NodeValue node : schematic.getNodes().values()) {
       if (!(node.getType().isSubtypeOf(targetNode))) {
         continue;
@@ -47,7 +47,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       // pull connections out of the node
       try {
         // TODO refactor these into constants
-        exprs.addAll(translateElectrophoreticCross(schematic, node)); 
+        exprs.addAll(translateReservoirDevice(schematic, node)); 
       } catch (UndeclaredIdentifierException e) {
         throw new CodeGenerationError("undeclared identifier '" 
             + e.getIdentifier() + "' when inspecting electrophoretic node '"
@@ -58,34 +58,14 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     return exprs;
   }
   
-  private List<SExpression> translateElectrophoreticCross(Schematic schematic,
-      NodeValue nCross) throws UndeclaredIdentifierException {
+  private List<SExpression> translateReservoirDevice(Schematic schematic,
+      NodeValue nReservoir) throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
 
-    Symbol lenSeparation = SymbolNameGenerator
-        .getsym_ElectrophoreticCrossSeparationLength(schematic, nCross);
-    Symbol lenTail = SymbolNameGenerator
-        .getsym_ElectrophoreticCrossTailLength(schematic, nCross);
-    Symbol injectionSampleVoltage = SymbolNameGenerator
-        .getsym_ElectrophoreticCrossInjectionSampleVoltage(schematic, nCross);
-    Symbol injectionWasteVoltage = SymbolNameGenerator
-        .getsym_ElectrophoreticCrossInjectionWasteVoltage(schematic, nCross);
-    Symbol injectionCathodeVoltage = SymbolNameGenerator
-        .getsym_ElectrophoreticCrossInjectionCathodeVoltage(schematic, nCross);
-
-    exprs.add(QFNRA.declareRealVariable(lenSeparation));
-    exprs.add(QFNRA.declareRealVariable(lenTail));
-    exprs.add(QFNRA.declareRealVariable(injectionSampleVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionWasteVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionCathodeVoltage));
-
-    // pull-back voltage constraints
-    exprs.add(QFNRA.assertEqual(injectionSampleVoltage,
-        QFNRA.multiply(injectionCathodeVoltage, 
-            QFNRA.divide(lenSeparation,
-                QFNRA.add(lenSeparation, lenTail)))));
-    exprs.add(QFNRA.assertEqual(
-        injectionSampleVoltage, injectionWasteVoltage));
+    exprs.add(QFNRA.declareRealVariable(
+        SymbolNameGenerator.getsym_NodeX(schematic, nReservoir)));
+    exprs.add(QFNRA.declareRealVariable(
+        SymbolNameGenerator.getsym_NodeY(schematic, nReservoir)));
 
     return exprs;
   }

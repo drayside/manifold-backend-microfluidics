@@ -59,7 +59,63 @@ public class TestMicrofluidicsBackend {
     CommandLine cmd = parser.parse(options, args);
     backend.invokeBackend(schematic, cmd);
   }
-  
+
+  @Test
+  public void testElectrophoerticCrossSynthesis() throws Exception {
+    String[] args = {
+        "-bProcessMinimumNodeDistance", "0.0001",
+        "-bProcessMinimumChannelLength", "0.0001",
+        "-bProcessMaximumChipSizeX", "0.04",
+        "-bProcessMaximumChipSizeY", "0.04",
+        "-bProcessCriticalCrossingAngle", "0.0872664626"
+      };
+    
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("electrophoreticCrossTest");
+    
+    NodeValue cross = UtilSchematicConstruction
+        .instantiateElectrophoreticCross(schematic);
+    NodeValue sampleReservoir = UtilSchematicConstruction
+        .instantiateReservoir(schematic);
+    NodeValue wasteReservoir = UtilSchematicConstruction
+        .instantiateReservoir(schematic);
+    NodeValue anodeReservoir = UtilSchematicConstruction
+        .instantiateReservoir(schematic);
+    NodeValue cathodeReservoir = UtilSchematicConstruction
+        .instantiateReservoir(schematic);
+
+    ConnectionValue sampleToCross = UtilSchematicConstruction
+        .instantiateChannel(sampleReservoir.getPort("opening"), 
+        cross.getPort("sample"));
+    ConnectionValue wasteToCross = UtilSchematicConstruction
+        .instantiateChannel(sampleReservoir.getPort("opening"), 
+        cross.getPort("waste"));
+    ConnectionValue anodeToCross = UtilSchematicConstruction
+        .instantiateChannel(sampleReservoir.getPort("opening"), 
+        cross.getPort("anode"));
+    ConnectionValue cathodeToCross = UtilSchematicConstruction
+        .instantiateChannel(sampleReservoir.getPort("opening"), 
+        cross.getPort("cathode"));
+
+    schematic.addNode("n_cross", cross);
+    schematic.addNode("n_sample", sampleReservoir);
+    schematic.addNode("n_waste", wasteReservoir);
+    schematic.addNode("n_anode", anodeReservoir);
+    schematic.addNode("n_cathode", cathodeReservoir);
+    schematic.addConnection("c_sample_to_cross", sampleToCross);
+    schematic.addConnection("c_waste_to_cross", wasteToCross);
+    schematic.addConnection("c_anode_to_cross", anodeToCross);
+    schematic.addConnection("c_cathode_to_cross", cathodeToCross);
+    
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    Options options = new Options();
+    backend.registerArguments(options);
+    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
+    CommandLine cmd = parser.parse(options, args);
+    backend.invokeBackend(schematic, cmd);
+  }
+ 
+ /*
   @Test
   public void testElectrophoreticSynthesis() throws Exception {
     Schematic schematic = UtilSchematicConstruction.
@@ -81,6 +137,7 @@ public class TestMicrofluidicsBackend {
         electrophoreticNode.getPort("wasteOut"), exit.getPort("input"));
     schematic.addConnection("c_exit", exitChannel);
   }
+*/
 
   // TODO update test for new interface
   /*

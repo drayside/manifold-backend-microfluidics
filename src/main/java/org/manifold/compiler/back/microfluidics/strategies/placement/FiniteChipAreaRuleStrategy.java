@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.manifold.compiler.NodeValue;
+import org.manifold.compiler.NodeTypeValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
@@ -19,9 +20,13 @@ public class FiniteChipAreaRuleStrategy extends ChipAreaRuleStrategy {
   protected List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
+    NodeTypeValue electrophoreticCrossType = typeTable.getElectrophoreticCrossType();
     // loop through all nodes
     for (NodeValue n : schematic.getNodes().values()) {
       // TODO is microfluidic node?
+      if (n.getType().isSubtypeOf(electrophoreticCrossType)) {
+        continue;
+      }
       Symbol nodeX = SymbolNameGenerator.getsym_NodeX(schematic, n);
       Symbol nodeY = SymbolNameGenerator.getsym_NodeY(schematic, n);
       exprs.add(QFNRA.assertGreater(nodeX, new Decimal(0.0)));

@@ -18,6 +18,7 @@ import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet;
+import org.manifold.compiler.back.microfluidics.strategies.SinglePhaseStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
 import org.manifold.compiler.middle.Schematic;
@@ -174,6 +175,9 @@ public class MicrofluidicsBackend implements Backend {
         schematic, processParams, primitiveTypes));
     MultiPhaseStrategySet multiPhase = new MultiPhaseStrategySet();
     unsortedExprs.addAll(multiPhase.translate(
+        schematic, processParams, primitiveTypes));
+    SinglePhaseStrategySet singlePhase = new SinglePhaseStrategySet();
+    unsortedExprs.addAll(singlePhase.translate(
         schematic, processParams, primitiveTypes));
     PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
     unsortedExprs.addAll(pressureFlow.translate(
