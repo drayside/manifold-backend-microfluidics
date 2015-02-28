@@ -15,6 +15,8 @@ import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
   
+  public static double viscosityOfWater = 0.001002; // Pa*s
+  
   @BeforeClass
   public static void setUpClass() {
     LogManager.getRootLogger().setLevel(Level.ALL);
@@ -41,9 +43,8 @@ public class TestMicrofluidicsBackend {
     
     // Make a very simple schematic:
     // (fluidEntry) ---> (fluidExit)
-    // Water has a viscosity of 0.001002 Pa*s
     NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
-        schematic, 0.001002);
+        schematic, viscosityOfWater);
     schematic.addNode("n_entry", entry);
     NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
     schematic.addNode("n_exit", exit);

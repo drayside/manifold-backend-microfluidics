@@ -11,6 +11,7 @@ import org.manifold.compiler.back.microfluidics.strategies.multiphase.DropletCon
 import org.manifold.compiler.back.microfluidics.strategies.multiphase.TJunctionDeviceStrategy;
 import org.manifold.compiler.middle.Schematic;
 
+// Contains strategies for generation of multi-phase circuits
 public class MultiPhaseStrategySet extends TranslationStrategy {
 
   private DropletConstraintStrategy dropletConstraintStrategy;
