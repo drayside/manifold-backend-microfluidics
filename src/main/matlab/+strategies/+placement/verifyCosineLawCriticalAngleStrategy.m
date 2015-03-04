@@ -1,4 +1,6 @@
 function res = verifyCosineLawCriticalAngleStrategy(chip, n1, n2, n3)
+    import utils.squareIt;
+
     aX = n1.x - n2.x;
     aY = n1.y - n2.y;
     bX = n3.x - n2.x;
