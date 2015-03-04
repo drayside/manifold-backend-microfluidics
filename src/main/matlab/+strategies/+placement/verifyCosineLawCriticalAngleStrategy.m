@@ -10,7 +10,7 @@ function res = verifyCosineLawCriticalAngleStrategy(chip, n1, n2, n3)
     aSquaredBSquared = (squareIt(aX) + squareIt(aY)) * (squareIt(bX) + squareIt(bY))
 
     cosineSquaredTheta = aDotBSquared / aSquaredBSquared;
-    cosineSquaredThetaCritical = squareIt(cosd(chip.criticalCrossingAngle));
+    cosineSquaredThetaCritical = squareIt(cos(chip.criticalCrossingAngle));
 
     res = cosineSquaredThetaCritical <= cosineSquaredTheta;
 end
