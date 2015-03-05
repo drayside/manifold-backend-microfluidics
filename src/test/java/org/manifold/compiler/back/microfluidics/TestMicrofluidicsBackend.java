@@ -39,7 +39,7 @@ public class TestMicrofluidicsBackend {
     };
     
     Schematic schematic = UtilSchematicConstruction
-        .instantiateSchematic("test");
+        .instantiateSchematic("testTJunctionSynthesis");
     
     // Make a very simple schematic:
     // (fluidEntry) ---> (fluidExit)
