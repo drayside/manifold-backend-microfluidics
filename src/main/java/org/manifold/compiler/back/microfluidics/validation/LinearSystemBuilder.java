@@ -10,6 +10,8 @@ import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.ImmutableList;
+
 public class LinearSystemBuilder {
 
   private static Logger log = LogManager.getLogger(LinearSystemBuilder.class);
@@ -39,7 +41,7 @@ public class LinearSystemBuilder {
     return unknownVariables;
   }
   
-  //get all variables used as an unknown in any term
+  //get all variables used on the RHS in any term
   public Set<Variable> getRHSVariables() {
    Set<Variable> rhsVariables = new HashSet<Variable>();
    for (Expression expr : rightHandSides) {
@@ -93,6 +95,11 @@ public class LinearSystemBuilder {
     return true;
   }
   
+  private List<Variable> orderedUnknowns = new LinkedList<Variable>();
+  public List<Variable> getOrderedUnknowns() {
+    return ImmutableList.copyOf(orderedUnknowns);
+  }
+  
   public String build(Variable x) {
     if (!isWellFormed()) return "";
     StringBuilder sb = new StringBuilder();
@@ -100,20 +107,20 @@ public class LinearSystemBuilder {
     // (or preferably left division, i.e. "x = A \ b" is equivalent
     // and keep track of the order in which the unknowns appear in x
     Set<Variable> unknownVariableSet = getUnknownVariables();
-    List<Variable> unknownVariables = new ArrayList<Variable>(unknownVariableSet);
+    orderedUnknowns = new ArrayList<Variable>(unknownVariableSet);
     
     // build A matrix
     StringBuilder aStr = new StringBuilder();
     aStr.append("[");
     // build each row
     for (List<LinearTerm> terms : equations) {
-      for (int i = 0; i < unknownVariables.size(); ++i) {
+      for (int i = 0; i < orderedUnknowns.size(); ++i) {
         // TODO deal with multiple terms that use the same unknown
         boolean found = false;
         LinearTerm foundTerm = null;
         for (LinearTerm term : terms) {
           // does unknown variable i appear in this term?
-          if (term.getVariable().equals(unknownVariables.get(i))) {
+          if (term.getVariable().equals(orderedUnknowns.get(i))) {
             found = true;
             foundTerm = term;
             break;

@@ -22,4 +22,9 @@ public class LinearTerm {
     this.var = var;
   }
   
+  public LinearTerm(Variable var) {
+    // Coefficient of 1
+    this(new Constant(1.0), var);
+  }
+  
 }
