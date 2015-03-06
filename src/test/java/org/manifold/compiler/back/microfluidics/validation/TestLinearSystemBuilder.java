@@ -130,6 +130,10 @@ public class TestLinearSystemBuilder {
         new LinearTerm(flow_D[i]),
         new LinearTerm(new Constant(-1.0), flow_Ef[i])
       }, new Constant(0.0));
+      // flow_Di = 10 uL/min (current injection)
+      builder.addEquation(new LinearTerm[]{
+        new LinearTerm(flow_D[i])
+      }, new Constant(10 * 1.667 * Math.pow(10.0, -8.0)));
       // flow_Ei,f + flow_Gi-1,i - flow_Ei,b - flow_Gi,i+1 = 0
       builder.addEquation(new LinearTerm[]{
         new LinearTerm(flow_Ef[i]),
