@@ -41,6 +41,14 @@ public class TestManifoldValueHelper {
     showStatements(stmts1);
     showStatements(stmts2);
     showStatements(stmts3);
+
+    StrategyVerifier verifier = new StrategyVerifier();
+    verifier.addStatements(stmts1);
+    verifier.addStatements(stmts2);
+    verifier.addStatements(stmts3);
+    
+    System.out.println("\n");
+    System.out.println(verifier.writeStatements());
   }
 
 }

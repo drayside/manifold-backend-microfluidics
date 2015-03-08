@@ -95,10 +95,6 @@ public class InstantiationStatement extends MatlabStatement {
   
   @Override
   public void write(Writer writer) throws IOException {
-    writer.write(writeStatement());
-  }
-  
-  public String writeStatement() {
     String expr = getIsTemplate() ? getExpressionTemplate() : this.expression;
 
     StringBuilder builder = new StringBuilder();
@@ -109,8 +105,8 @@ public class InstantiationStatement extends MatlabStatement {
     if (expr.charAt(expr.length() - 1) != ';') {
       builder.append(";");
     }
- 
-    return builder.toString();
+
+    writer.write(builder.toString());
   }
   
   private String getExpressionTemplate() {

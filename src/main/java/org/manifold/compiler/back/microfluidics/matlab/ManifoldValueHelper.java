@@ -69,7 +69,7 @@ public class ManifoldValueHelper {
   
   public static List<MatlabStatement> statementsForConnectionValue(
       ConnectionValue value) {
-    List <MatlabStatement> stmts = new LinkedList<MatlabStatement>();
+    List<MatlabStatement> stmts = new LinkedList<MatlabStatement>();
     
     stmts.add(new ImportStatement("types.Channel"));
     

@@ -38,7 +38,7 @@ public class TestInstantiationStatement {
     
     stmt = new InstantiationStatement("sum", "15");
     assertEquals("15", stmt.getExpression());
-    assertEquals("sum = 15;", stmt.writeStatement());
+    assertEquals("sum = 15;", stmt.toString());
   }
 
 }
