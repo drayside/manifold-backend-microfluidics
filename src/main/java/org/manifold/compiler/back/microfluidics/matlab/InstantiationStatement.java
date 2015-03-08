@@ -31,15 +31,15 @@ public class InstantiationStatement extends MatlabStatement {
   }
   
   public String getObjectName() {
-    return this.isTemplate ? this.objectName : null;
+    return getIsTemplate() ? this.objectName : null;
   }
   
   public List<String> getParameterOrder() {
-    return this.isTemplate ? this.parameterOrder : Collections.emptyList();
+    return getIsTemplate() ? this.parameterOrder : Collections.emptyList();
   }
   
   public String getExpression() {
-    return this.isTemplate ? getExpressionTemplate() : this.expression;
+    return getIsTemplate() ? getExpressionTemplate() : this.expression;
   }
   
   public List<String> getParameters() {
@@ -63,7 +63,7 @@ public class InstantiationStatement extends MatlabStatement {
   }
   
   public void fillTemplate(Map<String, String> parameters) {
-    if (!this.isTemplate) {
+    if (!getIsTemplate()) {
       throw new CodeGenerationError(
           "ObjectInstantiationStatement is not a template");
     }
@@ -86,7 +86,7 @@ public class InstantiationStatement extends MatlabStatement {
   }
   
   private String buildExpression() {
-    if (!this.isTemplate) {
+    if (!getIsTemplate()) {
       return null;
     }
 
@@ -99,7 +99,7 @@ public class InstantiationStatement extends MatlabStatement {
   }
   
   public String writeStatement() {
-    String expr = this.isTemplate ? getExpressionTemplate() : this.expression;
+    String expr = getIsTemplate() ? getExpressionTemplate() : this.expression;
 
     StringBuilder builder = new StringBuilder();
     builder.append(this.variableName);

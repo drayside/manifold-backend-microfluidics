@@ -1,7 +1,9 @@
 package org.manifold.compiler.back.microfluidics.matlab;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
@@ -9,11 +11,31 @@ import org.manifold.compiler.Value;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 
 
-/* Collection of helpers to generate the appropriate statements
+/**
+ * Collection of helpers to generate the appropriate statements
  * to interact with Manifold values in Matlab
  */
 public class ManifoldValueHelper {
-  public List<MatlabStatement> statementsForValue(Value value) {
+
+  private static ManifoldValueHelper helper = new ManifoldValueHelper();
+  private Map<String, Integer> valueCount;
+  
+  private ManifoldValueHelper() {
+    this.valueCount = new HashMap<String, Integer>();
+  }
+  
+  private static String variableNameForValue(String valueKey) {
+    if (!helper.valueCount.containsKey(valueKey)) {
+      helper.valueCount.put(valueKey, 0);
+    }
+    
+    Integer newCount = helper.valueCount.get(valueKey) + 1;
+    helper.valueCount.put(valueKey, newCount);
+    String variableName = valueKey + newCount.toString();
+    return variableName;
+  }
+
+  public static List<MatlabStatement> statementsForValue(Value value) {
     List<MatlabStatement> stmts;
     
     if (value instanceof NodeValue) {
@@ -29,21 +51,33 @@ public class ManifoldValueHelper {
     return stmts;
   }
   
-  public List<MatlabStatement> statementsForNodeValue(NodeValue value) {
+  public static List<MatlabStatement> statementsForNodeValue(NodeValue value) {
     List<MatlabStatement> stmts = new LinkedList<MatlabStatement>();
-    
     stmts.add(new ImportStatement("types.Node"));
-    // TODO extract x,y co-ordinates from the node and instantiate
+
+    // Create a templatized initialization of the Node class since we don't
+    // have co-ordinates for the node yet.
+    String variableName = variableNameForValue("node");
+    List<String> paramOrder = new LinkedList<String>();
+    paramOrder.add("x");
+    paramOrder.add("y");
+
+    stmts.add(new InstantiationStatement(variableName, "Node", paramOrder));
 
     return stmts;
   }
   
-  public List<MatlabStatement> statementsForConnectionValue(
+  public static List<MatlabStatement> statementsForConnectionValue(
       ConnectionValue value) {
     List <MatlabStatement> stmts = new LinkedList<MatlabStatement>();
     
     stmts.add(new ImportStatement("types.Channel"));
-    // TODO extract channel length from the channel and instantiate
+    
+    String variableName = variableNameForValue("channel");
+    List<String> paramOrder = new LinkedList<String>();
+    paramOrder.add("len");
+    
+    stmts.add(new InstantiationStatement(variableName, "Channel", paramOrder));
     
     return stmts;
   }

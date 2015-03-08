@@ -13,7 +13,6 @@ import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
-import org.manifold.compiler.back.microfluidics.matlab.MatlabStatement;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;

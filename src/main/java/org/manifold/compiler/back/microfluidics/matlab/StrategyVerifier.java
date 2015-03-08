@@ -23,4 +23,8 @@ public class StrategyVerifier {
   public void addInstantiation(InstantiationStatement stmt) {
     this.instantiationStatements.add(stmt);
   }
+  
+  public void addVerification(VerificationStatement stmt) {
+    this.verificationStatements.add(stmt);
+  }
 }
