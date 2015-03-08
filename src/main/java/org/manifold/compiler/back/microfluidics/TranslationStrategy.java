@@ -6,21 +6,40 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.PortValue;
+import org.manifold.compiler.back.microfluidics.matlab.MatlabStatement;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.middle.Schematic;
 
 public abstract class TranslationStrategy { 
   private List<SExpression> cachedExprs = new LinkedList<SExpression>();
+  private List<MatlabStatement> cachedMatlabExprs = new LinkedList<MatlabStatement>();
+
   protected final List<SExpression> getCachedExprs() {
     return cachedExprs;
   }
+  
+  protected final List<MatlabStatement> getCachedMatlabExprs() {
+	  return cachedMatlabExprs;
+  }
+ 
   private boolean cacheValid = false;
   protected final void cacheIsValid() {
     cacheValid = true;
   }
+  
+  private boolean matlabCacheValid = false;
+  protected final void matlabCacheIsValid() {
+    matlabCacheValid = true;
+  }
+
   protected final void invalidateCache() {
     cachedExprs = new LinkedList<SExpression>();
     cacheValid = false;
+  }
+  
+  protected final void invalidateMatlabCache() {
+    cachedMatlabExprs = new LinkedList<MatlabStatement>();
+    matlabCacheValid = false;
   }
   
   public final List<SExpression> translate(Schematic schematic, 
@@ -32,10 +51,25 @@ public abstract class TranslationStrategy {
     return cachedExprs;
   }
   
+  public final List<MatlabStatement> translateMatlab(Schematic schematic,
+      ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    invalidateMatlabCache();
+    cachedMatlabExprs.addAll(matlabTranslationStep(schematic, processParams, typeTable));
+    cacheIsValid();
+    return cachedMatlabExprs;
+  }
+  
   // Cache-oblivious "real" translation step, overridden by implementors.
   protected abstract List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable);
+  
+  protected List<MatlabStatement> matlabTranslationStep(Schematic schematic,
+      ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    return new LinkedList<MatlabStatement>();
+  }
   
   public final List<SExpression> getTranslatedExprs() {
     if (cacheValid) {
@@ -43,6 +77,16 @@ public abstract class TranslationStrategy {
     } else {
       throw new CodeGenerationError(
           "cannot retrieve translated exprs before translation is done"
+          + " (cache may have been invalidated after a previous run)");
+    }
+  }
+  
+  public final List<MatlabStatement> getMatlabTranslatedExprs() {
+    if (matlabCacheValid) {
+      return cachedMatlabExprs;
+    } else {
+      throw new CodeGenerationError(
+          "cannot retrieve translated matlab exprs before translation is done"
           + " (cache may have been invalidated after a previous run)");
     }
   }

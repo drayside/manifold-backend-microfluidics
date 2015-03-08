@@ -7,6 +7,8 @@ import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.matlab.ImportStatement;
+import org.manifold.compiler.back.microfluidics.matlab.MatlabStatement;
 import org.manifold.compiler.back.microfluidics.smt2.Numeral;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
@@ -21,6 +23,22 @@ public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable) {
     return translationStep(schematic, typeTable);
+  }
+  
+  @Override
+  protected List<MatlabStatement> matlabTranslationStep(Schematic schematic,
+      ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    
+    List<MatlabStatement> stmts = new LinkedList<>();
+    stmts.add(new ImportStatement(
+        "strategies.placement.verifyPythagoreanLengthRuleStrategy"));
+    
+    // Get the nodes from the schematic and the connecting channel (like in
+    // translationStep) and add the VerificationStatement for each pair
+    // stmts.add(new VerificationStatement("verifyPythagoreanLengthRuleStrategy"))
+    
+    return stmts;
   }
 
   protected List<SExpression> translationStep(Schematic schematic, 
