@@ -44,12 +44,12 @@ public class TestMicrofluidicsBackend {
     // Water has a viscosity of 0.001002 Pa*s
     NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
         schematic, 0.001002);
-    schematic.addNode("n_entry", entry);
+    schematic.addNode("in0", entry);
     NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
-    schematic.addNode("n_exit", exit);
+    schematic.addNode("out0", exit);
     ConnectionValue entryToExit = UtilSchematicConstruction.instantiateChannel(
         entry.getPort("output"), exit.getPort("input"));
-    schematic.addConnection("c_entry_to_exit", entryToExit);
+    schematic.addConnection("channel0", entryToExit);
     // TODO constrain the pressure in the channel to be 0.001 Pa
     
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
