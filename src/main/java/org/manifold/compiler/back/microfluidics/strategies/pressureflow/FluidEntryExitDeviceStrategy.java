@@ -38,31 +38,32 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
   protected List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();
-      for (NodeValue node : schematic.getNodes().values()) {
-        try {
-          if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType())) {
-            exprs.addAll(translateFluidEntryNode(schematic, node));
-          } else if (node.getType().isSubtypeOf(typeTable.getFluidExitNodeType())) {
-            exprs.addAll(translateFluidExitNode(schematic, node));
-          }
-        } catch (UndeclaredIdentifierException e) {
-          throw new CodeGenerationError("undeclared identifier '" 
-              + e.getIdentifier() + "' when inspecting fluid entry/exit node '"
-              + schematic.getNodeName(node) + "'; "
-              + "possible schematic version mismatch");
-        } catch (UndeclaredAttributeException e) {
-          throw new CodeGenerationError("undeclared attribute " 
-              + " when inspecting fluid entry/exit node '"
-              + schematic.getNodeName(node) + "'; "
-              + "possible schematic version mismatch");
+    for (NodeValue node : schematic.getNodes().values()) {
+      try {
+        if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType())) {
+          exprs.addAll(translateFluidEntryNode(schematic, node));
+        } else if (node.getType().isSubtypeOf(
+            typeTable.getFluidExitNodeType())) {
+          exprs.addAll(translateFluidExitNode(schematic, node));
         }
+      } catch (UndeclaredIdentifierException e) {
+        throw new CodeGenerationError("undeclared identifier '"
+            + e.getIdentifier() + "' when inspecting fluid entry/exit node '"
+            + schematic.getNodeName(node) + "'; "
+            + "possible schematic version mismatch");
+      } catch (UndeclaredAttributeException e) {
+        throw new CodeGenerationError("undeclared attribute "
+            + " when inspecting fluid entry/exit node '"
+            + schematic.getNodeName(node) + "'; "
+            + "possible schematic version mismatch");
       }
+    }
     return exprs;
   }
 
   private List<SExpression> translateFluidEntryNode(
       Schematic schematic, NodeValue node) 
-          throws UndeclaredIdentifierException, UndeclaredAttributeException {
+      throws UndeclaredIdentifierException, UndeclaredAttributeException {
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_NodeX(schematic, node)));
@@ -82,7 +83,7 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
   
   private List<SExpression> translateFluidExitNode(
       Schematic schematic, NodeValue node) 
-          throws UndeclaredIdentifierException {
+      throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_NodeX(schematic, node)));

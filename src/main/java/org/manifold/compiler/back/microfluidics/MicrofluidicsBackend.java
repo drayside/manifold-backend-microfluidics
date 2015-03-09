@@ -140,7 +140,7 @@ public class MicrofluidicsBackend implements Backend {
           Symbol s = (Symbol) head;
           if (s.getName().equals("declare-fun")) {
             decls.add(expr);
-          } else if(s.getName().equals("assert")) {
+          } else if (s.getName().equals("assert")) {
             asserts.add(expr);
           } else {
             others.add(expr);
@@ -183,14 +183,14 @@ public class MicrofluidicsBackend implements Backend {
     
     // (check-sat) (exit)
     exprs.add(new ParenList(new SExpression[] {
-        new Symbol("check-sat")
+      new Symbol("check-sat")
     }));
     exprs.add(new ParenList(new SExpression[] {
-        new Symbol("exit")
+      new Symbol("exit")
     }));
     // write to "schematic-name.smt2"
     String filename = schematic.getName() + ".smt2";
-    try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
       for (SExpression expr : exprs) {
         expr.write(writer);
         writer.newLine();

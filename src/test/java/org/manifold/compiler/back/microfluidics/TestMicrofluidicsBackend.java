@@ -15,6 +15,8 @@ import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
   
+  public static double viscosityOfWater = 0.001002; // Pa*s
+  
   @BeforeClass
   public static void setUpClass() {
     LogManager.getRootLogger().setLevel(Level.ALL);
@@ -29,21 +31,20 @@ public class TestMicrofluidicsBackend {
   @Test
   public void testTJunctionSynthesis() throws Exception {
     String[] args = {
-        "-bProcessMinimumNodeDistance", "0.0001",
-        "-bProcessMinimumChannelLength", "0.0001",
-        "-bProcessMaximumChipSizeX", "0.04",
-        "-bProcessMaximumChipSizeY", "0.04",
-        "-bProcessCriticalCrossingAngle", "0.0872664626"
-      };
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      "-bProcessCriticalCrossingAngle", "0.0872664626"
+    };
     
     Schematic schematic = UtilSchematicConstruction
-        .instantiateSchematic("test");
+        .instantiateSchematic("testTJunctionSynthesis");
     
     // Make a very simple schematic:
     // (fluidEntry) ---> (fluidExit)
-    // Water has a viscosity of 0.001002 Pa*s
     NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
-        schematic, 0.001002);
+        schematic, viscosityOfWater);
     schematic.addNode("in0", entry);
     NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
     schematic.addNode("out0", exit);
