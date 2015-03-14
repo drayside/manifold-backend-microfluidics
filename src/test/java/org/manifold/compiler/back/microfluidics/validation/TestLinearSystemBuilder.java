@@ -117,6 +117,10 @@ public class TestLinearSystemBuilder {
       new LinearTerm(flow_C[2]),
       new LinearTerm(flow_C[3])
     }, flow_Cin);
+    // pressure_Cin = 2.65 atmospheres
+    builder.addEquation(
+        new LinearTerm[]{new LinearTerm(pressure_Cin)}, 
+        new Constant(268511.25));
     for (int i = 0; i < 4; ++i) {
       // pressure_Cin - pressure_Ji - res_Ci * flow_Ci = 0
       builder.addEquation(new LinearTerm[]{
@@ -133,7 +137,7 @@ public class TestLinearSystemBuilder {
       // flow_Di = 10 uL/min (current injection)
       builder.addEquation(new LinearTerm[]{
         new LinearTerm(flow_D[i])
-      }, new Constant(10 * 1.667 * Math.pow(10.0, -8.0)));
+      }, new Constant(10.0 * 1.667 * Math.pow(10.0, -8.0)));
       // flow_Ei,f + flow_Gi-1,i - flow_Ei,b - flow_Gi,i+1 = 0
       builder.addEquation(new LinearTerm[]{
         new LinearTerm(flow_Ef[i]),
@@ -159,10 +163,10 @@ public class TestLinearSystemBuilder {
         new LinearTerm(new Constant(-1.0), pressure_W[i]),
         new LinearTerm(new NegationExpression(res_Eb[i]), flow_Eb[i])
       }, new Constant(0.0));
-      // pressure_Wi = 0
+      // pressure_Wi = 1 atmosphere
       builder.addEquation(new LinearTerm[]{
         new LinearTerm(pressure_W[i])
-      }, new Constant(0.0));
+      }, new Constant(101325.0));
     }
     
     Variable X = new Variable("X");
