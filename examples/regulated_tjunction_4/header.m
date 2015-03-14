@@ -5,9 +5,9 @@ hChannel = 25e-6;
 rho = (8 * mu_water) / ((wChannel * hChannel^3) * (1 - 0.630*tanh(hChannel / wChannel)));
 
 lengthC = 1000e-6;
-lengthG = lengthC * 5;
 lengthEf = lengthC * 0.5;
 lengthEb = lengthEf;
+lengthG = sqrt(2 * ( (lengthC + lengthEf)^2));
 
 res_C1 = rho * lengthC;
 res_C0 = rho * lengthC;

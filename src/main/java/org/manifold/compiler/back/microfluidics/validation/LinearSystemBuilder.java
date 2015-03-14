@@ -135,6 +135,7 @@ public class LinearSystemBuilder {
       }
       // terminate row
       aStr.append(";");
+      aStr.append("\n");
     }
     aStr.append("]");
     

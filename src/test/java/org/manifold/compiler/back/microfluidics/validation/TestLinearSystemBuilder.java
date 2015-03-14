@@ -181,7 +181,15 @@ public class TestLinearSystemBuilder {
       System.err.println(rhs + " = 0.0;");
     }
     System.err.println(eqn);
-    System.err.println(builder.getOrderedUnknowns());
+    
+    int idx = 1;
+    for (Variable unknown : builder.getOrderedUnknowns()) {
+      System.err.print(unknown);
+      System.err.print(" = X(");
+      System.err.print(idx);
+      System.err.println(")");
+      idx++;
+    }
   }
   
 }
