@@ -9,13 +9,17 @@ import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 
 public class StrategyVerifier {
   private Set<ImportStatement> importStatements;
-  private List<InstantiationStatement> instantiationStatements;
+  private List<AssignmentStatement> assignmentStatements;
   private List<VerificationStatement> verificationStatements;
   
   public StrategyVerifier() {
     this.importStatements = new HashSet<ImportStatement>();
-    this.instantiationStatements = new LinkedList<InstantiationStatement>();
+    this.assignmentStatements = new LinkedList<AssignmentStatement>();
     this.verificationStatements = new LinkedList<VerificationStatement>();
+  }
+  
+  public Set<ImportStatement> getImportStatements() {
+    return this.importStatements;
   }
   
   public void addImport(String pkg) {
@@ -27,7 +31,7 @@ public class StrategyVerifier {
   }
   
   public void addInstantiation(InstantiationStatement stmt) {
-    this.instantiationStatements.add(stmt);
+    this.assignmentStatements.add(stmt);
   }
   
   public void addVerification(VerificationStatement stmt) {
@@ -48,6 +52,26 @@ public class StrategyVerifier {
     }
   }
   
+  public String writeInstantiationStatements() {
+    StringBuilder builder = new StringBuilder();
+    for (AssignmentStatement stmt: this.assignmentStatements) {
+      builder.append(stmt.toString());
+      builder.append("\n");
+    }
+    
+    return builder.toString();
+  }
+  
+  public String writeVerificationStatements() {
+    StringBuilder builder = new StringBuilder();
+    for (VerificationStatement stmt: this.verificationStatements) {
+      builder.append(stmt.toString());
+      builder.append("\n");
+    }
+    
+    return builder.toString();
+  }
+
   public String writeStatements() {
     StringBuilder builder = new StringBuilder();
     
@@ -57,19 +81,13 @@ public class StrategyVerifier {
     }
     
     builder.append("\n");
+    builder.append("res = 1");
+    builder.append("\n");
 
-    for (InstantiationStatement stmt: instantiationStatements) {
-      builder.append(stmt.toString());
-      builder.append("\n");
-    }
-    
+    builder.append(writeInstantiationStatements());
     builder.append("\n");
     
-    for (VerificationStatement stmt: verificationStatements) {
-      builder.append(stmt.toString());
-      builder.append("\n");
-    }
-    
+    builder.append(writeVerificationStatements());
     return builder.toString();
   }
 }

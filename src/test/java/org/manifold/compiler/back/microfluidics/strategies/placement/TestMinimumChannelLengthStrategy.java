@@ -11,6 +11,8 @@ import org.manifold.compiler.back.microfluidics.MicrofluidicsBackend;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.UtilSchematicConstruction;
+import org.manifold.compiler.back.microfluidics.matlab.CompoundStrategyVerifier;
+import org.manifold.compiler.back.microfluidics.matlab.StrategyVerifier;
 import org.manifold.compiler.back.microfluidics.smt2.AssertionChecker;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
@@ -45,5 +47,11 @@ public class TestMinimumChannelLengthStrategy {
     if (check.verify(exprs)) {
       fail("failed to detect rule violation");
     }
+    
+    List<StrategyVerifier> verifiers = strat.matlabTranslationStep(sch, params, typeTable);
+    CompoundStrategyVerifier compounded = new CompoundStrategyVerifier();
+    compounded.addVerifiers(verifiers);
+    
+    System.out.println(compounded.writeStatements());
   }
 }

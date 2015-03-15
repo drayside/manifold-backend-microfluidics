@@ -13,16 +13,16 @@ public class TestInstantiationStatement {
 
   @Test
   public void test() {
-    List<String> params = new LinkedList<String>();
-    params.add("x");
-    params.add("y");
+    List<String> paramOrder = new LinkedList<String>();
+    paramOrder.add("x");
+    paramOrder.add("y");
 
     InstantiationStatement stmt =
-        new InstantiationStatement("n1", "Node", params);
+        new InstantiationStatement("n1", "Node", paramOrder);
     
     assertEquals("n1", stmt.getVariableName());
     assertTrue(stmt.getIsTemplate());
-    assertEquals("Node({x},{y});", stmt.getExpression());
+    assertEquals("n1 = Node({x},{y});", stmt.toString());
     
     Map<String, String> paramValues = new HashMap<String, String>();
     paramValues.put("x", "5");
@@ -31,14 +31,11 @@ public class TestInstantiationStatement {
     stmt.fillTemplate(paramValues);
     
     assertFalse(stmt.getIsTemplate());
-    assertEquals("Node(5,15);", stmt.getExpression());
+    assertEquals("n1 = Node(5,15);", stmt.toString());
     
-    stmt = new InstantiationStatement("n1", "Node(1, 2);");
-    assertEquals("Node(1, 2);", stmt.getExpression());
-    
-    stmt = new InstantiationStatement("sum", "15");
-    assertEquals("15", stmt.getExpression());
-    assertEquals("sum = 15;", stmt.toString());
+    AssignmentStatement assignment = new AssignmentStatement("n1", "Node(1, 2)");
+    assertEquals("Node(1, 2);", assignment.getRhsString());
+    assertEquals("n1 = Node(1, 2);", assignment.toString());
   }
 
 }

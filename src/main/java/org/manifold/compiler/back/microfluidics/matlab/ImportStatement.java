@@ -3,8 +3,6 @@ package org.manifold.compiler.back.microfluidics.matlab;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.manifold.compiler.back.microfluidics.smt2.Symbol;
-
 public class ImportStatement extends MatlabStatement {
 
   private String pkg;
@@ -28,6 +26,11 @@ public class ImportStatement extends MatlabStatement {
     
     ImportStatement that = (ImportStatement) other;
     return (this.getPkg().equals(that.getPkg()));
+  }
+  
+  @Override
+  public int hashCode() {
+    return getPkg().hashCode();
   }
 
   @Override

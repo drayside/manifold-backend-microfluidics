@@ -10,6 +10,8 @@ import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.back.microfluidics.MicrofluidicsBackend;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.UtilSchematicConstruction;
+import org.manifold.compiler.back.microfluidics.matlab.CompoundStrategyVerifier;
+import org.manifold.compiler.back.microfluidics.matlab.StrategyVerifier;
 import org.manifold.compiler.back.microfluidics.smt2.AssertionChecker;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
@@ -72,7 +74,29 @@ public class TestPythagoreanLengthRuleStrategy {
     if (!check.verify(exprs)) {
       fail("assertion failed: " + check.getLastExpression().toString());
     }
+
+    sch = UtilSchematicConstruction.instantiateSchematic("test_matlab");
+    NodeValue n3 = UtilSchematicConstruction.instantiatePressureControlPoint(
+        sch, 2);
+    sch.addNode("n3", n3);
+    NodeValue n4 = UtilSchematicConstruction.instantiatePressureControlPoint(
+        sch, 1);
+    sch.addNode("n4", n4);
+    NodeValue n5 = UtilSchematicConstruction.instantiatePressureControlPoint(
+        sch, 1);
+    sch.addNode("n5", n5);
+    ConnectionValue ch1 = UtilSchematicConstruction.instantiateChannel(
+        n3.getPort("channel0"), n4.getPort("channel0"));
+    sch.addConnection("ch1", ch1);
+    ConnectionValue ch2 = UtilSchematicConstruction.instantiateChannel(
+        n3.getPort("channel1"), n5.getPort("channel0"));
+    sch.addConnection("ch2", ch2);
     
+    List<StrategyVerifier> verifiers = strat.matlabTranslationStep(sch, null, typeTable);
+    CompoundStrategyVerifier compounded = new CompoundStrategyVerifier();
+    compounded.addVerifiers(verifiers);
+
+    System.out.println(compounded.writeStatements());
   }
 
 }

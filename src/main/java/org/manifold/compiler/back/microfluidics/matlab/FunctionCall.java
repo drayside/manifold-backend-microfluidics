@@ -2,7 +2,6 @@ package org.manifold.compiler.back.microfluidics.matlab;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.LinkedList;
 import java.util.List;
 
 public class FunctionCall extends MatlabStatement {
@@ -20,31 +19,17 @@ public class FunctionCall extends MatlabStatement {
   
   public FunctionCall(String functionName, List<String> args) {
     this.functionName = functionName;
-    this.args = new LinkedList<String>();
-    
-    for (String arg: args) {
-      this.args.add(arg);
-    }
-  }
-
-  public String getCall() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(getFunctionName());
-    builder.append("(");
-
-    String delimiter = "";
-    for (String arg: getArgs()) {
-      builder.append(delimiter).append(arg);
-      delimiter = ",";
-    }
-    
-    builder.append(");");
-    return builder.toString();
+    this.args = args;
   }
   
   @Override
   public void write(Writer writer) throws IOException {
-    writer.write(getCall());
+    StringBuilder builder = new StringBuilder();
+    builder.append(getFunctionName());
+    builder.append("(");
+    builder.append(toDelimitedString(getArgs(), ","));
+    builder.append(");");
+    writer.write(builder.toString());
   }
 
 }

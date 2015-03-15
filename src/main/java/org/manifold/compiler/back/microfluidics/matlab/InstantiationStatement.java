@@ -1,130 +1,69 @@
 package org.manifold.compiler.back.microfluidics.matlab;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 
-public class InstantiationStatement extends MatlabStatement {
-
-  private String variableName;
-  private String expression;
+public class InstantiationStatement extends AssignmentStatement {
+  
   private Boolean isTemplate;
-  
-  // The following are only relevant if the object is currently a template
-  // They contain information about the object that must be instantiated
-  // when the template receives parameters
   private String objectName;
-  private List<String> parameterOrder;
-  private List<String> parameters;
+  private List<String> paramOrder;
+  private List<String> params;
   
-  public String getVariableName() {
-    return this.variableName;
-  }
-
   public Boolean getIsTemplate() {
-    return this.isTemplate;
-  }
-  
-  public String getObjectName() {
-    return getIsTemplate() ? this.objectName : null;
-  }
-  
-  public List<String> getParameterOrder() {
-    return getIsTemplate() ? this.parameterOrder : Collections.emptyList();
-  }
-  
-  public String getExpression() {
-    return getIsTemplate() ? getExpressionTemplate() : this.expression;
-  }
-  
-  public List<String> getParameters() {
-    return this.parameters;
+    return isTemplate;
   }
   
   public InstantiationStatement(String variableName,
-      String objectName, List<String> parameterOrder) {
-    this.variableName = variableName;
-    this.expression = null;
+      String objectName, List<String> paramOrder) {
+    super(variableName);
     this.isTemplate = true;
     this.objectName = objectName;
-    this.parameterOrder = parameterOrder;
-    this.parameters = Collections.emptyList();
-  }
-    
-  public InstantiationStatement(String variableName, String expression) {
-    this.variableName = variableName;
-    this.expression = expression;
-    this.isTemplate = false;
+    this.paramOrder = paramOrder;
+    this.params = new LinkedList<String>();
+    this.rhs = getRhsString();
   }
   
-  public void fillTemplate(Map<String, String> parameters) {
-    if (!getIsTemplate()) {
-      throw new CodeGenerationError(
-          "ObjectInstantiationStatement is not a template");
-    }
-
-    List<String> params = new LinkedList<String>();
-    
-    for (String param: getParameterOrder()) {
-      String value = parameters.get(param);
+  public void fillTemplate(Map<String, String> params) {
+    for (String param: this.paramOrder) {
+      String value = params.get(param);
       if (value == null) {
-        throw new CodeGenerationError("Could not find parameter " + param +
-            " to instantiate " + getObjectName());
+        throw new CodeGenerationError(
+            "Could not find value for param " + param);
       }
       
-      params.add(value);
+      this.params.add(value);
+      this.isTemplate = false;
     }
-    
-    this.parameters = params;
-    this.expression = buildExpression();
-    this.isTemplate = false;
-  }
-  
-  private String buildExpression() {
-    if (!getIsTemplate()) {
-      return null;
-    }
-
-    return new FunctionCall(getObjectName(), getParameters()).getCall();
   }
   
   @Override
-  public void write(Writer writer) throws IOException {
-    String expr = getIsTemplate() ? getExpressionTemplate() : this.expression;
-
+  protected String getRhsString() {
     StringBuilder builder = new StringBuilder();
-    builder.append(this.variableName);
-    builder.append(" = ");
-    builder.append(expr);
-    
-    if (expr.charAt(expr.length() - 1) != ';') {
-      builder.append(";");
-    }
-
-    writer.write(builder.toString());
-  }
-  
-  private String getExpressionTemplate() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(getObjectName());
+    builder.append(objectName);
     builder.append("(");
-
-    String delimiter = "";
-    for (String param: getParameterOrder()) {
-      builder.append(delimiter);
-      builder.append("{");
-      builder.append(param);
-      builder.append("}");
-      delimiter = ",";
-    }
+    
+    String args = getIsTemplate() ? getTemplateArgs() : getInstantiationArgs();
+    builder.append(args);
     
     builder.append(");");
+    
     return builder.toString();
   }
-
+  
+  private String getTemplateArgs() {
+    List<String> templateParams = new LinkedList<String>();
+    for (String param: paramOrder) {
+      templateParams.add("{" + param + "}");
+    }
+    
+    return toDelimitedString(templateParams, ",");
+  }
+  
+  private String getInstantiationArgs() {
+    return toDelimitedString(params, ",");
+  }
 }

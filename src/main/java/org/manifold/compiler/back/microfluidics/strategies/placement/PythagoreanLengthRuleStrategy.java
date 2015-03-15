@@ -7,8 +7,9 @@ import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
-import org.manifold.compiler.back.microfluidics.matlab.ImportStatement;
-import org.manifold.compiler.back.microfluidics.matlab.MatlabStatement;
+import org.manifold.compiler.back.microfluidics.matlab.ManifoldValueHelper;
+import org.manifold.compiler.back.microfluidics.matlab.StrategyVerifier;
+import org.manifold.compiler.back.microfluidics.matlab.VerificationStatement;
 import org.manifold.compiler.back.microfluidics.smt2.Numeral;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
@@ -26,19 +27,43 @@ public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
   }
   
   @Override
-  protected List<MatlabStatement> matlabTranslationStep(Schematic schematic,
-      ProcessParameters processParams,
-      PrimitiveTypeTable typeTable) {
+  protected List<StrategyVerifier> matlabTranslationStep(Schematic schematic,
+      ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     
-    List<MatlabStatement> stmts = new LinkedList<>();
-    stmts.add(new ImportStatement(
-        "strategies.placement.verifyPythagoreanLengthRuleStrategy"));
+    List<StrategyVerifier> verifiers = new LinkedList<StrategyVerifier>();
+    StrategyVerifier verifier;
     
-    // Get the nodes from the schematic and the connecting channel (like in
-    // translationStep) and add the VerificationStatement for each pair
-    // stmts.add(new VerificationStatement("verifyPythagoreanLengthRuleStrategy"))
+    for (NodeValue n1: schematic.getNodes().values()) {
+      for (NodeValue n2: schematic.getNodes().values()) {
+        if (n1 == n2) {
+          continue;
+        }
+        
+        ConnectionValue channel = getConnectingChannel(schematic, typeTable,
+            n1, n2, true);
+
+        if (channel != null) {
+          verifier = new StrategyVerifier();
+          verifier.addImport(
+              "strategies.placement.verifyPythagoreanLengthRuleStrategy");
+          verifier.addStatements(ManifoldValueHelper.statementsForValue(n1));
+          verifier.addStatements(ManifoldValueHelper.statementsForValue(n2));
+          verifier.addStatements(ManifoldValueHelper.statementsForValue(channel));
+          
+          List<String> functionArgs = new LinkedList<String>();
+          functionArgs.add(ManifoldValueHelper.variableNameFromValue(n1));
+          functionArgs.add(ManifoldValueHelper.variableNameFromValue(n2));
+          functionArgs.add(ManifoldValueHelper.variableNameFromValue(channel));
+          
+          verifier.addVerification(new VerificationStatement(
+              "verifyPythagoreanLengthRuleStrategy", functionArgs));
+          
+          verifiers.add(verifier);
+        }
+      }
+    }
     
-    return stmts;
+    return verifiers;
   }
 
   protected List<SExpression> translationStep(Schematic schematic, 
