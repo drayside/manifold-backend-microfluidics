@@ -33,6 +33,85 @@ public class TestLinearSystemBuilder {
   }
   
   @Test
+  public void testSingleTJunction() {
+    LinearSystemBuilder builder = new LinearSystemBuilder();
+    Variable flow_Cin = new Variable("flow_Cin");
+    Variable pressure_Cin = new Variable("pressure_Cin");
+    Variable res_Cin = new Variable("res_Cin");
+    Variable pressure_J = new Variable("pressure_J");
+    Variable flow_D = new Variable("flow_D");
+    Variable flow_Ef = new Variable("flow_Ef");
+    Variable res_Ef = new Variable("res_Ef");
+    Variable pressure_G = new Variable("pressure_G");
+    Variable flow_Eb = new Variable("flow_Eb");
+    Variable res_Eb = new Variable("res_Eb");
+    Variable pressure_W = new Variable("pressure_W");
+    
+    // rho (resistance per micrometer) = 8.1016 * 10e-6 * 10000/60
+    // (needs P in millibars and Q in microliters per minute)
+    
+    // input pressure = 1500 millibars
+    builder.addEquation(new LinearTerm[]{new LinearTerm(pressure_Cin)}, new Constant(1500.0));
+    // input flow rate = 7 uL/min
+    builder.addEquation(new LinearTerm[]{new LinearTerm(flow_Cin)}, new Constant(7.0));
+    // Pin - Pj - Rin * Qin = 0
+    builder.addEquation(new LinearTerm[]{
+        new LinearTerm(pressure_Cin),
+        new LinearTerm(new Constant(-1.0), pressure_J),
+        new LinearTerm(new NegationExpression(res_Cin), flow_Cin)
+    }, new Constant(0.0));
+    // disperse flow rate = 7 uL/min
+    builder.addEquation(new LinearTerm[]{new LinearTerm(flow_D)}, new Constant(7.0));
+    // Qin + Qd - Qef = 0
+    builder.addEquation(new LinearTerm[]{
+        new LinearTerm(flow_Cin),
+        new LinearTerm(flow_D),
+        new LinearTerm(new Constant(-1.0), flow_Ef)
+    }, new Constant(0.0));
+    // Pj - Pg - Ref * Qef = 0
+    builder.addEquation(new LinearTerm[]{
+        new LinearTerm(pressure_J),
+        new LinearTerm(new Constant(-1.0), pressure_G),
+        new LinearTerm(new NegationExpression(res_Ef), flow_Ef)
+    }, new Constant(0.0));
+    // Qef = Qeb
+    builder.addEquation(new LinearTerm[]{
+        new LinearTerm(flow_Ef),
+        new LinearTerm(new Constant(-1.0), flow_Eb)
+    }, new Constant(0.0));
+    // Pg - Pw - Reb * Qeb = 0
+    builder.addEquation(new LinearTerm[]{
+        new LinearTerm(pressure_G),
+        new LinearTerm(new Constant(-1.0), pressure_W),
+        new LinearTerm(new NegationExpression(res_Eb), flow_Eb)
+    }, new Constant(0.0));
+    // output pressure = 101325.0 Pa
+    builder.addEquation(new LinearTerm[]{new LinearTerm(pressure_W)}, new Constant(101325.0));
+    
+    Variable X = new Variable("X");
+    String eqn = builder.build(X);
+    assertNotNull(eqn);
+    assertFalse(eqn.isEmpty());
+    // print constant terms and RHS terms
+    for (Variable cst : builder.getConstantVariables()) {
+      System.err.println(cst + " = 0.0;");
+    }
+    for (Variable rhs : builder.getRHSVariables()) {
+      System.err.println(rhs + " = 0.0;");
+    }
+    System.err.println(eqn);
+    
+    int idx = 1;
+    for (Variable unknown : builder.getOrderedUnknowns()) {
+      System.err.print(unknown);
+      System.err.print(" = X(");
+      System.err.print(idx);
+      System.err.println(")");
+      idx++;
+    }
+  }
+  
+  @Test
   public void testRegulationedTJunctions4() {
     // only generate the linear system here
     LinearSystemBuilder builder = new LinearSystemBuilder();
