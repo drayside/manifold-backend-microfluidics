@@ -19,13 +19,15 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
     List<SExpression> exprs = new LinkedList<>();   
     for (ConnectionValue conn : schematic.getConnections().values()) {
-      exprs.add(translate(conn, schematic));
+      exprs.addAll(translate(conn, schematic));
     }
     return exprs;
   }
 
-  private SExpression translate(ConnectionValue conn, 
+  private List<SExpression> translate(ConnectionValue conn, 
       Schematic schematic) {
+    List<SExpression> exprs = new LinkedList<>();
+    
     // for each channel, generate an expression of the form dP = V*R
     Symbol p1 = SymbolNameGenerator.getSym_PortPressure(schematic, 
         conn.getFrom());
@@ -33,8 +35,14 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
         conn.getTo());
     Symbol chV = SymbolNameGenerator.getsym_ChannelFlowRate(schematic, conn);
     Symbol chR = SymbolNameGenerator.getsym_ChannelResistance(schematic, conn);
-    return QFNRA.assertEqual(QFNRA.subtract(p1, p2),
-        QFNRA.multiply(chV, chR));
+    // assume the port pressures and resistance are declared elsewhere;
+    // we still need to declare the flow rate
+    exprs.add(QFNRA.declareRealVariable(chV));
+    
+    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
+        QFNRA.multiply(chV, chR)));
+    
+    return exprs;
   }
   
 }

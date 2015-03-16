@@ -65,8 +65,8 @@ public class TestMicrofluidicsBackend {
     String[] args = {
       "-bProcessMinimumNodeDistance", "0.0001",
       "-bProcessMinimumChannelLength", "0.0001",
-      "-bProcessMaximumChipSizeX", "0.04",
-      "-bProcessMaximumChipSizeY", "0.04",
+      "-bProcessMaximumChipSizeX", "0.10",
+      "-bProcessMaximumChipSizeY", "0.10",
       "-bProcessCriticalCrossingAngle", "0.0872664626"
     };
     

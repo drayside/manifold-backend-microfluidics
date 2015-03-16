@@ -13,6 +13,7 @@ import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
+import org.manifold.compiler.back.microfluidics.smt2.Macros;
 import org.manifold.compiler.back.microfluidics.smt2.Numeral;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
@@ -89,7 +90,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     // if the connection direction and constraint direction are different,
     // the flow rate must be negative; otherwise the flow is in
     // the same direction as the channel and so the flow is positive
-    if (connectedIntoJunction ^ isOutput) {
+    if (!(connectedIntoJunction ^ isOutput)) {
       // negative flow
       return (QFNRA.assertLessThan(flowRate, new Numeral(0)));
     } else {
@@ -110,6 +111,11 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
      */
     List<SExpression> exprs = new LinkedList<>();
 
+    Symbol nodeX = SymbolNameGenerator.getsym_NodeX(schematic, junction);
+    Symbol nodeY = SymbolNameGenerator.getsym_NodeY(schematic, junction);
+    exprs.add(QFNRA.declareRealVariable(nodeX));
+    exprs.add(QFNRA.declareRealVariable(nodeY));
+    
     // channel/junction characteristics
     Symbol h = SymbolNameGenerator
         .getsym_ChannelHeight(schematic, chContinuous);
@@ -127,6 +133,9 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         .getsym_TJunctionEpsilon(schematic, junction);
     SExpression qGutterByQC = new Decimal(0.1);
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
+    
+    // declare epsilon
+    exprs.add(QFNRA.declareRealVariable(epsilon));
     
     // TODO constraint: all channels must be rectangular
     // TODO (?) constraint: continuous and output channel must be parallel
@@ -167,13 +176,21 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         schematic, pDispersed);
     Symbol outputPressure = SymbolNameGenerator.getSym_PortPressure(
         schematic, pOutput);
+    // declare these too
+    exprs.add(QFNRA.declareRealVariable(nodePressure));
+    exprs.add(QFNRA.declareRealVariable(continuousPressure));
+    exprs.add(QFNRA.declareRealVariable(dispersePressure));
+    exprs.add(QFNRA.declareRealVariable(outputPressure));
     exprs.add(QFNRA.assertEqual(nodePressure, continuousPressure));
     exprs.add(QFNRA.assertEqual(nodePressure, dispersePressure));
     exprs.add(QFNRA.assertEqual(nodePressure, outputPressure));
     
-    // constraint: the sum of flow rates is zero
-    exprs.add(QFNRA.assertEqual(new Decimal(0.0), 
-        QFNRA.add(QFNRA.add(qC, qD), qOut)));
+    // constraint: flow in = flow out
+    List<PortValue> connectedPorts = new LinkedList<PortValue>();
+    connectedPorts.add(pContinuous);
+    connectedPorts.add(pDispersed);
+    connectedPorts.add(pOutput);
+    exprs.add(Macros.generateConservationOfFlow(schematic, connectedPorts));
     
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;
@@ -272,6 +289,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     // Voutput/hw^2 = Vfill/hw^2 + alpha * Qd/Qc
     Symbol vOutput = SymbolNameGenerator
         .getsym_ChannelDropletVolume(schematic, chOutput);
+    exprs.add(QFNRA.declareRealVariable(vOutput));
     exprs.add(QFNRA.assertEqual(vOutput, 
         QFNRA.multiply(QFNRA.multiply(h, QFNRA.multiply(w, w)), 
             QFNRA.add(normalizedVFill, 

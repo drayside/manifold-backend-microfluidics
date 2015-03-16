@@ -13,10 +13,12 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
+import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.ParenList;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
+import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
@@ -167,6 +169,12 @@ public class MicrofluidicsBackend implements Backend {
     exprs.add(QFNRA.useQFNRA());
     
     List<SExpression> unsortedExprs = new LinkedList<>();
+    // define constant pi
+    unsortedExprs.add(QFNRA.declareRealVariable(
+        SymbolNameGenerator.getsym_constant_pi()));
+    unsortedExprs.add(QFNRA.assertEqual(
+        SymbolNameGenerator.getsym_constant_pi(), 
+        new Decimal(Math.PI)));
     
     PlacementTranslationStrategySet placeSet = 
         new PlacementTranslationStrategySet();
