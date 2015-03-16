@@ -121,6 +121,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         .getsym_ChannelFlowRate(schematic, chContinuous);
     Symbol qD = SymbolNameGenerator
         .getsym_ChannelFlowRate(schematic, chDispersed);
+    Symbol qOut = SymbolNameGenerator
+        .getsym_ChannelFlowRate(schematic, chOutput);
     Symbol epsilon = SymbolNameGenerator
         .getsym_TJunctionEpsilon(schematic, junction);
     SExpression qGutterByQC = new Decimal(0.1);
@@ -155,6 +157,23 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     
     // constraint: epsilon is non-negative
     exprs.add(QFNRA.assertGreaterEqual(epsilon, new Numeral(0)));
+    
+    // constraint: all port pressures are equalized
+    Symbol nodePressure = SymbolNameGenerator.getSym_NodePressure(
+        schematic, junction);
+    Symbol continuousPressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pContinuous);
+    Symbol dispersePressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pDispersed);
+    Symbol outputPressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pOutput);
+    exprs.add(QFNRA.assertEqual(nodePressure, continuousPressure));
+    exprs.add(QFNRA.assertEqual(nodePressure, dispersePressure));
+    exprs.add(QFNRA.assertEqual(nodePressure, outputPressure));
+    
+    // constraint: the sum of flow rates is zero
+    exprs.add(QFNRA.assertEqual(new Decimal(0.0), 
+        QFNRA.add(QFNRA.add(qC, qD), qOut)));
     
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;

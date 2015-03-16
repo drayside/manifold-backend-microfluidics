@@ -29,6 +29,38 @@ public class TestMicrofluidicsBackend {
   }
   
   @Test
+  public void testSimpleSynthesis() throws Exception {
+    String[] args = {
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      "-bProcessCriticalCrossingAngle", "0.0872664626"
+    };
+    
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("testSimpleSynthesis");
+    
+    // Make a very simple schematic:
+    // (fluidEntry) ---> (fluidExit)
+    NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
+        schematic, viscosityOfWater);
+    schematic.addNode("in0", entry);
+    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
+    schematic.addNode("out0", exit);
+    ConnectionValue entryToExit = UtilSchematicConstruction.instantiateChannel(
+        entry.getPort("output"), exit.getPort("input"));
+    schematic.addConnection("channel0", entryToExit);
+    
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    Options options = new Options();
+    backend.registerArguments(options);
+    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
+    CommandLine cmd = parser.parse(options, args);
+    backend.invokeBackend(schematic, cmd);
+  }
+  
+  @Test
   public void testTJunctionSynthesis() throws Exception {
     String[] args = {
       "-bProcessMinimumNodeDistance", "0.0001",
@@ -41,17 +73,30 @@ public class TestMicrofluidicsBackend {
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("testTJunctionSynthesis");
     
-    // Make a very simple schematic:
-    // (fluidEntry) ---> (fluidExit)
+    // Make a schematic with two inputs, one output, and a T-junction
     NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
         schematic, viscosityOfWater);
     schematic.addNode("in0", entry);
+    NodeValue disperse = UtilSchematicConstruction.instantiateFluidEntry(
+        schematic, viscosityOfWater);
+    schematic.addNode("in1", disperse);
     NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
     schematic.addNode("out0", exit);
-    ConnectionValue entryToExit = UtilSchematicConstruction.instantiateChannel(
-        entry.getPort("output"), exit.getPort("input"));
-    schematic.addConnection("channel0", entryToExit);
-    // TODO constrain the pressure in the channel to be 0.001 Pa
+    
+    NodeValue junction = UtilSchematicConstruction
+        .instantiateTJunction(schematic);
+    schematic.addNode("junction0", junction);
+    
+    
+    ConnectionValue entryToJunction = UtilSchematicConstruction.instantiateChannel(
+        entry.getPort("output"), junction.getPort("continuous"));
+    schematic.addConnection("channelC", entryToJunction);
+    ConnectionValue disperseToJunction = UtilSchematicConstruction.instantiateChannel(
+        disperse.getPort("output"), junction.getPort("dispersed"));
+    schematic.addConnection("channelD", disperseToJunction);
+    ConnectionValue junctionToExit = UtilSchematicConstruction.instantiateChannel(
+        junction.getPort("output"), exit.getPort("input"));
+    schematic.addConnection("channelE", junctionToExit);
     
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     Options options = new Options();

@@ -182,8 +182,13 @@ public class UtilSchematicConstruction {
   
   public static NodeValue instantiateTJunction(Schematic schematic)
       throws SchematicException {
-    // TODO
-    return null;
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("continuous", noAttributes);
+    portAttrsMap.put("dispersed", noAttributes);
+    portAttrsMap.put("output", noAttributes);
+    NodeValue tj = new NodeValue(schematic.getNodeType("tJunction"),
+        noAttributes, portAttrsMap);
+    return tj;
   }
   
   /**
