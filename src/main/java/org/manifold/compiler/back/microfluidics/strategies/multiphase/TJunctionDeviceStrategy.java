@@ -164,8 +164,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
         .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
         .getsym_ChannelHeight(schematic, chOutput)));
     
-    // constraint: epsilon is non-negative
-    exprs.add(QFNRA.assertGreaterEqual(epsilon, new Numeral(0)));
+    // constraint: epsilon is zero (sharp-edged t-junction)
+    exprs.add(QFNRA.assertEqual(epsilon, new Numeral(0)));
     
     // constraint: all port pressures are equalized
     Symbol nodePressure = SymbolNameGenerator.getSym_NodePressure(
@@ -191,6 +191,13 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     connectedPorts.add(pDispersed);
     connectedPorts.add(pOutput);
     exprs.add(Macros.generateConservationOfFlow(schematic, connectedPorts));
+    
+    // constraint: viscosity of output = viscosity of continuous
+    Symbol continuousViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
+        schematic, chContinuous);
+    Symbol outputViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
+        schematic, chOutput);
+    exprs.add(QFNRA.assertEqual(continuousViscosity, outputViscosity));
     
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;
