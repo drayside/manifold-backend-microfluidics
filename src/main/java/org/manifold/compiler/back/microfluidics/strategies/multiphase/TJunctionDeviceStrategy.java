@@ -99,105 +99,17 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     }
   }
   
-  private List<SExpression> translateTJunction(Schematic schematic,
-      NodeValue junction,
-      ConnectionValue chContinuous, ConnectionValue chDispersed,
-      ConnectionValue chOutput) throws UndeclaredIdentifierException {
+  private SExpression calculatedDropletVolume(SExpression h, SExpression w,
+      SExpression wIn, SExpression epsilon, SExpression qD, SExpression qC) {
     /* Predictive model for the size of bubbles and droplets 
      * created in microfluidic T-junctions.
      * van Steijn, Kleijn, and Kreutzer.
      * Lab Chip, 2010, 10, 2513.
      * doi:10.1039/c002625e
      */
-    List<SExpression> exprs = new LinkedList<>();
-
-    Symbol nodeX = SymbolNameGenerator.getsym_NodeX(schematic, junction);
-    Symbol nodeY = SymbolNameGenerator.getsym_NodeY(schematic, junction);
-    exprs.add(QFNRA.declareRealVariable(nodeX));
-    exprs.add(QFNRA.declareRealVariable(nodeY));
     
-    // channel/junction characteristics
-    Symbol h = SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chContinuous);
-    Symbol w = SymbolNameGenerator
-        .getsym_ChannelWidth(schematic, chContinuous);
-    Symbol wIn = SymbolNameGenerator
-        .getsym_ChannelWidth(schematic, chDispersed);
-    Symbol qC = SymbolNameGenerator
-        .getsym_ChannelFlowRate(schematic, chContinuous);
-    Symbol qD = SymbolNameGenerator
-        .getsym_ChannelFlowRate(schematic, chDispersed);
-    Symbol qOut = SymbolNameGenerator
-        .getsym_ChannelFlowRate(schematic, chOutput);
-    Symbol epsilon = SymbolNameGenerator
-        .getsym_TJunctionEpsilon(schematic, junction);
     SExpression qGutterByQC = new Decimal(0.1);
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
-    
-    // declare epsilon
-    exprs.add(QFNRA.declareRealVariable(epsilon));
-    
-    // TODO constraint: all channels must be rectangular
-    // TODO (?) constraint: continuous and output channel must be parallel
-    // TODO (?) constraint: disperse and output channel must be perpendicular
-    // constraint: flow rates must be positive into the junction at inputs
-    PortValue pContinuous = junction.getPort("continuous");
-    exprs.add(constrainFlowDirection(
-        schematic, pContinuous, chContinuous, false));
-    PortValue pDispersed = junction.getPort("dispersed");
-    exprs.add(constrainFlowDirection(
-        schematic, pDispersed, chDispersed, false));
-    // constraint: flow rate must be positive out of the junction at output
-    PortValue pOutput = junction.getPort("output");
-    exprs.add(constrainFlowDirection(
-        schematic, pOutput, chOutput, true));
-    // constraint: channel width must be equal at the continuous medium
-    // port and the output port
-    exprs.add(QFNRA.assertEqual(w, 
-        SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput)));
-    
-    // constraint: the height of all connected channels is equal
-    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chDispersed)));
-    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
-        .getsym_ChannelHeight(schematic, chOutput)));
-    
-    // constraint: epsilon is zero (sharp-edged t-junction)
-    exprs.add(QFNRA.assertEqual(epsilon, new Numeral(0)));
-    
-    // constraint: all port pressures are equalized
-    Symbol nodePressure = SymbolNameGenerator.getSym_NodePressure(
-        schematic, junction);
-    Symbol continuousPressure = SymbolNameGenerator.getSym_PortPressure(
-        schematic, pContinuous);
-    Symbol dispersePressure = SymbolNameGenerator.getSym_PortPressure(
-        schematic, pDispersed);
-    Symbol outputPressure = SymbolNameGenerator.getSym_PortPressure(
-        schematic, pOutput);
-    // declare these too
-    exprs.add(QFNRA.declareRealVariable(nodePressure));
-    exprs.add(QFNRA.declareRealVariable(continuousPressure));
-    exprs.add(QFNRA.declareRealVariable(dispersePressure));
-    exprs.add(QFNRA.declareRealVariable(outputPressure));
-    exprs.add(QFNRA.assertEqual(nodePressure, continuousPressure));
-    exprs.add(QFNRA.assertEqual(nodePressure, dispersePressure));
-    exprs.add(QFNRA.assertEqual(nodePressure, outputPressure));
-    
-    // constraint: flow in = flow out
-    List<PortValue> connectedPorts = new LinkedList<PortValue>();
-    connectedPorts.add(pContinuous);
-    connectedPorts.add(pDispersed);
-    connectedPorts.add(pOutput);
-    exprs.add(Macros.generateConservationOfFlow(schematic, connectedPorts));
-    
-    // constraint: viscosity of output = viscosity of continuous
-    Symbol continuousViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
-        schematic, chContinuous);
-    Symbol outputViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
-        schematic, chOutput);
-    exprs.add(QFNRA.assertEqual(continuousViscosity, outputViscosity));
     
     /* There are two expressions given for normalized-Vfill.
      * The (MUCH) simpler expression applies when wIn <= w;
@@ -294,13 +206,110 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                     QFNRA.divide(h, w))))));
     // the droplet volume at the output (Voutput) is given by
     // Voutput/hw^2 = Vfill/hw^2 + alpha * Qd/Qc
+    return QFNRA.multiply(QFNRA.multiply(h, QFNRA.multiply(w, w)), 
+        QFNRA.add(normalizedVFill, 
+            QFNRA.multiply(alpha, QFNRA.divide(qD, qC))));
+  }
+  
+  private List<SExpression> translateTJunction(Schematic schematic,
+      NodeValue junction,
+      ConnectionValue chContinuous, ConnectionValue chDispersed,
+      ConnectionValue chOutput) throws UndeclaredIdentifierException {
+    List<SExpression> exprs = new LinkedList<>();
+
+    Symbol nodeX = SymbolNameGenerator.getsym_NodeX(schematic, junction);
+    Symbol nodeY = SymbolNameGenerator.getsym_NodeY(schematic, junction);
+    exprs.add(QFNRA.declareRealVariable(nodeX));
+    exprs.add(QFNRA.declareRealVariable(nodeY));
+    
+    // channel/junction characteristics
+    Symbol h = SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chContinuous);
+    Symbol w = SymbolNameGenerator
+        .getsym_ChannelWidth(schematic, chContinuous);
+    Symbol wIn = SymbolNameGenerator
+        .getsym_ChannelWidth(schematic, chDispersed);
+    Symbol qC = SymbolNameGenerator
+        .getsym_ChannelFlowRate(schematic, chContinuous);
+    Symbol qD = SymbolNameGenerator
+        .getsym_ChannelFlowRate(schematic, chDispersed);
+    Symbol qOut = SymbolNameGenerator
+        .getsym_ChannelFlowRate(schematic, chOutput);
+    Symbol epsilon = SymbolNameGenerator
+        .getsym_TJunctionEpsilon(schematic, junction);
+    Symbol pi = SymbolNameGenerator.getsym_constant_pi();
+    
+    // declare epsilon
+    exprs.add(QFNRA.declareRealVariable(epsilon));
+    
+    // TODO constraint: all channels must be rectangular
+    // TODO (?) constraint: continuous and output channel must be parallel
+    // TODO (?) constraint: disperse and output channel must be perpendicular
+    // constraint: flow rates must be positive into the junction at inputs
+    PortValue pContinuous = junction.getPort("continuous");
+    exprs.add(constrainFlowDirection(
+        schematic, pContinuous, chContinuous, false));
+    PortValue pDispersed = junction.getPort("dispersed");
+    exprs.add(constrainFlowDirection(
+        schematic, pDispersed, chDispersed, false));
+    // constraint: flow rate must be positive out of the junction at output
+    PortValue pOutput = junction.getPort("output");
+    exprs.add(constrainFlowDirection(
+        schematic, pOutput, chOutput, true));
+    // constraint: channel width must be equal at the continuous medium
+    // port and the output port
+    exprs.add(QFNRA.assertEqual(w, 
+        SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput)));
+    
+    // constraint: the height of all connected channels is equal
+    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chDispersed)));
+    exprs.add(QFNRA.assertEqual(SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chContinuous), SymbolNameGenerator
+        .getsym_ChannelHeight(schematic, chOutput)));
+    
+    // constraint: epsilon is zero (sharp-edged t-junction)
+    exprs.add(QFNRA.assertEqual(epsilon, new Numeral(0)));
+    
+    // constraint: all port pressures are equalized
+    Symbol nodePressure = SymbolNameGenerator.getSym_NodePressure(
+        schematic, junction);
+    Symbol continuousPressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pContinuous);
+    Symbol dispersePressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pDispersed);
+    Symbol outputPressure = SymbolNameGenerator.getSym_PortPressure(
+        schematic, pOutput);
+    // declare these too
+    exprs.add(QFNRA.declareRealVariable(nodePressure));
+    exprs.add(QFNRA.declareRealVariable(continuousPressure));
+    exprs.add(QFNRA.declareRealVariable(dispersePressure));
+    exprs.add(QFNRA.declareRealVariable(outputPressure));
+    exprs.add(QFNRA.assertEqual(nodePressure, continuousPressure));
+    exprs.add(QFNRA.assertEqual(nodePressure, dispersePressure));
+    exprs.add(QFNRA.assertEqual(nodePressure, outputPressure));
+    
+    // constraint: flow in = flow out
+    List<PortValue> connectedPorts = new LinkedList<PortValue>();
+    connectedPorts.add(pContinuous);
+    connectedPorts.add(pDispersed);
+    connectedPorts.add(pOutput);
+    exprs.add(Macros.generateConservationOfFlow(schematic, connectedPorts));
+    
+    // constraint: viscosity of output = viscosity of continuous
+    Symbol continuousViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
+        schematic, chContinuous);
+    Symbol outputViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
+        schematic, chOutput);
+    exprs.add(QFNRA.assertEqual(continuousViscosity, outputViscosity));
+    
+    
     Symbol vOutput = SymbolNameGenerator
         .getsym_ChannelDropletVolume(schematic, chOutput);
     exprs.add(QFNRA.declareRealVariable(vOutput));
-    exprs.add(QFNRA.assertEqual(vOutput, 
-        QFNRA.multiply(QFNRA.multiply(h, QFNRA.multiply(w, w)), 
-            QFNRA.add(normalizedVFill, 
-                QFNRA.multiply(alpha, QFNRA.divide(qD, qC))))));
+    exprs.add(QFNRA.assertEqual(vOutput, calculatedDropletVolume(
+        h, w, wIn, epsilon, qD, qC)));
     
     return exprs;
   }
