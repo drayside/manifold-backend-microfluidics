@@ -58,6 +58,14 @@ public class QFNRA {
     return new ParenList(fExprs);
   }
   
+  public static SExpression log(SExpression argument) {
+    SExpression fExprs[] = new SExpression[] {
+      new Symbol("log"),
+      argument
+    };
+    return new ParenList(fExprs);
+  }
+  
   public static SExpression assertThat(SExpression term) {
     SExpression assertExprs[] = new SExpression[] {
       new Symbol("assert"),
