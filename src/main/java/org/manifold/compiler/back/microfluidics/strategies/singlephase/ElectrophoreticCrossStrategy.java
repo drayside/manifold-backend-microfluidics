@@ -21,6 +21,29 @@ import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
 public class ElectrophoreticCrossStrategy extends TranslationStrategy {
+  /*
+   * Terminology:
+   *                        __
+   *                       (  ) Anode node
+   *                       |  |
+   *                       |  | <-- Tail channel
+   *               ---------  ---------
+   * Sample node ( ) --- loading -->  ( ) Waste node
+   *               ---------  ---------
+   *      Sample channel ^ |  | ^ Waste channel
+   *                       |  |
+   *                       |  |
+   *                       |  |
+   *                       |  | <-- Separation channel
+   *                       |  |
+   *                       |  |
+   *                       |  |
+   *                       (__) Cathode node
+   *
+   *   Electrophoretic rocess is split into two phases:
+   *     1) Loading phase
+   *     2) Separation phase
+   */
 
   //get the connection associated with this port
   // TODO this is VERY EXPENSIVE, find an optimization
@@ -63,19 +86,19 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
 
     Symbol lenSeparation = SymbolNameGenerator
-        .getsym_EPCrossSeparationLength(schematic, nCross);
+        .getsym_EPCrossSeparationChannelLength(schematic, nCross);
     Symbol lenTail = SymbolNameGenerator
-        .getsym_EPCrossTailLength(schematic, nCross);
+        .getsym_EPCrossTailChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
         .getsym_EPCrossLength(schematic, nCross);
     Symbol injectionSampleVoltage = SymbolNameGenerator
-        .getsym_EPCrossInjectionSampleVoltage(schematic, nCross);
+        .getsym_EPCrossInjectionSampleNodeVoltage(schematic, nCross);
     Symbol injectionWasteVoltage = SymbolNameGenerator
-        .getsym_EPCrossInjectionWasteVoltage(schematic, nCross);
-    Symbol injectionCathodeVoltage = SymbolNameGenerator
-        .getsym_EPCrossInjectionCathodeVoltage(schematic, nCross);
+        .getsym_EPCrossInjectionWasteNodeVoltage(schematic, nCross);
+    Symbol injectionAnodeVoltage = SymbolNameGenerator
+        .getsym_EPCrossInjectionAnodeNodeVoltage(schematic, nCross);
     Symbol separationChannelE = SymbolNameGenerator
-        .getsym_EPCrossSeparationChannelE(schematic, nCross);
+        .getsym_EPCrossInjectionSeparationChannelE(schematic, nCross);
     Symbol separationChannelOuterRadius = SymbolNameGenerator
         .getsym_EPCrossSeparationChannelOuterRadius(schematic, nCross);
     Symbol separationChannelInnerRadius = SymbolNameGenerator
@@ -85,8 +108,8 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             schematic, nCross);
     Symbol separationChannelThermalConductivity = SymbolNameGenerator
         .getsym_EPCrossSeparationChannelThermalConductivity(schematic, nCross);
-    Symbol sampleDiffusionCoefficient = SymbolNameGenerator
-        .getsym_EPCrossSampleDiffusionCoefficient(schematic, nCross);
+    Symbol sampleDiffusionConstant = SymbolNameGenerator
+        .getsym_EPCrossSampleDiffusionConstant(schematic, nCross);
 
     // declare variables
     exprs.add(QFNRA.declareRealVariable(lenSeparation));
@@ -94,21 +117,21 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(lenCross));
     exprs.add(QFNRA.declareRealVariable(injectionSampleVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionWasteVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionCathodeVoltage));
+    exprs.add(QFNRA.declareRealVariable(injectionAnodeVoltage));
     exprs.add(QFNRA.declareRealVariable(separationChannelE));
     exprs.add(QFNRA.declareRealVariable(separationChannelOuterRadius));
     exprs.add(QFNRA.declareRealVariable(separationChannelInnerRadius));
     exprs.add(QFNRA.declareRealVariable(
         separationChannelElectricalConductivity));
     exprs.add(QFNRA.declareRealVariable(separationChannelThermalConductivity));
-    exprs.add(QFNRA.declareRealVariable(sampleDiffusionCoefficient));
+    exprs.add(QFNRA.declareRealVariable(sampleDiffusionConstant));
 
     // physical constraints
     exprs.add(QFNRA.assertEqual(lenCross, QFNRA.add(lenSeparation, lenTail)));
 
     // pull-back voltage constraints
     exprs.add(QFNRA.assertEqual(injectionSampleVoltage,
-        QFNRA.multiply(injectionCathodeVoltage, 
+        QFNRA.multiply(injectionAnodeVoltage, 
             QFNRA.divide(lenSeparation, lenCross))));
     exprs.add(QFNRA.assertEqual(
         injectionSampleVoltage, injectionWasteVoltage));
@@ -116,7 +139,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     // Joule heating constraints
     // TODO: verify that sign is correct in equation
     exprs.add(QFNRA.assertEqual(separationChannelE,
-        QFNRA.divide(injectionCathodeVoltage, lenCross)));
+        QFNRA.divide(injectionAnodeVoltage, lenCross)));
     exprs.add(QFNRA.assertLessThan(
         QFNRA.multiply(
             QFNRA.divide(

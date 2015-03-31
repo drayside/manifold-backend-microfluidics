@@ -187,20 +187,20 @@ public class SymbolNameGenerator {
    * Retrieves the symbol that defines the length of an electrophoretic 
    * cross's channel tail.
    **/
-  public static Symbol getsym_EPCrossTailLength(
+  public static Symbol getsym_EPCrossTailChannelLength(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_tailLength"));
+    return new Symbol(nodeName.concat("_tailChannelLength"));
   }
   
   /**
    * Retrieves the symbol that defines the length of an electrophoretic 
    * cross's separation channel.
    **/
-  public static Symbol getsym_EPCrossSeparationLength(
+  public static Symbol getsym_EPCrossSeparationChannelLength(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_separationLength"));
+    return new Symbol(nodeName.concat("_separationChannelLength"));
   }
 
   /**
@@ -208,10 +208,10 @@ public class SymbolNameGenerator {
    * reservoir of an electrophoretic cross during injection.
    * TODO: Refactor out to separate "reservoir" node?
    **/
-  public static Symbol getsym_EPCrossInjectionSampleVoltage(
+  public static Symbol getsym_EPCrossInjectionSampleNodeVoltage(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionSampleVoltage"));
+    return new Symbol(nodeName.concat("_injectionSampleNodeVoltage"));
   }
   
   /**
@@ -219,10 +219,10 @@ public class SymbolNameGenerator {
    * reservoir of an electrophoretic cross during injection.
    * TODO: Refactor out to separate "reservoir" node?
    **/
-  public static Symbol getsym_EPCrossInjectionWasteVoltage(
+  public static Symbol getsym_EPCrossInjectionWasteNodeVoltage(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionWasteVoltage"));
+    return new Symbol(nodeName.concat("_injectionWasteNodeVoltage"));
   }
   
   /**
@@ -230,20 +230,125 @@ public class SymbolNameGenerator {
    * reservoir of an electrophoretic cross during injection.
    * TODO: Refactor out to separate "reservoir" node?
    **/
-  public static Symbol getsym_EPCrossInjectionCathodeVoltage(
+  public static Symbol getsym_EPCrossInjectionCathodeNodeVoltage(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionCathodeVoltage"));
+    return new Symbol(nodeName.concat("_injectionCathodeNodeVoltage"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the voltage applied at the anode 
+   * reservoir of an electrophoretic cross during injection.
+   * TODO: Refactor out to separate "reservoir" node?
+   **/
+  public static Symbol getsym_EPCrossInjectionAnodeNodeVoltage(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionAnodeNodeVoltage"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the voltage applied at the intersection  
+   * of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionIntersectionVoltage(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionIntersectionVoltage"));
   }
   
   /**
    * Retrieves the symbol that defines the electric field strength within  
    * the separation channel of an electrophoretic cross during injection.
    **/
-  public static Symbol getsym_EPCrossSeparationChannelE(
+  public static Symbol getsym_EPCrossInjectionSeparationChannelE(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_separationChannelE"));
+    return new Symbol(nodeName.concat("_injectionSeparationChannelE"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the electric field strength within  
+   * the loading channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionSampleChannelE(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionSampleChannelE"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the electric field strength within  
+   * the waste channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionWasteChannelE(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionWasteChannelE"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the initial concentration of sample.
+   **/
+  public static Symbol getsym_EPCrossSampleInitialConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleInitialConcentration"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the diffusion constant of sample.
+   **/
+  public static Symbol getsym_EPCrossSampleDiffusionConstant(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleDiffusionConstant"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the effective charge of sample.
+   **/
+  public static Symbol getsym_EPCrossSampleCharge(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleCharge"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the hydrodynamic radius of sample.
+   **/
+  public static Symbol getsym_EPCrossSampleHydrodynamicRadius(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleHydrodynamicRadius"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the sample electrophoretic mobility 
+   * (u_EP).
+   **/
+  public static Symbol getsym_EPCrossSampleElectrophoreticMobility(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleElectrophoreticMobility"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the bulk mobility (u_EOF).
+   **/
+  public static Symbol getsym_EPCrossBulkMobility(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_bulkMobility"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the bulk viscosity.
+   **/
+  public static Symbol getsym_EPCrossBulkViscosity(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_bulkViscosity"));
   }
   
   /**
@@ -286,15 +391,5 @@ public class SymbolNameGenerator {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(
         nodeName.concat("_separationChannelThermalConductivity"));
-  }
-  
-  /**
-   * Retrieves the symbol that defines the radius of the separation channel
-   * of an electrophoretic cross.
-   **/
-  public static Symbol getsym_EPCrossSampleDiffusionCoefficient(
-      Schematic schematic, NodeValue electrophoreticCross) {
-    String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_sampleDiffusionCoefficient"));
   }
 }
