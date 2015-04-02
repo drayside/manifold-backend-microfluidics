@@ -185,7 +185,7 @@ public class SymbolNameGenerator {
   
   /**
    * Retrieves the symbol that defines the length of an electrophoretic 
-   * cross's channel tail.
+   * cross's tail channel.
    **/
   public static Symbol getsym_EPCrossTailChannelLength(
       Schematic schematic, NodeValue electrophoreticCross) {
@@ -203,6 +203,26 @@ public class SymbolNameGenerator {
     return new Symbol(nodeName.concat("_separationChannelLength"));
   }
 
+  /**
+   * Retrieves the symbol that defines the length of an electrophoretic 
+   * cross's sample channel.
+   **/
+  public static Symbol getsym_EPCrossSampleChannelLength(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleChannelLength"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the length of an electrophoretic 
+   * cross's waste channel.
+   **/
+  public static Symbol getsym_EPCrossWasteChannelLength(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_wasteChannelLength"));
+  }
+  
   /**
    * Retrieves the symbol that defines the voltage applied at the sample  
    * reservoir of an electrophoretic cross during injection.
@@ -309,12 +329,24 @@ public class SymbolNameGenerator {
   }
   
   /**
-   * Retrieves the symbol that defines the initial concentration of sample.
+   * Retrieves the symbol that defines the concentration of the sample that 
+   * had been "leaked" into the separation channel.
    **/
   public static Symbol getsym_EPCrossSeparationTimeLeakageConcentration(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_separationTimeLeakageConcentration"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the peak concentration of the sample 
+   * in the separation channel when it is being "measured". 
+   **/
+  public static Symbol getsym_EPCrossSeparationTimePeakSampleConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+        "_separationTimePeakSampleConcentration"));
   }
 
   /**
