@@ -268,13 +268,34 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the velocity of the sample within  
+   * the separation channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionSeparationChannelSampleVelocity(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+        "_injectionSeparationChannelSampleVelocity"));
+  }
+  
+  /**
    * Retrieves the symbol that defines the electric field strength within  
-   * the loading channel of an electrophoretic cross during injection.
+   * the sample channel of an electrophoretic cross during injection.
    **/
   public static Symbol getsym_EPCrossInjectionSampleChannelE(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_injectionSampleChannelE"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the velocity of the sample within  
+   * the sample channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionSampleChannelSampleVelocity(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_injectionSampleChannelSampleVelocity"));
   }
   
   /**
@@ -287,6 +308,15 @@ public class SymbolNameGenerator {
     return new Symbol(nodeName.concat("_injectionWasteChannelE"));
   }
   
+  /**
+   * Retrieves the symbol that defines the initial concentration of sample.
+   **/
+  public static Symbol getsym_EPCrossSeparationTimeLeakageConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_separationTimeLeakageConcentration"));
+  }
+
   /**
    * Retrieves the symbol that defines the initial concentration of sample.
    **/
@@ -349,6 +379,28 @@ public class SymbolNameGenerator {
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_bulkViscosity"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the distance that the sample has to 
+   * travel along the separation channel of an electrophoretic cross before 
+   * it can be measured.
+   **/
+  public static Symbol getsym_EPCrossSeparationDistance(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_separationDistance"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the amount of time required for the 
+   * sample to travel a distance defined by the "separation distance" along 
+   * the separation channel of an electrophoretic cross.
+   **/
+  public static Symbol getsym_EPCrossSeparationTime(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_separationTime"));
   }
   
   /**
