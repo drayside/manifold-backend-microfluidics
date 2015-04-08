@@ -187,12 +187,15 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.assertEqual(bulkMobility, new Decimal(1e-8)));
     exprs.add(QFNRA.assertEqual(
         sampleElectrophoreticMobility, 
-        new Decimal(1e-7)
+        new Decimal(-1e-7)
     ));
-    exprs.add(QFNRA.assertEqual(injectionAnodeNodeVoltage, new Decimal(0)));
+    exprs.add(QFNRA.assertEqual(
+        injectionAnodeNodeVoltage, 
+        new Decimal(-1e3)
+    ));
     exprs.add(QFNRA.assertEqual(
         injectionCathodeNodeVoltage, 
-        new Decimal(-1e3)
+        new Decimal(0)
     ));
     exprs.add(QFNRA.assertEqual(lenSeparationChannel, new Decimal(0.030)));
     exprs.add(QFNRA.assertEqual(lenTail, new Decimal(0.0045)));
@@ -226,11 +229,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         injectionSampleNodeVoltage, 
         injectionWasteNodeVoltage
     ));
-    exprs.add(QFNRA.assertGreater(
+    exprs.add(QFNRA.assertLessThan(
         injectionSampleNodeVoltage, 
         injectionCathodeNodeVoltage
     ));
-    exprs.add(QFNRA.assertLessThan(
+    exprs.add(QFNRA.assertGreater(
         injectionSampleNodeVoltage,
         injectionIntersectionVoltage
     ));
@@ -345,15 +348,14 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             )
         )
     ));
-    exprs.add(QFNRA.assertGreaterEqual(
+    // TODO: Ideally this should be >=, but doesn't always return optimal 
+    // ranges without ability to specify some sort of minimization objective.
+    exprs.add(QFNRA.assertEqual(
         QFNRA.divide(
-            QFNRA.add(
-                separationTimePeakSampleConcentration,
-                separationTimeLeakageConcentration
-            ),
+            separationTimePeakSampleConcentration,
             separationTimeLeakageConcentration
         ),
-        new Decimal(2)
+        new Decimal(10)
     ));
 
     // Joule heating constraints
