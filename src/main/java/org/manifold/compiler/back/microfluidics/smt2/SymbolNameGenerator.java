@@ -329,24 +329,36 @@ public class SymbolNameGenerator {
   }
   
   /**
-   * Retrieves the symbol that defines the concentration of the sample that 
-   * had been "leaked" into the separation channel.
+   * Retrieves the symbol that defines the concentration of the sample in the 
+   * separation channel at the sampling site that had been "leaked" in from 
+   * the sample and waste channels.
    **/
-  public static Symbol getsym_EPCrossSeparationTimeLeakageConcentration(
+  public static Symbol getsym_EPCrossBaselineTimeLeakageConcentration(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_separationTimeLeakageConcentration"));
+    return new Symbol(nodeName.concat("_baselineTimeLeakageConcentration"));
+  }
+
+  /**
+   * Retrieves the symbol that defines the baseline concentration of the sample 
+   * at the sampling site, assuming no leakage.
+   **/
+  public static Symbol getsym_EPCrossBaselineTimeSampleConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+        "_baselineTimeSampleConcentration"));
   }
 
   /**
    * Retrieves the symbol that defines the peak concentration of the sample 
-   * in the separation channel when it is being "measured". 
+   * in the separation channel at the sampling site. 
    **/
-  public static Symbol getsym_EPCrossSeparationTimePeakSampleConcentration(
+  public static Symbol getsym_EPCrossPeakTimeSampleConcentration(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
-        "_separationTimePeakSampleConcentration"));
+        "_peakTimeSampleConcentration"));
   }
 
   /**
@@ -358,6 +370,16 @@ public class SymbolNameGenerator {
     return new Symbol(nodeName.concat("_sampleInitialConcentration"));
   }
 
+  /**
+   * Retrieves the symbol that defines the initial spread of sample plug along 
+   * separation channel.
+   **/
+  public static Symbol getsym_EPCrossSampleInitialSpread(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleInitialSpread"));
+  }
+  
   /**
    * Retrieves the symbol that defines the diffusion constant of sample.
    **/
@@ -425,14 +447,34 @@ public class SymbolNameGenerator {
   }
   
   /**
-   * Retrieves the symbol that defines the amount of time required for the 
-   * sample to travel a distance defined by the "separation distance" along 
-   * the separation channel of an electrophoretic cross.
+   * Retrieves the symbol that defines the time at which the sample 
+   * concentration at the sampling site reaches maximum, assuming no leakage.
    **/
-  public static Symbol getsym_EPCrossSeparationTime(
+  public static Symbol getsym_EPCrossPeakTime(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_separationTime"));
+    return new Symbol(nodeName.concat("_peakTime"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the time at which the sample 
+   * concentration at the sampling site has dropped back down to a level near 
+   * the baseline, assuming no leakage.
+   **/
+  public static Symbol getsym_EPCrossBaselineTime(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_baselineTime"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the radius of the sample and waste  
+   * channels of an electrophoretic cross.
+   **/
+  public static Symbol getsym_EPCrossSampleChannelRadius(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_sampleChannelRadius"));
   }
   
   /**
