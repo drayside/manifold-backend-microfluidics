@@ -371,9 +371,15 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                                 )
                             ),
                             QFNRA.multiply(
-                                new Numeral(500),
+                                new Decimal(2.3262),
                                 QFNRA.sqrt(
-                                    sampleDiffusionConstant
+                                    QFNRA.multiply(
+                                        sampleDiffusionConstant,
+                                        QFNRA.multiply(
+                                            new Numeral(10),
+                                            baselineTime
+                                        )
+                                    )
                                 )
                             )
                         ),
