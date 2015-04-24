@@ -81,7 +81,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     return exprs;
   }
 
-  // approximate erfc(x) = 1 - erf(x)
+  // approximate erfc(x) = 1 - erf(x), assuming x >= 0
   protected SExpression erfc(SExpression exp) {
       SExpression ret = QFNRA.divide(
           new Numeral(1),
@@ -243,7 +243,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.assertEqual(bulkMobility, new Decimal(1e-8)));
     exprs.add(QFNRA.assertEqual(
         sampleElectrophoreticMobility, 
-        new Decimal(-1e-7)
+        new Decimal(-3.75e-8)
     ));
     exprs.add(QFNRA.assertEqual(
         injectionAnodeNodeVoltage, 
@@ -259,7 +259,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.assertEqual(lenWasteChannel, new Decimal(0.0045)));
     exprs.add(QFNRA.assertEqual(separationDistance, new Decimal(0.025)));
     exprs.add(QFNRA.assertEqual(sampleInitialConcentration, new Decimal(1)));
-    exprs.add(QFNRA.assertEqual(sampleDiffusionConstant, new Decimal(1e-13)));
+    exprs.add(QFNRA.assertEqual(sampleDiffusionConstant, new Decimal(5.85e-12)));
     exprs.add(QFNRA.assertEqual(sampleChannelRadius, new Decimal(5e-5)));
 
     // physical constraints
@@ -362,25 +362,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                 sampleInitialConcentration,
                 erfc(
                     QFNRA.divide(
-                        QFNRA.subtract(
-                            QFNRA.multiply(
-                                injectionSampleChannelSampleVelocity,
-                                QFNRA.subtract(
-                                    baselineTime,
-                                    peakTime
-                                )
-                            ),
-                            QFNRA.multiply(
-                                new Decimal(2.3262),
-                                QFNRA.sqrt(
-                                    QFNRA.multiply(
-                                        sampleDiffusionConstant,
-                                        QFNRA.multiply(
-                                            new Numeral(10),
-                                            baselineTime
-                                        )
-                                    )
-                                )
+                        QFNRA.multiply(
+                            injectionSampleChannelSampleVelocity,
+                            QFNRA.subtract(
+                                baselineTime,
+                                peakTime
                             )
                         ),
                         QFNRA.multiply(
@@ -401,7 +387,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             QFNRA.multiply(
                 QFNRA.sqrt(
                     QFNRA.multiply(
-                        new Numeral(8),
+                        new Numeral(2),
                         new Decimal(3.14159) // TODO: refactor out
                     )
                 ),
