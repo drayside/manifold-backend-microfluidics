@@ -42,6 +42,24 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
         QFNRA.multiply(chV, chR)));
     
+    // now declare a "worst case" flow rate, i.e. with maximum # of droplets
+    Symbol chV_WorstCase = SymbolNameGenerator.getsym_ChannelFlowRate_WorstCase(schematic, conn);
+    exprs.add(QFNRA.declareRealVariable(chV_WorstCase));
+    // the resistance in the worst case is (approximately)
+    // equal to the base channel resistance plus
+    // the number of droplets times the resistance of each droplet
+    Symbol nDroplets = SymbolNameGenerator
+        .getsym_ChannelMaxDroplets(schematic, conn);
+    Symbol dropletResistance = SymbolNameGenerator
+        .getsym_ChannelDropletResistance(schematic, conn);
+    SExpression chR_WorstCase = QFNRA.add(chR, 
+        QFNRA.multiply(nDroplets, dropletResistance));
+    // assume pressures are the same as before,
+    // but flow rates can change in the worst case
+    // TODO is this right?
+    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
+        QFNRA.multiply(chV_WorstCase, chR_WorstCase)));
+    
     return exprs;
   }
   

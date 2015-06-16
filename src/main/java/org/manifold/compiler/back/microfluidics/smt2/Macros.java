@@ -26,10 +26,14 @@ public class Macros {
   // "total flow in = total flow out"
   // this is difficult because the actual flow direction may be backwards
   // with respect to the expected direction
-  public static SExpression generateConservationOfFlow(Schematic schematic,
+  public static List<SExpression> generateConservationOfFlow(Schematic schematic,
       List<PortValue> connectedPorts) {
     List<SExpression> flowRatesIn = new LinkedList<SExpression>();
     List<SExpression> flowRatesOut = new LinkedList<SExpression>();
+    
+    List<SExpression> flowRatesIn_WorstCase = new LinkedList<SExpression>();
+    List<SExpression> flowRatesOut_WorstCase = new LinkedList<SExpression>();
+    
     for (PortValue port : connectedPorts) {
       ConnectionValue channel = getConnection(schematic, port);
       boolean connectedIntoJunction;
@@ -45,15 +49,22 @@ public class Macros {
       }
       Symbol flowRate = SymbolNameGenerator
           .getsym_ChannelFlowRate(schematic, channel);
+      Symbol flowRate_WorstCase = SymbolNameGenerator
+          .getsym_ChannelFlowRate_WorstCase(schematic, channel);
       if (connectedIntoJunction) {
         // flow rate is positive into the junction
         flowRatesIn.add(flowRate);
+        flowRatesIn_WorstCase.add(flowRate_WorstCase);
       } else {
         // flow rate is positive out of the junction
         flowRatesOut.add(flowRate);
+        flowRatesOut_WorstCase.add(flowRate_WorstCase);
       }
     }
-    return QFNRA.assertEqual(QFNRA.add(flowRatesIn), QFNRA.add(flowRatesOut));
+    List<SExpression> exprs = new LinkedList<>();
+    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn), QFNRA.add(flowRatesOut)));
+    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn_WorstCase), QFNRA.add(flowRatesOut_WorstCase)));
+    return exprs;
   }
   
 }

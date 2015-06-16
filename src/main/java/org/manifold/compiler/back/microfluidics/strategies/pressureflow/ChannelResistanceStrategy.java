@@ -25,6 +25,16 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
       // TODO it would be really cool to make the channel type
       // part of the SMT2 equations so we could solve for that too
       // TODO we are just assuming all channels are rectangular right now
+      
+      // TODO this might not stay here
+      Symbol nDroplets = SymbolNameGenerator
+          .getsym_ChannelMaxDroplets(schematic, conn);
+      exprs.add(QFNRA.declareRealVariable(nDroplets));
+      
+      Symbol dropletResistance = SymbolNameGenerator
+          .getsym_ChannelDropletResistance(schematic, conn);
+      exprs.add(QFNRA.declareRealVariable(dropletResistance));
+      
       exprs.addAll(translateRectangularChannel(schematic, conn));
     }
     return exprs;

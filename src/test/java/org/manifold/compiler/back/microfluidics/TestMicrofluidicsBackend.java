@@ -75,10 +75,10 @@ public class TestMicrofluidicsBackend {
     
     // Make a schematic with two inputs, one output, and a T-junction
     NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
-        schematic, viscosityOfWater);
+        schematic, 0.01);
     schematic.addNode("in0", entry);
     NodeValue disperse = UtilSchematicConstruction.instantiateFluidEntry(
-        schematic, viscosityOfWater);
+        schematic, 0.001);
     schematic.addNode("in1", disperse);
     NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
     schematic.addNode("out0", exit);
