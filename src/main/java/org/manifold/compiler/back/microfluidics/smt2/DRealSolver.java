@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DRealSolver implements AutoCloseable {
 
@@ -37,8 +35,9 @@ public class DRealSolver implements AutoCloseable {
     public RealRange getRange(Symbol sym) {
       return ranges.get(sym);
     }
-    public void addResult(String symbol, String lowerBound, String upperBound) {
-      Symbol sym = new Symbol(symbol);
+    public void addResult(String symbolName, 
+        String lowerBound, String upperBound) {
+      Symbol sym = new Symbol(symbolName);
       double lb = Double.parseDouble(lowerBound);
       double ub = Double.parseDouble(upperBound);
       RealRange range = new RealRange(lb, ub);
@@ -115,15 +114,45 @@ public class DRealSolver implements AutoCloseable {
     write(expr.toString());
   }
   
-  protected static final String regexFloatingPointConstant =
-      "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
-  
-  protected static final Pattern regexSolutionLine =
-      Pattern.compile("^\\s*(\\S+)\\s*:\\s*\\[.*\\]\\s*=\\s*\\[\\s*("
-          + regexFloatingPointConstant + 
-          ")\\s*,\\s*("
-          + regexFloatingPointConstant +
-          ")\\s*\\]\\s*$");
+  protected void interpretResultLine(Result model, String line) {
+    // expect a line of the form
+    // x : [ ****** ] = [999.99, 999.99]
+    int symbolColonIdx = line.indexOf(':');
+    if (symbolColonIdx == -1) {
+      throw new IllegalArgumentException("invalid input '" + line 
+          + "', no separator colon found");
+    }
+    // everything up to the colon is the symbol name
+    String symbolName = line.substring(0, symbolColonIdx).trim();
+    // look for the equals sign
+    int equalsIdx = line.indexOf('=', symbolColonIdx + 1);
+    if (equalsIdx == -1) {
+      throw new IllegalArgumentException("invalid input '" + line 
+          + "', no equals sign found");
+    }
+    // look for [ , ] in that order
+    int beginRangeIdx = line.indexOf('[', equalsIdx + 1);
+    if (beginRangeIdx == -1) {
+      throw new IllegalArgumentException("invalid input '" + line 
+          + "', no range [ found");
+    }
+    int commaRangeIdx = line.indexOf(',', beginRangeIdx + 1);
+    if (commaRangeIdx == -1) {
+      throw new IllegalArgumentException("invalid input '" + line 
+          + "', no comma found in range");
+    }
+    int endRangeIdx = line.indexOf(']', commaRangeIdx + 1);
+    if (endRangeIdx == -1) {
+      throw new IllegalArgumentException("invalid input '" + line 
+          + "', no range ] found");
+    }
+    
+    // everything between [ and , is the lower bound;
+    String lowerBound = line.substring(beginRangeIdx + 1, commaRangeIdx).trim();
+    // everything between , and ] is the upper bound
+    String upperBound = line.substring(commaRangeIdx + 1, endRangeIdx).trim();
+    model.addResult(symbolName, lowerBound, upperBound);
+  }
   
   public Result solve() throws IOException {
     write("(check-sat)");
@@ -131,25 +160,15 @@ public class DRealSolver implements AutoCloseable {
     writer.flush();
     writer.close();
     String result = reader.readLine();
-    if(result.equals("unsat")) {
+    if (result.startsWith("unsat")) {
       return new Result(false);
     } else if (result.startsWith("Solution:")) {
       Result model = new Result(true);
       // parse lines until we see "sat"
       result = reader.readLine();
-      while (!(result.equals("sat"))) {
-        // expect a line of the form
-        // x : [ ****** ] = [999.99, 999.99]
-        Matcher mResult = regexSolutionLine.matcher(result);
-        if (mResult.matches()) {
-          String symbolName = mResult.group(1);
-          String lowerBound = mResult.group(2);
-          String upperBound = mResult.group(3);
-          model.addResult(symbolName, lowerBound, upperBound);
-        } else {
-          throw new RuntimeException("result line has unexpected format: " 
-              + result);
-        }
+      while (!(result.startsWith("sat"))) {
+        interpretResultLine(model, result);
+        result = reader.readLine();
       }
       return model;
     } else {
