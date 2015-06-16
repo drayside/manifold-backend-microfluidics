@@ -111,6 +111,10 @@ public class DRealSolver implements AutoCloseable {
     writer.newLine();
   }
   
+  public void write(SExpression expr) throws IOException {
+    write(expr.toString());
+  }
+  
   protected static final String regexFloatingPointConstant =
       "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
   
