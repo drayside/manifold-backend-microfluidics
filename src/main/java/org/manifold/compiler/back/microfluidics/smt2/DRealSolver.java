@@ -87,6 +87,8 @@ public class DRealSolver implements AutoCloseable {
   public void open() throws IOException {
     List<String> command = new LinkedList<>();
     command.add(pathToDReal);
+    command.add("--in");
+    command.add("--model");
     ProcessBuilder builder = new ProcessBuilder(command);
     builder.redirectErrorStream(true);
     dRealProcess = builder.start();
@@ -164,11 +166,13 @@ public class DRealSolver implements AutoCloseable {
       return new Result(false);
     } else if (result.startsWith("Solution:")) {
       Result model = new Result(true);
-      // parse lines until we see "sat"
-      result = reader.readLine();
-      while (!(result.startsWith("sat"))) {
+      // parse lines until we see the final one
+      while (!((result = reader.readLine()).startsWith("delta-sat"))) {
+        // skip blank lines
+        if (result.trim().equals("")) {
+          continue;
+        }
         interpretResultLine(model, result);
-        result = reader.readLine();
       }
       return model;
     } else {
