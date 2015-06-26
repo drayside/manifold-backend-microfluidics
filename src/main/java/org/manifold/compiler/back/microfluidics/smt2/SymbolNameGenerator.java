@@ -146,35 +146,6 @@ public class SymbolNameGenerator {
   }
 
   /**
-   * Retrieves the symbol that defines the width of an electrophoretic node.
-   */
-  public static Symbol getsym_ElectrophoreticNodeWidth(Schematic schematic,
-      NodeValue electrophoreticNode) {
-    String nodeName = schematic.getNodeName(electrophoreticNode);
-    return new Symbol(nodeName.concat("_width"));
-  }
-
-  /**
-   * Retrieves the symbol that defines the length of the upper portion of an 
-   * electrophoretic node.
-   **/
-  public static Symbol getsym_ElectrophoreticNodeUpperLength(
-      Schematic schematic, NodeValue electrophoreticNode) {
-    String nodeName = schematic.getNodeName(electrophoreticNode);
-    return new Symbol(nodeName.concat("_upperLength"));
-  }
-  
-  /**
-   * Retrieves the symbol that defines the length of the lower portion of an 
-   * electrophoretic node.
-   **/
-  public static Symbol getsym_ElectrophoreticNodeLowerLength(
-      Schematic schematic, NodeValue electrophoreticNode) {
-    String nodeName = schematic.getNodeName(electrophoreticNode);
-    return new Symbol(nodeName.concat("_lowerLength"));
-  }
-  
-  /**
    * Retrieves the symbol that defines the length of an electrophoretic cross.
    **/
   public static Symbol getsym_EPCrossLength(
@@ -207,10 +178,10 @@ public class SymbolNameGenerator {
    * Retrieves the symbol that defines the length of an electrophoretic 
    * cross's sample channel.
    **/
-  public static Symbol getsym_EPCrossSampleChannelLength(
+  public static Symbol getsym_EPCrossInjectionChannelLength(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_sampleChannelLength"));
+    return new Symbol(nodeName.concat("_injectionChannelLength"));
   }
   
   /**
@@ -302,20 +273,21 @@ public class SymbolNameGenerator {
    * Retrieves the symbol that defines the electric field strength within  
    * the sample channel of an electrophoretic cross during injection.
    **/
-  public static Symbol getsym_EPCrossInjectionSampleChannelE(
+  public static Symbol getsym_EPCrossInjectionInjectionChannelE(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionSampleChannelE"));
+    return new Symbol(nodeName.concat("_injectionInjectionChannelE"));
   }
   
   /**
    * Retrieves the symbol that defines the velocity of the sample within  
    * the sample channel of an electrophoretic cross during injection.
    **/
-  public static Symbol getsym_EPCrossInjectionSampleChannelSampleVelocity(
+  public static Symbol getsym_EPCrossInjectionInjectionChannelSampleVelocity(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionSampleChannelSampleVelocity"));
+    return new Symbol(nodeName.concat(
+	    "_injectionInjectionChannelSampleVelocity"));
   }
   
   /**
@@ -471,10 +443,10 @@ public class SymbolNameGenerator {
    * Retrieves the symbol that defines the radius of the sample and waste  
    * channels of an electrophoretic cross.
    **/
-  public static Symbol getsym_EPCrossSampleChannelRadius(
+  public static Symbol getsym_EPCrossInjectionChannelRadius(
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_sampleChannelRadius"));
+    return new Symbol(nodeName.concat("_injectionChannelRadius"));
   }
   
   /**
@@ -517,5 +489,110 @@ public class SymbolNameGenerator {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(
         nodeName.concat("_separationChannelThermalConductivity"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the velocity of an analyte within  
+   * the separation channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionSeparationChannelAnalyteVelocity(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_injectionSeparationChannelAnalyteVelocity" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the velocity of an analyte within  
+   * the injection channel of an electrophoretic cross during injection.
+   **/
+  public static Symbol getsym_EPCrossInjectionInjectionChannelAnalyteVelocity(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_injectionInjectionChannelAnalyteVelocity" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the peak concentration of an analyte 
+   * in the electropherogram output.
+   **/
+  public static Symbol getsym_EPCrossPeakTimeAnalyteConcentration(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_peakTimeAnalyteConcentration" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the initial surface concentration of an 
+   * analyte within the separation channel (i.e. C_0).
+   **/
+  public static Symbol getsym_EPCrossAnalyteInitialSurfaceConcentration(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_analyteInitialSurfaceConcentration" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the diffusion coefficient of an analyte.
+   **/
+  public static Symbol getsym_EPCrossAnalyteDiffusionCoefficient(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_analyteDiffusionCoefficient" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the electrophoretic mobility (u_EP) of 
+   * an analyte.
+   **/
+  public static Symbol getsym_EPCrossAnalyteElectrophoreticMobility(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_analyteElectrophoreticMobility" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the time at which the concentration of 
+   * an analyte peaks in the electropherogram output.
+   **/
+  public static Symbol getsym_EPCrossPeakTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_peakTime" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the time at which the concentration of 
+   * an analyte exceeds the baseline level in the electropherogram output.
+   **/
+  public static Symbol getsym_EPCrossFocusTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_focusTime" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the time at which the concentration of 
+   * an analyte drops below the baseline level in the electropherogram output.
+   **/
+  public static Symbol getsym_EPCrossFadeTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_fadeTime" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the baseline concentration in the 
+   * electropherogram output.
+   **/
+  public static Symbol getsym_EPCrossBaselineConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_baselineConcentration"));
   }
 }

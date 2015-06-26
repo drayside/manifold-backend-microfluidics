@@ -1,6 +1,7 @@
 package org.manifold.compiler.back.microfluidics.strategies.singlephase;
 
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.manifold.compiler.ConnectionValue;
@@ -24,13 +25,13 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
   /*
    * Terminology:
    *                        __
-   *                       (  ) Anode node
+   *                       (  ) Cathode node
    *                       |  |
    *                       |  | <-- Tail channel
    *               ---------  ---------
    * Sample node ( ) --- loading -->  ( ) Waste node
    *               ---------  ---------
-   *      Sample channel ^ |  | ^ Waste channel
+   *   Injection channel ^ |  | ^ Waste channel
    *                       |  |
    *                       |  |
    *                       |  |
@@ -38,11 +39,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
    *                       |  |
    *                       |  |
    *                       |  |
-   *                       (__) Cathode node
+   *                       (__) Anode node
    *
-   *   Electrophoretic rocess is split into two phases:
+   *   Electrophoretic process is split into two phases:
    *     1) Loading phase
    *     2) Separation phase
+   *   The two aforementioned phases are separated by an injection step.
    */
 
   //get the connection associated with this port
@@ -129,13 +131,14 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
   private List<SExpression> translateElectrophoreticCross(Schematic schematic,
       NodeValue nCross) throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
+    final int numAnalytes = 3;
 
     Symbol lenSeparationChannel = SymbolNameGenerator
         .getsym_EPCrossSeparationChannelLength(schematic, nCross);
     Symbol lenTail = SymbolNameGenerator
         .getsym_EPCrossTailChannelLength(schematic, nCross);
-    Symbol lenSampleChannel = SymbolNameGenerator
-        .getsym_EPCrossSampleChannelLength(schematic, nCross);
+    Symbol lenInjectionChannel = SymbolNameGenerator
+        .getsym_EPCrossInjectionChannelLength(schematic, nCross);
     Symbol lenWasteChannel = SymbolNameGenerator
         .getsym_EPCrossWasteChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
@@ -144,136 +147,550 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         .getsym_EPCrossInjectionSampleNodeVoltage(schematic, nCross);
     Symbol injectionWasteNodeVoltage = SymbolNameGenerator
         .getsym_EPCrossInjectionWasteNodeVoltage(schematic, nCross);
-    Symbol injectionAnodeNodeVoltage = SymbolNameGenerator
-        .getsym_EPCrossInjectionAnodeNodeVoltage(schematic, nCross);
     Symbol injectionCathodeNodeVoltage = SymbolNameGenerator
         .getsym_EPCrossInjectionCathodeNodeVoltage(schematic, nCross);
+    Symbol injectionAnodeNodeVoltage = SymbolNameGenerator
+        .getsym_EPCrossInjectionAnodeNodeVoltage(schematic, nCross);
     Symbol injectionIntersectionVoltage = SymbolNameGenerator
         .getsym_EPCrossInjectionIntersectionVoltage(schematic, nCross);
     Symbol injectionSeparationChannelE = SymbolNameGenerator
         .getsym_EPCrossInjectionSeparationChannelE(schematic, nCross);
-    Symbol injectionSeparationChannelSampleVelocity = SymbolNameGenerator
-        .getsym_EPCrossInjectionSeparationChannelSampleVelocity(
-            schematic, nCross);
-    Symbol injectionSampleChannelE = SymbolNameGenerator
-        .getsym_EPCrossInjectionSampleChannelE(schematic, nCross);
-    Symbol injectionSampleChannelSampleVelocity = SymbolNameGenerator
-        .getsym_EPCrossInjectionSampleChannelSampleVelocity(schematic, nCross);
-    Symbol baselineTimeLeakageConcentration = SymbolNameGenerator
-        .getsym_EPCrossBaselineTimeLeakageConcentration(schematic, nCross);
-    Symbol baselineTimeSampleConcentration = SymbolNameGenerator
-        .getsym_EPCrossBaselineTimeSampleConcentration(schematic, nCross);
-    Symbol peakTimeSampleConcentration = SymbolNameGenerator
-        .getsym_EPCrossPeakTimeSampleConcentration(schematic, nCross);
-    Symbol sampleInitialConcentration = SymbolNameGenerator
-        .getsym_EPCrossSampleInitialConcentration(schematic, nCross);
-    Symbol sampleInitialSpread = SymbolNameGenerator
-        .getsym_EPCrossSampleInitialSpread(schematic, nCross);
-    Symbol sampleDiffusionConstant = SymbolNameGenerator
-        .getsym_EPCrossSampleDiffusionConstant(schematic, nCross);
-    Symbol sampleCharge = SymbolNameGenerator
-        .getsym_EPCrossSampleCharge(schematic, nCross);
-    Symbol sampleHydrodynamicRadius = SymbolNameGenerator
-        .getsym_EPCrossSampleHydrodynamicRadius(schematic, nCross);
-    Symbol sampleElectrophoreticMobility = SymbolNameGenerator
-        .getsym_EPCrossSampleElectrophoreticMobility(schematic, nCross);
+    Symbol injectionInjectionChannelE = SymbolNameGenerator
+        .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);    
     Symbol bulkMobility = SymbolNameGenerator
         .getsym_EPCrossBulkMobility(schematic, nCross);
     Symbol bulkViscosity = SymbolNameGenerator
         .getsym_EPCrossBulkViscosity(schematic, nCross);
     Symbol separationDistance = SymbolNameGenerator
         .getsym_EPCrossSeparationDistance(schematic, nCross);
-    Symbol peakTime = SymbolNameGenerator
-        .getsym_EPCrossPeakTime(schematic, nCross);
-    Symbol baselineTime = SymbolNameGenerator
-        .getsym_EPCrossBaselineTime(schematic, nCross);
-    Symbol sampleChannelRadius = SymbolNameGenerator
-        .getsym_EPCrossSampleChannelRadius(schematic, nCross);
-    /*Symbol separationChannelOuterRadius = SymbolNameGenerator
-        .getsym_EPCrossSeparationChannelOuterRadius(schematic, nCross);
-    Symbol separationChannelInnerRadius = SymbolNameGenerator
-        .getsym_EPCrossSeparationChannelInnerRadius(schematic, nCross);
-    Symbol separationChannelElectricalConductivity = SymbolNameGenerator
-        .getsym_EPCrossSeparationChannelElectricalConductivity(
-            schematic, nCross);
-    Symbol separationChannelThermalConductivity = SymbolNameGenerator
-        .getsym_EPCrossSeparationChannelThermalConductivity(schematic, nCross);*/
+    Symbol injectionChannelRadius = SymbolNameGenerator
+        .getsym_EPCrossInjectionChannelRadius(schematic, nCross);
+    Symbol sampleInitialSpread = SymbolNameGenerator
+        .getsym_EPCrossSampleInitialSpread(schematic, nCross);
+    Symbol baselineConcentration = SymbolNameGenerator
+        .getsym_EPCrossBaselineConcentration(schematic, nCross);
+        
+    ArrayList<Symbol> injectionSeparationChannelAnalyteVelocity = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> injectionInjectionChannelAnalyteVelocity = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> analyteInitialSurfaceConcentration = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> analyteDiffusionCoefficient = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> analyteElectrophoreticMobility = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> peakTimeAnalyteConcentration = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> peakTimeAnalyteSpread = 
+        new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> peakTime = new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> focusTime = new ArrayList<Symbol>(numAnalytes);
+    ArrayList<Symbol> fadeTime = new ArrayList<Symbol>(numAnalytes);
+    
+    for(int i = 0; i < numAnalytes; ++i) {
+        injectionSeparationChannelAnalyteVelocity[i] = SymbolNameGenerator
+            .getsym_EPCrossInjectionSeparationChannelAnalyteVelocity(
+                schematic, nCross, i);
+        injectionInjectionChannelAnalyteVelocity[i] = SymbolNameGenerator
+            .getsym_EPCrossInjectionInjectionChannelAnalyteVelocity(
+                schematic, nCross, i);
+        analyteInitialSurfaceConcentration[i] = SymbolNameGenerator
+            .getsym_EPCrossAnalyteInitialSurfaceConcentration(
+                schematic, nCross, i);
+        analyteDiffusionCoefficient[i] = SymbolNameGenerator
+            .getsym_EPCrossAnalyteDiffusionCoefficient(schematic, nCross, i);
+        analyteElectrophoreticMobility[i] = SymbolNameGenerator
+            .getsym_EPCrossAnalyteElectrophoreticMobility(
+                schematic, nCross, i);
+        peakTimeAnalyteConcentration[i] = SymbolNameGenerator
+            .getsym_EPCrossPeakTimeAnalyteConcentration(
+                schematic, nCross, i);
+        peakTimeAnalyteSpread[i] = SymbolNameGenerator
+            .getsym_EPCrossAnalyteElectrophoreticMobility(
+                schematic, nCross, i);
+        peakTime[i] = SymbolNameGenerator
+            .getsym_EPCrossPeakTime(schematic, nCross, i);
+        focusTime[i] = SymbolNameGenerator
+            .getsym_EPCrossFocusTime(schematic, nCross, i);
+        fadeTime[i] = SymbolNameGenerator
+            .getsym_EPCrossFadeTime(schematic, nCross, i);
+    }
 
     // declare variables
     exprs.add(QFNRA.declareRealVariable(lenSeparationChannel));
     exprs.add(QFNRA.declareRealVariable(lenTail));
-    exprs.add(QFNRA.declareRealVariable(lenSampleChannel));
+    exprs.add(QFNRA.declareRealVariable(lenInjectionChannel));
     exprs.add(QFNRA.declareRealVariable(lenWasteChannel));
     exprs.add(QFNRA.declareRealVariable(lenCross));
     exprs.add(QFNRA.declareRealVariable(injectionSampleNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionWasteNodeVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionCathodeNodeVoltage));
+    exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionIntersectionVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionSeparationChannelE));
-    exprs.add(QFNRA.declareRealVariable(
-        injectionSeparationChannelSampleVelocity));
-    exprs.add(QFNRA.declareRealVariable(injectionSampleChannelE));
-    exprs.add(QFNRA.declareRealVariable(injectionSampleChannelSampleVelocity));
-    exprs.add(QFNRA.declareRealVariable(baselineTimeLeakageConcentration));
-    exprs.add(QFNRA.declareRealVariable(baselineTimeSampleConcentration));
-    exprs.add(QFNRA.declareRealVariable(peakTimeSampleConcentration));
-    exprs.add(QFNRA.declareRealVariable(sampleInitialConcentration));
-    exprs.add(QFNRA.declareRealVariable(sampleInitialSpread));
-    exprs.add(QFNRA.declareRealVariable(sampleDiffusionConstant));
-    exprs.add(QFNRA.declareRealVariable(sampleCharge));
-    exprs.add(QFNRA.declareRealVariable(sampleHydrodynamicRadius));
-    exprs.add(QFNRA.declareRealVariable(sampleElectrophoreticMobility));
+    exprs.add(QFNRA.declareRealVariable(injectionInjectionChannelE));
     exprs.add(QFNRA.declareRealVariable(bulkMobility));
     exprs.add(QFNRA.declareRealVariable(bulkViscosity));
     exprs.add(QFNRA.declareRealVariable(separationDistance));
-    exprs.add(QFNRA.declareRealVariable(peakTime));
-    exprs.add(QFNRA.declareRealVariable(baselineTime));
-    exprs.add(QFNRA.declareRealVariable(sampleChannelRadius));
-    /*exprs.add(QFNRA.declareRealVariable(separationChannelOuterRadius));
-    exprs.add(QFNRA.declareRealVariable(separationChannelInnerRadius));
-    exprs.add(QFNRA.declareRealVariable(
-        separationChannelElectricalConductivity));
-    exprs.add(QFNRA.declareRealVariable(separationChannelThermalConductivity));*/
+    exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
+    exprs.add(QFNRA.declareRealVariable(sampleInitialSpread));
+    exprs.add(QFNRA.declareRealVariable(baselineConcentration));
+    
+    for(int i = 0; i < numAnalytes; ++i) {
+        exprs.add(QFNRA.declareRealVariable(
+            injectionSeparationChannelAnalyteVelocity[i]));
+        exprs.add(QFNRA.declareRealVariable(
+            injectionInjectionChannelAnalyteVelocity[i]));
+        exprs.add(QFNRA.declareRealVariable(
+            analyteInitialSurfaceConcentration[i]));
+        exprs.add(QFNRA.declareRealVariable(analyteDiffusionCoefficient[i]));
+        exprs.add(QFNRA.declareRealVariable(
+            analyteElectrophoreticMobility[i]));
+        exprs.add(QFNRA.declareRealVariable(
+            peakTimeAnalyteConcentration[i]));
+        exprs.add(QFNRA.declareRealVariable(
+            peakTimeAnalyteSpread[i]));
+        exprs.add(QFNRA.declareRealVariable(peakTime[i]));
+        exprs.add(QFNRA.declareRealVariable(focusTime[i]));
+        exprs.add(QFNRA.declareRealVariable(fadeTime[i]));
+    }
 
     // "constants"
     // Distances are in metres, times are in seconds, voltages are in volts, 
-    // masses are in kilograms
-    exprs.add(QFNRA.assertEqual(bulkViscosity, new Decimal(0.001002)));
-    exprs.add(QFNRA.assertEqual(bulkMobility, new Decimal(1e-8)));
+    // masses are in kilograms, and surface concentrations are in moles per 
+    // metres squared.
     exprs.add(QFNRA.assertEqual(
-        sampleElectrophoreticMobility, 
-        new Decimal(-3.75e-8)
+        bulkViscosity, 
+        new Decimal(0.001002)
     ));
     exprs.add(QFNRA.assertEqual(
-        injectionAnodeNodeVoltage, 
-        new Decimal(-1e3)
+        bulkMobility, 
+        new Decimal(1e-8)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteElectrophoreticMobility[0], 
+        new Decimal(-3.70e-8) // N_bp = 100
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteElectrophoreticMobility[1], 
+        new Decimal(-3.60e-8) // N_bp = 50
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteElectrophoreticMobility[2], 
+        new Decimal(-3.75e-8) // N_bp = 1000
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteInitialSurfaceConcentration[0], 
+        new Decimal(2.0) // N_bp = 100
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteInitialSurfaceConcentration[1], 
+        new Decimal(1.0) // N_bp = 50
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteInitialSurfaceConcentration[2], 
+        new Decimal(0.5) // N_bp = 1000
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteDiffusionCoefficient[0], 
+        new Decimal(2.17e-11) // N_bp = 100
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteDiffusionCoefficient[1], 
+        new Decimal(3.23e-11) // N_bp = 50
+    ));
+    exprs.add(QFNRA.assertEqual(
+        analyteDiffusionCoefficient[2], 
+        new Decimal(5.85e-12) // N_bp = 1000
     ));
     exprs.add(QFNRA.assertEqual(
         injectionCathodeNodeVoltage, 
+        new Decimal(-1e2)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        injectionAnodeNodeVoltage, 
         new Decimal(0)
     ));
-    exprs.add(QFNRA.assertEqual(lenSeparationChannel, new Decimal(0.030)));
-    exprs.add(QFNRA.assertEqual(lenTail, new Decimal(0.0045)));
-    exprs.add(QFNRA.assertEqual(lenSampleChannel, new Decimal(0.0045)));
-    exprs.add(QFNRA.assertEqual(lenWasteChannel, new Decimal(0.0045)));
-    exprs.add(QFNRA.assertEqual(separationDistance, new Decimal(0.025)));
-    exprs.add(QFNRA.assertEqual(sampleInitialConcentration, new Decimal(1)));
-    exprs.add(QFNRA.assertEqual(sampleDiffusionConstant, new Decimal(5.85e-12)));
-    exprs.add(QFNRA.assertEqual(sampleChannelRadius, new Decimal(5e-5)));
+    exprs.add(QFNRA.assertEqual(
+        lenSeparationChannel, 
+        new Decimal(0.030)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        lenTail, 
+        new Decimal(0.0045)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        lenInjectionChannel, 
+        new Decimal(0.0045)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        lenWasteChannel, 
+        new Decimal(0.0045)
+    ));
+    //exprs.add(QFNRA.assertEqual(
+    //    separationDistance, 
+    //    new Decimal(0.025)
+    //));
+    exprs.add(QFNRA.assertEqual(
+        injectionChannelRadius, 
+        new Decimal(5e-5)
+    ));
+    exprs.add(QFNRA.assertEqual(
+        baselineConcentration, 
+        new Decimal(0.01)
+    ));
 
     // physical constraints
-    exprs.add(QFNRA.assertEqual(lenCross, 
-        QFNRA.add(lenSeparationChannel, lenTail)));
-
-    // pull-back voltage constraints
-    exprs.add(QFNRA.assertEqual(injectionIntersectionVoltage,
+    exprs.add(QFNRA.assertEqual(
+        lenCross, 
         QFNRA.add(
-            injectionCathodeNodeVoltage,
+            lenSeparationChannel, 
+            lenTail
+        )
+    ));
+    exprs.add(QFNRA.assertGreater(
+        separationDistance,
+        new Numeral(0)
+    ));
+    exprs.add(QFNRA.assertGreater(
+        lenSeparationChannel,
+        separationDistance
+    ));
+
+    // separation resolution constraints
+    exprs.add(QFNRA.assertEqual(
+        injectionSeparationChannelE,
+        QFNRA.divide(
+            QFNRA.subtract(
+                injectionCathodeNodeVoltage,
+                injectionAnodeNodeVoltage
+            ),
+            lenCross
+        )
+    ));
+    exprs.add(QFNRA.assertEqual(sampleInitialSpread, 
+        QFNRA.divide(
+            injectionChannelRadius, 
+            new Decimal(2.355)
+        )
+    ));
+    
+    for(int i = 0; i < numAnalytes; ++i) {
+        exprs.add(QFNRA.assertEqual(
+            injectionSeparationChannelAnalyteVelocity[i],
+            QFNRA.multiply(
+                QFNRA.add(
+                    bulkMobility,
+                    analyteElectrophoreticMobility[i]
+                ),
+                injectionSeparationChannelE
+            )
+        ));
+        exprs.add(QFNRA.assertEqual(
+            peakTimeAnalyteSpread[i],
+            QFNRA.add(
+                sampleInitialSpread,
+                QFNRA.sqrt(
+                    QFNRA.multiply(
+                        new Numeral(2),
+                        QNFRA.multiply(
+                            analyteDiffusionCoefficient[i],
+                            peakTime[i]
+                        )
+                    )
+                )
+            )
+        ));
+        exprs.add(QFNRA.assertEqual(
+            peakTimeAnalyteConcentration[i],
+            QFNRA.divide(
+                QFNRA.multiply(
+                    analyteInitialSurfaceConcentration[i],
+                    QFNRA.exp(
+                        QFNRA.divide(
+                            QFNRA.pow(
+                                QFNRA.subtract(
+                                    separationDistance,
+                                    QNFRA.multiply(
+                                        injectionSeparationChannelAnalyteVelocity[i],
+                                        peakTime[i]
+                                    )
+                                ),
+                                new Numeral(2)
+                            ),
+                            QFNRA.multiply(
+                                new Numeral(-2),
+                                QFNRA.pow(
+                                    peakTimeAnalyteSpread[i],
+                                    new Numeral(2)
+                                )
+                            )
+                        )
+                    )
+                ),
+                QFNRA.multiply(
+                    QFNRA.sqrt(
+                        QFNRA.multiply(
+                            new Numeral(2),
+                            new Decimal(3.14159) // TODO: refactor out
+                        )
+                    ),
+                    peakTimeAnalyteSpread[i]
+                )
+            )
+        ));
+        exprs.add(QFNRA.assertEqual(
+            new Numeral(0),
+            QFNRA.multiply(
+                QFNRA.divide(
+                    QFNRA.multiply(
+                        analyteInitialSurfaceConcentration[i],
+                        QFNRA.exp(
+                            QFNRA.divide(
+                                QFNRA.pow(
+                                    QFNRA.subtract(
+                                        separationDistance,
+                                        QNFRA.multiply(
+                                            injectionSeparationChannelAnalyteVelocity[i],
+                                            peakTime[i]
+                                        )
+                                    ),
+                                    new Numeral(2)
+                                ),
+                                QFNRA.multiply(
+                                    new Numeral(-2),
+                                    QFNRA.pow(
+                                        peakTimeAnalyteSpread[i],
+                                        new Numeral(2)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    QFNRA.multiply(
+                        QFNRA.sqrt(
+                            QFNRA.multiply(
+                                new Numeral(2),
+                                new Decimal(3.14159) // TODO: refactor out
+                            )
+                        ),
+                        QFNRA.pow(
+                            peakTimeAnalyteSpread[i],
+                            new Numeral(2)
+                        )
+                    )
+                ),
+                QFNRA.add(
+                    QFNRA.divide(
+                        QFNRA.multiply(
+                            injectionSeparationChannelAnalyteVelocity[i],
+                            QFNRA.subtract(
+                                separationDistance,
+                                QNFRA.multiply(
+                                    injectionSeparationChannelAnalyteVelocity[i],
+                                    peakTime[i]
+                                )
+                            )
+                        ),
+                        peakTimeAnalyteSpread[i]
+                    ),
+                    QFNRA.multiply(
+                        QFNRA.subtract(
+                            QFNRA.pow(
+                                QFNRA.divide(
+                                    QFNRA.subtract(
+                                        separationDistance,
+                                        QNFRA.multiply(
+                                            injectionSeparationChannelAnalyteVelocity[i],
+                                            peakTime[i]
+                                        )
+                                    ),
+                                    peakTimeAnalyteSpread[i]
+                                ),
+                                new Numeral(2)
+                            ),
+                            new Numeral(1)
+                        ),
+                        QFNRA.sqrt(
+                            QFNRA.divide(
+                                analyteDiffusionCoefficient[i],
+                                QFNRA.multiply(
+                                    new Numeral(2),
+                                    peakTime[i]
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ));
+        exprs.add(QFNRA.assertEqual(
+            baselineConcentration,
+            QFNRA.divide(
+                QFNRA.multiply(
+                    analyteInitialSurfaceConcentration[i],
+                    QFNRA.exp(
+                        QFNRA.divide(
+                            QFNRA.pow(
+                                QFNRA.subtract(
+                                    separationDistance,
+                                    QNFRA.multiply(
+                                        injectionSeparationChannelAnalyteVelocity[i],
+                                        focusTime[i]
+                                    )
+                                ),
+                                new Numeral(2)
+                            ),
+                            QFNRA.multiply(
+                                new Numeral(-2),
+                                QFNRA.pow(
+                                    QFNRA.add(
+                                        sampleInitialSpread,
+                                        QFNRA.sqrt(
+                                            QFNRA.multiply(
+                                                new Numeral(2),
+                                                QNFRA.multiply(
+                                                    analyteDiffusionCoefficient[i],
+                                                    focusTime[i]
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    new Numeral(2)
+                                )
+                            )
+                        )
+                    )
+                ),
+                QFNRA.multiply(
+                    QFNRA.sqrt(
+                        QFNRA.multiply(
+                            new Numeral(2),
+                            new Decimal(3.14159) // TODO: refactor out
+                        )
+                    ),
+                    QFNRA.add(
+                        sampleInitialSpread,
+                        QFNRA.sqrt(
+                            QFNRA.multiply(
+                                new Numeral(2),
+                                QNFRA.multiply(
+                                    analyteDiffusionCoefficient[i],
+                                    focusTime[i]
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ));
+        exprs.add(QFNRA.assertGreater(
+            peakTime[i],
+            focusTime[i]
+        ));
+        exprs.add(QFNRA.assertEqual(
+            baselineConcentration,
+            QFNRA.divide(
+                QFNRA.multiply(
+                    analyteInitialSurfaceConcentration[i],
+                    QFNRA.exp(
+                        QFNRA.divide(
+                            QFNRA.pow(
+                                QFNRA.subtract(
+                                    separationDistance,
+                                    QNFRA.multiply(
+                                        injectionSeparationChannelAnalyteVelocity[i],
+                                        fadeTime[i]
+                                    )
+                                ),
+                                new Numeral(2)
+                            ),
+                            QFNRA.multiply(
+                                new Numeral(-2),
+                                QFNRA.pow(
+                                    QFNRA.add(
+                                        sampleInitialSpread,
+                                        QFNRA.sqrt(
+                                            QFNRA.multiply(
+                                                new Numeral(2),
+                                                QNFRA.multiply(
+                                                    analyteDiffusionCoefficient[i],
+                                                    fadeTime[i]
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    new Numeral(2)
+                                )
+                            )
+                        )
+                    )
+                ),
+                QFNRA.multiply(
+                    QFNRA.sqrt(
+                        QFNRA.multiply(
+                            new Numeral(2),
+                            new Decimal(3.14159) // TODO: refactor out
+                        )
+                    ),
+                    QFNRA.add(
+                        sampleInitialSpread,
+                        QFNRA.sqrt(
+                            QFNRA.multiply(
+                                new Numeral(2),
+                                QNFRA.multiply(
+                                    analyteDiffusionCoefficient[i],
+                                    fadeTime[i]
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ));
+        exprs.add(QFNRA.assertGreater(
+            fadeTime[i],
+            peakTime[i]
+        ));
+        exprs.add(QFNRA.assertGreater(
+            QFNRA.divide(
+                peakTimeAnalyteConcentration[i],
+                baselineConcentration
+            ),
+            new Numeral(10)
+        ));
+    }
+    
+    for(int i = 0; i < numAnalytes; ++i) {
+        for(int j = 0; j < numAnalytes; ++j) {
+            if (i == j) {
+                continue;
+            }
+            exprs.add(QFNRA.assertThat(
+                QFNRA.or(
+                    QFNRA.greater(
+                        focusTime[i],
+                        fadeTime[j]
+                    ),
+                    QFNRA.greater(
+                        peakTime[j],
+                        peakTime[i]
+                    )
+                )
+            ));
+        }
+    }
+    
+    // pull-back voltage constraints
+    exprs.add(QFNRA.assertEqual(
+        injectionIntersectionVoltage,
+        QFNRA.add(
+            injectionAnodeNodeVoltage,
             QFNRA.multiply(
                 QFNRA.subtract(
-                    injectionAnodeNodeVoltage, 
-                    injectionCathodeNodeVoltage
+                    injectionCathodeNodeVoltage, 
+                    injectionAnodeNodeVoltage
                 ),
                 QFNRA.divide(
                     lenSeparationChannel,
@@ -288,279 +705,23 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     ));
     exprs.add(QFNRA.assertLessThan(
         injectionSampleNodeVoltage, 
-        injectionCathodeNodeVoltage
+        injectionAnodeNodeVoltage
     ));
     exprs.add(QFNRA.assertGreater(
         injectionSampleNodeVoltage,
         injectionIntersectionVoltage
     ));
-    exprs.add(QFNRA.assertEqual(injectionSeparationChannelE,
-        QFNRA.divide(
-            QFNRA.subtract(
-                injectionAnodeNodeVoltage,
-                injectionCathodeNodeVoltage
-            ),
-            lenCross
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(injectionSampleChannelE,
+    exprs.add(QFNRA.assertEqual(
+        injectionInjectionChannelE,
         QFNRA.divide(
             QFNRA.subtract(
                 injectionIntersectionVoltage,
                 injectionSampleNodeVoltage
             ),
-            lenSampleChannel
+            lenInjectionChannel
         )
     ));
-    /*exprs.add(QFNRA.assertEqual(sampleElectrophoreticMobility,
-        QFNRA.divide(
-            sampleCharge,
-            QFNRA.multiply(
-                new Numeral(6),
-                QFNRA.multiply(
-                    new Decimal(3.14159),
-                    QFNRA.multiply(
-                        bulkViscosity,
-                        sampleHydrodynamicRadius
-                    )
-                )
-            )
-        )
-    ));*/
-    exprs.add(QFNRA.assertEqual(injectionSeparationChannelSampleVelocity,
-        QFNRA.multiply(
-            QFNRA.add(
-                bulkMobility,
-                sampleElectrophoreticMobility
-            ),
-            injectionSeparationChannelE
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(injectionSampleChannelSampleVelocity,
-        QFNRA.multiply(
-            QFNRA.add(
-                bulkMobility,
-                sampleElectrophoreticMobility
-            ),
-            injectionSampleChannelE
-        )
-    ));
-    // TODO: Consider using more accurate formula?
-    exprs.add(QFNRA.assertEqual(peakTime, 
-        QFNRA.divide(separationDistance, 
-            injectionSeparationChannelSampleVelocity)));
-    exprs.add(QFNRA.assertGreater(baselineTime, peakTime));
-    exprs.add(QFNRA.assertEqual(sampleInitialSpread, 
-        QFNRA.divide(
-            sampleChannelRadius, 
-            new Decimal(2.355)
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(baselineTimeLeakageConcentration, 
-        QFNRA.divide(
-            QFNRA.multiply(
-                sampleInitialConcentration,
-                erfc(
-                    QFNRA.divide(
-                        QFNRA.multiply(
-                            injectionSampleChannelSampleVelocity,
-                            QFNRA.subtract(
-                                baselineTime,
-                                peakTime
-                            )
-                        ),
-                        QFNRA.multiply(
-                            new Numeral(2),
-                            QFNRA.sqrt(
-                                QFNRA.multiply(
-                                    sampleDiffusionConstant,
-                                    QFNRA.subtract(
-                                        baselineTime,
-                                        peakTime
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            ),
-            QFNRA.multiply(
-                QFNRA.sqrt(
-                    QFNRA.multiply(
-                        new Numeral(2),
-                        new Decimal(3.14159) // TODO: refactor out
-                    )
-                ),
-                sampleInitialSpread
-            )
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(peakTimeSampleConcentration, 
-        QFNRA.divide(
-            QFNRA.multiply(
-                sampleInitialConcentration,
-                QFNRA.exp(
-                    QFNRA.divide(
-                        QFNRA.pow(
-                            QFNRA.subtract(
-                                separationDistance,
-                                QFNRA.multiply(
-                                    injectionSeparationChannelSampleVelocity,
-                                    peakTime
-                                )
-                            ),
-                            new Numeral(2)
-                        ),
-                        QFNRA.multiply(
-                            new Numeral(-2),
-                            QFNRA.pow(
-                                QFNRA.add(
-                                    sampleInitialSpread,
-                                    QFNRA.sqrt(
-                                        QFNRA.multiply(
-                                            new Numeral(2),
-                                            QFNRA.multiply(
-                                                sampleDiffusionConstant,
-                                                peakTime
-                                            )
-                                        )
-                                    )
-                                ),
-                                new Numeral(2)
-                            )
-                        )
-                    )
-                )
-            ),
-            QFNRA.multiply(
-                QFNRA.sqrt(
-                    QFNRA.multiply(
-                        new Numeral(2),
-                        new Decimal(3.14159) // TODO: refactor out
-                    )
-                ),
-                QFNRA.add(
-                    sampleInitialSpread,
-                    QFNRA.sqrt(
-                        QFNRA.multiply(
-                            new Numeral(2),
-                            QFNRA.multiply(
-                                sampleDiffusionConstant,
-                                peakTime
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(baselineTimeSampleConcentration, 
-        QFNRA.divide(
-            QFNRA.multiply(
-                sampleInitialConcentration,
-                QFNRA.exp(
-                    QFNRA.divide(
-                        QFNRA.pow(
-                            QFNRA.subtract(
-                                separationDistance,
-                                QFNRA.multiply(
-                                    injectionSeparationChannelSampleVelocity,
-                                    baselineTime
-                                )
-                            ),
-                            new Numeral(2)
-                        ),
-                        QFNRA.multiply(
-                            new Numeral(-2),
-                            QFNRA.pow(
-                                QFNRA.add(
-                                    sampleInitialSpread,
-                                    QFNRA.sqrt(
-                                        QFNRA.multiply(
-                                            new Numeral(2),
-                                            QFNRA.multiply(
-                                                sampleDiffusionConstant,
-                                                baselineTime
-                                            )
-                                        )
-                                    )
-                                ),
-                                new Numeral(2)
-                            )
-                        )
-                    )
-                )
-            ),
-            QFNRA.multiply(
-                QFNRA.sqrt(
-                    QFNRA.multiply(
-                        new Numeral(2),
-                        new Decimal(3.14159) // TODO: refactor out
-                    )
-                ),
-                QFNRA.add(
-                    sampleInitialSpread,
-                    QFNRA.sqrt(
-                        QFNRA.multiply(
-                            new Numeral(2),
-                            QFNRA.multiply(
-                                sampleDiffusionConstant,
-                                baselineTime
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(
-        baselineTimeSampleConcentration,
-        QFNRA.divide(
-            peakTimeSampleConcentration,
-            new Decimal(10)
-        )
-    ));
-    // TODO: Ideally this should be >=, but doesn't always return optimal 
-    // ranges without ability to specify some sort of minimization objective.
-    exprs.add(QFNRA.assertEqual(
-        QFNRA.divide(
-            baselineTimeSampleConcentration,
-            baselineTimeLeakageConcentration
-        ),
-        new Decimal(1)
-    ));
-
-    // Joule heating constraints
-    // TODO: verify that sign is correct in equation
-    /*exprs.add(QFNRA.assertLessThan(
-        QFNRA.multiply(
-            QFNRA.divide(
-                QFNRA.multiply(
-                    QFNRA.pow(
-                        QFNRA.multiply(
-                            separationChannelInnerRadius, 
-                            injectionSeparationChannelE
-                        ),
-                        new Numeral(2)
-                    ),
-                    separationChannelElectricalConductivity
-                ),
-                QFNRA.multiply(
-                    new Numeral(2), 
-                    separationChannelThermalConductivity
-                )
-            ),
-            QFNRA.log(
-                QFNRA.divide(
-                    separationChannelOuterRadius,
-                    separationChannelInnerRadius
-                )
-            )
-        ),
-        new Numeral(1)
-    ));*/
 
     return exprs;
   }
-  
 }

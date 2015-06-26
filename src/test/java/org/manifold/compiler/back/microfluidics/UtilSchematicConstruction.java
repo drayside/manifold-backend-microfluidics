@@ -44,7 +44,6 @@ public class UtilSchematicConstruction {
   private static NodeTypeValue voltageCPNodeType; 
   private static NodeTypeValue pressureCPNodeType;
   private static NodeTypeValue channelCrossingNodeType;
-  private static NodeTypeValue electrophoreticNodeType;
   private static NodeTypeValue electrophoreticCrossType;
   private static NodeTypeValue reservoirType;
 
@@ -96,14 +95,6 @@ public class UtilSchematicConstruction {
     channelCrossingPorts.put("channelB1", microfluidPortType);
     channelCrossingNodeType = new NodeTypeValue(noTypeAttributes, 
         channelCrossingPorts);
-
-    // single-phase electrophoresis
-    // TODO: remove all references to this
-    Map<String, PortTypeValue> electrophoreticNodePorts = new HashMap<>();
-    electrophoreticNodePorts.put("sampleIn", microfluidPortType);
-    electrophoreticNodePorts.put("wasteOut", microfluidPortType);
-    electrophoreticNodeType = new NodeTypeValue(noTypeAttributes,
-        electrophoreticNodePorts);
 
     // single-phase electrophoretic cross
     Map<String, PortTypeValue> electrophoreticCrossPorts = new HashMap<>();
@@ -161,7 +152,6 @@ public class UtilSchematicConstruction {
     s.addNodeType("pressureControlPoint", pressureCPNodeType);
     s.addNodeType("voltageControlPoint", voltageCPNodeType);
     s.addNodeType("channelCrossing", channelCrossingNodeType);
-    s.addNodeType("electrophoreticNode", electrophoreticNodeType);
     s.addNodeType("electrophoreticCross", electrophoreticCrossType);
     s.addNodeType("reservoir", reservoirType);
 
@@ -211,17 +201,6 @@ public class UtilSchematicConstruction {
       throws SchematicException {
     // TODO
     return null;
-  }
-
-  public static NodeValue instantiateElectrophoreticNode(Schematic schematic)
-      throws SchematicException {
-    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
-    portAttrsMap.put("sampleIn", noAttributes);
-    portAttrsMap.put("wasteOut", noAttributes);
-    NodeValue electrophoreticNode = new NodeValue(
-        schematic.getNodeType("electrophoreticNode"), 
-        noAttributes, portAttrsMap);
-    return electrophoreticNode;
   }
 
   public static NodeValue instantiateElectrophoreticCross(Schematic schematic)
