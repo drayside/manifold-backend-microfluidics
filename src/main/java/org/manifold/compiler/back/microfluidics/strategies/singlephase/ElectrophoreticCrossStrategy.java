@@ -1,7 +1,6 @@
 package org.manifold.compiler.back.microfluidics.strategies.singlephase;
 
 import java.util.LinkedList;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.manifold.compiler.ConnectionValue;
@@ -156,7 +155,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     Symbol injectionSeparationChannelE = SymbolNameGenerator
         .getsym_EPCrossInjectionSeparationChannelE(schematic, nCross);
     Symbol injectionInjectionChannelE = SymbolNameGenerator
-        .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);    
+        .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);
     Symbol bulkMobility = SymbolNameGenerator
         .getsym_EPCrossBulkMobility(schematic, nCross);
     Symbol bulkViscosity = SymbolNameGenerator
@@ -170,23 +169,17 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     Symbol baselineConcentration = SymbolNameGenerator
         .getsym_EPCrossBaselineConcentration(schematic, nCross);
         
-    ArrayList<Symbol> injectionSeparationChannelAnalyteVelocity = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> injectionInjectionChannelAnalyteVelocity = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> analyteInitialSurfaceConcentration = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> analyteDiffusionCoefficient = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> analyteElectrophoreticMobility = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> peakTimeAnalyteConcentration = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> peakTimeAnalyteSpread = 
-        new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> peakTime = new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> focusTime = new ArrayList<Symbol>(numAnalytes);
-    ArrayList<Symbol> fadeTime = new ArrayList<Symbol>(numAnalytes);
+    Symbol[] injectionSeparationChannelAnalyteVelocity = 
+        new Symbol[numAnalytes];
+    Symbol[] injectionInjectionChannelAnalyteVelocity = new Symbol[numAnalytes];
+    Symbol[] analyteInitialSurfaceConcentration = new Symbol[numAnalytes];
+    Symbol[] analyteDiffusionCoefficient = new Symbol[numAnalytes];
+    Symbol[] analyteElectrophoreticMobility = new Symbol[numAnalytes];
+    Symbol[] peakTimeAnalyteConcentration = new Symbol[numAnalytes];
+    Symbol[] peakTimeAnalyteSpread = new Symbol[numAnalytes];
+    Symbol[] peakTime = new Symbol[numAnalytes];
+    Symbol[] focusTime = new Symbol[numAnalytes];
+    Symbol[] fadeTime = new Symbol[numAnalytes];
     
     for(int i = 0; i < numAnalytes; ++i) {
         injectionSeparationChannelAnalyteVelocity[i] = SymbolNameGenerator
@@ -204,11 +197,9 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             .getsym_EPCrossAnalyteElectrophoreticMobility(
                 schematic, nCross, i);
         peakTimeAnalyteConcentration[i] = SymbolNameGenerator
-            .getsym_EPCrossPeakTimeAnalyteConcentration(
-                schematic, nCross, i);
+            .getsym_EPCrossPeakTimeAnalyteConcentration(schematic, nCross, i);
         peakTimeAnalyteSpread[i] = SymbolNameGenerator
-            .getsym_EPCrossAnalyteElectrophoreticMobility(
-                schematic, nCross, i);
+            .getsym_EPCrossPeakTimeAnalyteSpread(schematic, nCross, i);
         peakTime[i] = SymbolNameGenerator
             .getsym_EPCrossPeakTime(schematic, nCross, i);
         focusTime[i] = SymbolNameGenerator
@@ -282,15 +273,15 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     ));
     exprs.add(QFNRA.assertEqual(
         analyteInitialSurfaceConcentration[0], 
-        new Decimal(2.0) // N_bp = 100
+        new Decimal(1.06e-4) // N_bp = 100
     ));
     exprs.add(QFNRA.assertEqual(
         analyteInitialSurfaceConcentration[1], 
-        new Decimal(1.0) // N_bp = 50
+        new Decimal(5.32e-5) // N_bp = 50
     ));
     exprs.add(QFNRA.assertEqual(
         analyteInitialSurfaceConcentration[2], 
-        new Decimal(0.5) // N_bp = 1000
+        new Decimal(2.66e-5) // N_bp = 1000
     ));
     exprs.add(QFNRA.assertEqual(
         analyteDiffusionCoefficient[0], 
@@ -394,7 +385,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                 QFNRA.sqrt(
                     QFNRA.multiply(
                         new Numeral(2),
-                        QNFRA.multiply(
+                        QFNRA.multiply(
                             analyteDiffusionCoefficient[i],
                             peakTime[i]
                         )
@@ -412,7 +403,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                             QFNRA.pow(
                                 QFNRA.subtract(
                                     separationDistance,
-                                    QNFRA.multiply(
+                                    QFNRA.multiply(
                                         injectionSeparationChannelAnalyteVelocity[i],
                                         peakTime[i]
                                     )
@@ -451,7 +442,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                                 QFNRA.pow(
                                     QFNRA.subtract(
                                         separationDistance,
-                                        QNFRA.multiply(
+                                        QFNRA.multiply(
                                             injectionSeparationChannelAnalyteVelocity[i],
                                             peakTime[i]
                                         )
@@ -487,7 +478,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                             injectionSeparationChannelAnalyteVelocity[i],
                             QFNRA.subtract(
                                 separationDistance,
-                                QNFRA.multiply(
+                                QFNRA.multiply(
                                     injectionSeparationChannelAnalyteVelocity[i],
                                     peakTime[i]
                                 )
@@ -501,7 +492,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                                 QFNRA.divide(
                                     QFNRA.subtract(
                                         separationDistance,
-                                        QNFRA.multiply(
+                                        QFNRA.multiply(
                                             injectionSeparationChannelAnalyteVelocity[i],
                                             peakTime[i]
                                         )
@@ -535,7 +526,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                             QFNRA.pow(
                                 QFNRA.subtract(
                                     separationDistance,
-                                    QNFRA.multiply(
+                                    QFNRA.multiply(
                                         injectionSeparationChannelAnalyteVelocity[i],
                                         focusTime[i]
                                     )
@@ -550,7 +541,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                                         QFNRA.sqrt(
                                             QFNRA.multiply(
                                                 new Numeral(2),
-                                                QNFRA.multiply(
+                                                QFNRA.multiply(
                                                     analyteDiffusionCoefficient[i],
                                                     focusTime[i]
                                                 )
@@ -575,7 +566,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                         QFNRA.sqrt(
                             QFNRA.multiply(
                                 new Numeral(2),
-                                QNFRA.multiply(
+                                QFNRA.multiply(
                                     analyteDiffusionCoefficient[i],
                                     focusTime[i]
                                 )
@@ -599,7 +590,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                             QFNRA.pow(
                                 QFNRA.subtract(
                                     separationDistance,
-                                    QNFRA.multiply(
+                                    QFNRA.multiply(
                                         injectionSeparationChannelAnalyteVelocity[i],
                                         fadeTime[i]
                                     )
@@ -614,7 +605,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                                         QFNRA.sqrt(
                                             QFNRA.multiply(
                                                 new Numeral(2),
-                                                QNFRA.multiply(
+                                                QFNRA.multiply(
                                                     analyteDiffusionCoefficient[i],
                                                     fadeTime[i]
                                                 )
@@ -639,7 +630,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                         QFNRA.sqrt(
                             QFNRA.multiply(
                                 new Numeral(2),
-                                QNFRA.multiply(
+                                QFNRA.multiply(
                                     analyteDiffusionCoefficient[i],
                                     fadeTime[i]
                                 )
@@ -683,7 +674,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     }
     
     // pull-back voltage constraints
-    exprs.add(QFNRA.assertEqual(
+    /*exprs.add(QFNRA.assertEqual(
         injectionIntersectionVoltage,
         QFNRA.add(
             injectionAnodeNodeVoltage,
@@ -720,7 +711,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             ),
             lenInjectionChannel
         )
-    ));
+    ));*/
 
     return exprs;
   }

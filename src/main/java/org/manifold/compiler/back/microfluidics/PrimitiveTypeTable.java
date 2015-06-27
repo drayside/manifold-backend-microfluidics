@@ -72,11 +72,6 @@ public class PrimitiveTypeTable {
     return channelCrossingNodeType;
   }
  
-  private NodeTypeValue electrophoreticNodeType = null;
-  public NodeTypeValue getElectrophoreticNodeType(){
-    return electrophoreticNodeType;
-  }  
- 
   private NodeTypeValue electrophoreticCrossType = null;
   public NodeTypeValue getElectrophoreticCrossType(){
     return electrophoreticCrossType;
@@ -107,8 +102,6 @@ public class PrimitiveTypeTable {
           schematic.getNodeType("voltageControlPoint");
       channelCrossingNodeType =
           schematic.getNodeType("channelCrossing");
-      electrophoreticNodeType =
-          schematic.getNodeType("electrophoreticNode");
       electrophoreticCrossType = 
           schematic.getNodeType("electrophoreticCross");
       reservoirType = schematic.getNodeType("reservoir");

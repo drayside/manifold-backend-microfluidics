@@ -525,6 +525,18 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the spread of an analyte along the 
+   * separation channel when its concentration in the electropherogram output 
+   * has peaked. 
+   **/
+  public static Symbol getsym_EPCrossPeakTimeAnalyteSpread(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_peakTimeAnalyteSpread" + analyteId));
+  }
+  
+  /**
    * Retrieves the symbol that defines the initial surface concentration of an 
    * analyte within the separation channel (i.e. C_0).
    **/
