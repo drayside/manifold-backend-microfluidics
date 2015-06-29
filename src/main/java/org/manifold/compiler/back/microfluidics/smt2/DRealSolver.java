@@ -25,7 +25,7 @@ public class DRealSolver implements AutoCloseable {
     }
   }
   
-  class Result {
+  public class Result {
     private final boolean satisfiable;
     public boolean isSatisfiable() {
       return this.satisfiable;
