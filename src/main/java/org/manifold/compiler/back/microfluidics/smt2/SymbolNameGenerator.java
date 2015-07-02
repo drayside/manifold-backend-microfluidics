@@ -514,14 +514,36 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the concentration of the 
+   * electropherogram output peak corresponding to a specific analyte.
+   **/
+  public static Symbol getsym_EPCrossPeakTimeConcentration(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_peakTimeConcentration" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the minimum concentration in the 
+   * electropherogram output immediately following a specific peak.
+   **/
+  public static Symbol getsym_EPCrossFadeTimeConcentration(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_fadeTimeConcentration" + analyteId));
+  }
+  
+  /**
    * Retrieves the symbol that defines the peak concentration of an analyte 
    * in the electropherogram output.
    **/
   public static Symbol getsym_EPCrossPeakTimeAnalyteConcentration(
-      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
-      "_peakTimeAnalyteConcentration" + analyteId));
+      "_peakTimeAnalyteConcentration" + timestepId + "_" + analyteId));
   }
   
   /**
@@ -530,10 +552,33 @@ public class SymbolNameGenerator {
    * has peaked. 
    **/
   public static Symbol getsym_EPCrossPeakTimeAnalyteSpread(
-      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
-      "_peakTimeAnalyteSpread" + analyteId));
+      "_peakTimeAnalyteSpread" + timestepId + "_" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the minimum concentration of an analyte 
+   * in the electropherogram output after peak time.
+   **/
+  public static Symbol getsym_EPCrossFadeTimeAnalyteConcentration(
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_fadeTimeAnalyteConcentration" + timestepId + "_" + analyteId));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the spread of an analyte along the 
+   * separation channel when its concentration in the electropherogram output 
+   * has reached a minimum after peak time. 
+   **/
+  public static Symbol getsym_EPCrossFadeTimeAnalyteSpread(
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat(
+      "_fadeTimeAnalyteSpread" + timestepId + "_" + analyteId));
   }
   
   /**
