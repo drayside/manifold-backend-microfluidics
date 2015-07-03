@@ -287,7 +287,7 @@ public class SymbolNameGenerator {
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
-	    "_injectionInjectionChannelSampleVelocity"));
+        "_injectionInjectionChannelSampleVelocity"));
   }
   
   /**
@@ -563,7 +563,8 @@ public class SymbolNameGenerator {
    * in the electropherogram output after peak time.
    **/
   public static Symbol getsym_EPCrossFadeTimeAnalyteConcentration(
-      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, 
+      int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
       "_fadeTimeAnalyteConcentration" + timestepId + "_" + analyteId));
@@ -575,7 +576,8 @@ public class SymbolNameGenerator {
    * has reached a minimum after peak time. 
    **/
   public static Symbol getsym_EPCrossFadeTimeAnalyteSpread(
-      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, 
+      int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
       "_fadeTimeAnalyteSpread" + timestepId + "_" + analyteId));

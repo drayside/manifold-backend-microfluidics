@@ -84,47 +84,47 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
 
   // approximate erfc(x) = 1 - erf(x), assuming x >= 0
   protected SExpression erfc(SExpression exp) {
-      SExpression ret = QFNRA.divide(
+    SExpression ret = QFNRA.divide(
+      new Numeral(1),
+      QFNRA.pow(
+        QFNRA.add(
           new Numeral(1),
-          QFNRA.pow(
-              QFNRA.add(
-                  new Numeral(1),
-                  QFNRA.add(
-                      QFNRA.multiply(
-                          new Decimal(0.278393), 
-                          exp
-                      ),
-                      QFNRA.add(
-                          QFNRA.multiply(
-                              new Decimal(0.230389),
-                              QFNRA.pow(
-                                  exp, 
-                                  new Numeral(2)
-                              )
-                          ),
-                          QFNRA.add(
-                              QFNRA.multiply(
-                                  new Decimal(0.000972),
-                                  QFNRA.pow(
-                                      exp,
-                                      new Numeral(3)
-                                  )
-                              ),
-                              QFNRA.multiply(
-                                  new Decimal(0.078108),
-                                  QFNRA.pow(
-                                      exp,
-                                      new Numeral(4)
-                                  )
-                              )
-                          )
-                      )
-                  )
+          QFNRA.add(
+            QFNRA.multiply(
+              new Decimal(0.278393), 
+              exp
+            ),
+            QFNRA.add(
+              QFNRA.multiply(
+                new Decimal(0.230389),
+                QFNRA.pow(
+                  exp, 
+                  new Numeral(2)
+                )
               ),
-              new Numeral(4)
+              QFNRA.add(
+                QFNRA.multiply(
+                  new Decimal(0.000972),
+                  QFNRA.pow(
+                    exp,
+                    new Numeral(3)
+                  )
+                ),
+                QFNRA.multiply(
+                  new Decimal(0.078108),
+                  QFNRA.pow(
+                    exp,
+                    new Numeral(4)
+                  )
+                )
+              )
+            )
           )
-      );
-      return ret;
+        ),
+        new Numeral(4)
+      )
+    );
+    return ret;
   }
   
   private List<SExpression> translateElectrophoreticCross(Schematic schematic,
@@ -184,7 +184,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     Symbol[] peakTime = new Symbol[numAnalytes];
     Symbol[] fadeTime = new Symbol[numAnalytes - 1];
     
-    for(int i = 0; i < numAnalytes; ++i) {
+    for (int i = 0; i < numAnalytes; ++i) {
       injectionSeparationChannelAnalyteVelocity[i] = SymbolNameGenerator
         .getsym_EPCrossInjectionSeparationChannelAnalyteVelocity(
           schematic, nCross, i);
@@ -202,7 +202,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       peakTime[i] = SymbolNameGenerator
         .getsym_EPCrossPeakTime(schematic, nCross, i);
     }
-    for(int i = 0; i < numAnalytes - 1; ++i) {
+    for (int i = 0; i < numAnalytes - 1; ++i) {
       fadeTimeConcentration[i] = SymbolNameGenerator
         .getsym_EPCrossFadeTimeConcentration(schematic, nCross, i);
       fadeTime[i] = SymbolNameGenerator
@@ -231,7 +231,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(endTime));
     exprs.add(QFNRA.declareRealVariable(baselineConcentration));
     
-    for(int i = 0; i < numAnalytes; ++i) {
+    for (int i = 0; i < numAnalytes; ++i) {
       exprs.add(QFNRA.declareRealVariable(
         injectionSeparationChannelAnalyteVelocity[i]));
       exprs.add(QFNRA.declareRealVariable(
@@ -243,7 +243,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       exprs.add(QFNRA.declareRealVariable(peakTimeConcentration[i]));
       exprs.add(QFNRA.declareRealVariable(peakTime[i]));
     }
-    for(int i = 0; i < numAnalytes - 1; ++i) {
+    for (int i = 0; i < numAnalytes - 1; ++i) {
       exprs.add(QFNRA.declareRealVariable(fadeTimeConcentration[i]));
       exprs.add(QFNRA.declareRealVariable(fadeTime[i]));
     }
@@ -363,7 +363,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         new Decimal(2.355)
       )
     ));
-    for(int i = 0; i < numAnalytes; ++i) {
+    for (int i = 0; i < numAnalytes; ++i) {
       exprs.add(QFNRA.assertEqual(
         injectionSeparationChannelAnalyteVelocity[i],
         QFNRA.multiply(
@@ -377,12 +377,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     }
  
     // if sample only contains one analyte, then separation is not a concern
-    if(numAnalytes > 1) {
+    if (numAnalytes > 1) {
       exprs.add(QFNRA.assertGreater(
         peakTime[0],
         startTime
       ));
-      for(int i = 0; i < numAnalytes - 1; ++i) {
+      for (int i = 0; i < numAnalytes - 1; ++i) {
         exprs.add(QFNRA.assertGreater(
           fadeTime[i],
           peakTime[i]
@@ -397,12 +397,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         peakTime[numAnalytes - 1]
       ));
 
-      for(int i = 0; i < numAnalytes; ++i) {
+      for (int i = 0; i < numAnalytes; ++i) {
         SExpression[] peakTimeAnalyteSpread = new SExpression[numAnalytes];
         SExpression[] peakTimeAnalyteConcentration = 
           new SExpression[numAnalytes];
 
-        for(int j = 0; j < numAnalytes; ++j) {
+        for (int j = 0; j < numAnalytes; ++j) {
           peakTimeAnalyteSpread[j] = QFNRA.add(
             sampleInitialSpread,
             QFNRA.sqrt(
@@ -455,7 +455,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           peakTimeAnalyteConcentration[0],
           peakTimeAnalyteConcentration[1]
         );
-        for(int j = 2; j < numAnalytes; ++j) {
+        for (int j = 2; j < numAnalytes; ++j) {
           peakTimeConcentrationExpr = QFNRA.add(
             peakTimeConcentrationExpr,
             peakTimeAnalyteConcentration[j]
@@ -533,7 +533,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           ),
           new Decimal(0.95)
         ));
-        if(i == 0) {
+        if (i == 0) {
           exprs.add(QFNRA.assertEqual(
             baselineConcentration,
             QFNRA.divide(
@@ -594,7 +594,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               )
             )
           ));
-        } else if(i == numAnalytes - 1) {
+        } else if (i == numAnalytes - 1) {
           exprs.add(QFNRA.assertEqual(
             baselineConcentration,
             QFNRA.divide(
@@ -657,12 +657,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           ));
         }
       }
-      for(int i = 0; i < numAnalytes - 1; ++i) {
+      for (int i = 0; i < numAnalytes - 1; ++i) {
         SExpression[] fadeTimeAnalyteSpread = new SExpression[numAnalytes];
         SExpression[] fadeTimeAnalyteConcentration = 
           new SExpression[numAnalytes];
 
-        for(int j = 0; j < numAnalytes; ++j) {
+        for (int j = 0; j < numAnalytes; ++j) {
           fadeTimeAnalyteSpread[j] = QFNRA.add(
             sampleInitialSpread,
             QFNRA.sqrt(
@@ -715,7 +715,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           fadeTimeAnalyteConcentration[0],
           fadeTimeAnalyteConcentration[1]
         );
-        for(int j = 2; j < numAnalytes; ++j) {
+        for (int j = 2; j < numAnalytes; ++j) {
           fadeTimeConcentrationExpr = QFNRA.add(
             fadeTimeConcentrationExpr,
             fadeTimeAnalyteConcentration[j]
@@ -750,7 +750,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         ),
         threshold
       ));
-      for(int i = 1; i < numAnalytes - 1; ++i) {
+      for (int i = 1; i < numAnalytes - 1; ++i) {
         exprs.add(QFNRA.assertLessThanEqual(
           QFNRA.divide(
             fadeTimeConcentration[i - 1],

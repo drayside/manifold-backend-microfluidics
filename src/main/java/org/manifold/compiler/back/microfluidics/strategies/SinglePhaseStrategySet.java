@@ -14,7 +14,8 @@ import org.manifold.compiler.middle.Schematic;
 public class SinglePhaseStrategySet extends TranslationStrategy {
 
   private ElectrophoreticCrossStrategy electrophoreticCrossStrategy;
-  public void useElectrophoreticCrossStrategy(ElectrophoreticCrossStrategy strat) {
+  public void useElectrophoreticCrossStrategy(
+      ElectrophoreticCrossStrategy strat) {
     this.electrophoreticCrossStrategy = strat;
   }
 
