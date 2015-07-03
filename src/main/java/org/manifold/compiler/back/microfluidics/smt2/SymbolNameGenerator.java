@@ -644,6 +644,26 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the time at which the electropherogram
+   * output first exceeds the baseline level.
+   **/
+  public static Symbol getsym_EPCrossStartTime(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_startTime"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the time at which the electropherogram
+   * output returns to the baseline level for the final time.
+   **/
+  public static Symbol getsym_EPCrossEndTime(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_endTime"));
+  }
+  
+  /**
    * Retrieves the symbol that defines the baseline concentration in the 
    * electropherogram output.
    **/
