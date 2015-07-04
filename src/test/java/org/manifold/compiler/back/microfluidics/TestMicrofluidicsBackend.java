@@ -1,5 +1,8 @@
 package org.manifold.compiler.back.microfluidics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -11,6 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
+import org.manifold.compiler.RealValue;
+import org.manifold.compiler.Value;
 import org.manifold.compiler.middle.Schematic;
 
 public class TestMicrofluidicsBackend {
@@ -72,9 +77,28 @@ public class TestMicrofluidicsBackend {
     
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("electrophoreticCrossTest");
-    
+   
+    final int numAnalytes = 4;
+    List<Value> analyteElectrophoreticMobility = new ArrayList<Value>();
+    List<Value> analyteInitialSurfaceConcentration = new ArrayList<Value>();
+    List<Value> analyteDiffusionCoefficient = new ArrayList<Value>();
+    analyteElectrophoreticMobility.add(new RealValue(-3.75e-8)); // N_bp = 1000
+    analyteElectrophoreticMobility.add(new RealValue(-3.70e-8)); // N_bp = 100
+    analyteElectrophoreticMobility.add(new RealValue(-3.65e-8));
+    analyteElectrophoreticMobility.add(new RealValue(-3.60e-8)); // N_bp = 50
+    analyteInitialSurfaceConcentration.add(new RealValue(2.66e-5));
+    analyteInitialSurfaceConcentration.add(new RealValue(1.06e-4));
+    analyteInitialSurfaceConcentration.add(new RealValue(4.24e-4));
+    analyteInitialSurfaceConcentration.add(new RealValue(5.32e-5));
+    analyteDiffusionCoefficient.add(new RealValue(5.85e-12));
+    analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
+    analyteDiffusionCoefficient.add(new RealValue(5.00e-12));
+    analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
+
     NodeValue cross = UtilSchematicConstruction
-        .instantiateElectrophoreticCross(schematic);
+        .instantiateElectrophoreticCross(schematic, numAnalytes, 
+        analyteElectrophoreticMobility, analyteInitialSurfaceConcentration,
+        analyteDiffusionCoefficient);
     NodeValue sampleReservoir = UtilSchematicConstruction
         .instantiateReservoir(schematic);
     NodeValue wasteReservoir = UtilSchematicConstruction

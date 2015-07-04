@@ -3,10 +3,14 @@ package org.manifold.compiler.back.microfluidics.strategies.singlephase;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.manifold.compiler.ArrayValue;
 import org.manifold.compiler.ConnectionValue;
+import org.manifold.compiler.IntegerValue;
 import org.manifold.compiler.NodeTypeValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.PortValue;
+import org.manifold.compiler.RealValue;
+import org.manifold.compiler.UndeclaredAttributeException;
 import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
@@ -77,6 +81,9 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             + e.getIdentifier() + "' when inspecting electrophoretic node '"
             + schematic.getNodeName(node) + "'; "
             + "possible schematic version mismatch");
+      } catch (UndeclaredAttributeException e) {
+        // TODO: replace with more informative error message
+        throw new CodeGenerationError("undeclared attribute");
       }
     }
     return exprs;
@@ -128,9 +135,17 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
   }
   
   private List<SExpression> translateElectrophoreticCross(Schematic schematic,
-      NodeValue nCross) throws UndeclaredIdentifierException {
+      NodeValue nCross) throws UndeclaredIdentifierException, 
+      UndeclaredAttributeException {
     List<SExpression> exprs = new LinkedList<>();
-    final int numAnalytes = 3;
+
+    ArrayValue analyteElectrophoreticMobilityAttr = 
+      (ArrayValue)nCross.getAttribute("analyteElectrophoreticMobility");
+    ArrayValue analyteInitialSurfaceConcentrationAttr = 
+      (ArrayValue)nCross.getAttribute("analyteInitialSurfaceConcentration");
+    ArrayValue analyteDiffusionCoefficientAttr = 
+      (ArrayValue)nCross.getAttribute("analyteDiffusionCoefficient");
+    int numAnalytes = analyteElectrophoreticMobilityAttr.length();
 
     Symbol lenSeparationChannel = SymbolNameGenerator
       .getsym_EPCrossSeparationChannelLength(schematic, nCross);
@@ -261,42 +276,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       new Decimal(1e-8)
     ));
     exprs.add(QFNRA.assertEqual(
-      analyteElectrophoreticMobility[0], 
-      new Decimal(-3.75e-8) // N_bp = 1000
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteElectrophoreticMobility[1], 
-      new Decimal(-3.70e-8) // N_bp = 100
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteElectrophoreticMobility[2], 
-      new Decimal(-3.60e-8) // N_bp = 50
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteInitialSurfaceConcentration[0], 
-      new Decimal(2.66e-5) // N_bp = 1000
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteInitialSurfaceConcentration[1], 
-      new Decimal(1.06e-4) // N_bp = 100
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteInitialSurfaceConcentration[2], 
-      new Decimal(5.32e-5) // N_bp = 50
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteDiffusionCoefficient[0], 
-      new Decimal(5.85e-12) // N_bp = 1000
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteDiffusionCoefficient[1], 
-      new Decimal(2.17e-11) // N_bp = 100
-    ));
-    exprs.add(QFNRA.assertEqual(
-      analyteDiffusionCoefficient[2], 
-      new Decimal(3.23e-11) // N_bp = 50
-    ));
-    exprs.add(QFNRA.assertEqual(
       injectionCathodeNodeVoltage, 
       new Decimal(-1e2)
     ));
@@ -328,6 +307,27 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       baselineConcentration, 
       new Decimal(0.01)
     ));
+
+    for (int i = 0; i < numAnalytes; ++i) {
+      exprs.add(QFNRA.assertEqual(
+        analyteElectrophoreticMobility[i], 
+        new Decimal(
+          ((RealValue)analyteElectrophoreticMobilityAttr.get(i)).toDouble()
+        )
+      ));
+      exprs.add(QFNRA.assertEqual(
+        analyteInitialSurfaceConcentration[i], 
+        new Decimal(
+          ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble()
+        )
+      ));
+      exprs.add(QFNRA.assertEqual(
+        analyteDiffusionCoefficient[i], 
+        new Decimal(
+          ((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble()
+        )
+      ));
+    }
 
     // physical constraints
     exprs.add(QFNRA.assertEqual(

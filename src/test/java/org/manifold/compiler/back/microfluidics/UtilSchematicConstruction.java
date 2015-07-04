@@ -1,12 +1,18 @@
 package org.manifold.compiler.back.microfluidics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.manifold.compiler.ArrayTypeValue;
+import org.manifold.compiler.ArrayValue;
 import org.manifold.compiler.ConnectionTypeValue;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.ConstraintType;
 import org.manifold.compiler.ConstraintValue;
+import org.manifold.compiler.IntegerTypeValue;
+import org.manifold.compiler.IntegerValue;
 import org.manifold.compiler.InvalidAttributeException;
 import org.manifold.compiler.MultipleDefinitionException;
 import org.manifold.compiler.NilTypeValue;
@@ -28,6 +34,8 @@ import org.manifold.compiler.middle.SchematicException;
 public class UtilSchematicConstruction {
 
   private static boolean setUp = false;
+
+  private static ArrayTypeValue realArrayType;
 
   private static final Map<String, TypeValue> noTypeAttributes 
     = new HashMap<>();
@@ -52,6 +60,7 @@ public class UtilSchematicConstruction {
   private static ConstraintType channelDropletVolumeConstraintType;
   
   public static void setupIntermediateTypes() {
+    realArrayType = new ArrayTypeValue(RealTypeValue.getInstance());
 
     // TODO which signal type do we want here?
     microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
@@ -102,8 +111,17 @@ public class UtilSchematicConstruction {
     electrophoreticCrossPorts.put("waste", microfluidPortType);
     electrophoreticCrossPorts.put("cathode", microfluidPortType);
     electrophoreticCrossPorts.put("anode", microfluidPortType);
-    electrophoreticCrossType = new NodeTypeValue(noTypeAttributes,
-        electrophoreticCrossPorts);
+    Map<String, TypeValue> electrophoreticCrossAttributes = new HashMap<>();
+    electrophoreticCrossAttributes.put("numAnalytes", 
+        IntegerTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("analyteElectrophoreticMobility",
+        realArrayType);
+    electrophoreticCrossAttributes.put("analyteInitialSurfaceConcentration",
+        realArrayType);
+    electrophoreticCrossAttributes.put("analyteDiffusionCoefficient",
+        realArrayType);
+    electrophoreticCrossType = new NodeTypeValue(
+        electrophoreticCrossAttributes, electrophoreticCrossPorts);
   
     // reservoir
     Map<String, PortTypeValue> reservoirPorts = new HashMap<>();
@@ -203,16 +221,29 @@ public class UtilSchematicConstruction {
     return null;
   }
 
-  public static NodeValue instantiateElectrophoreticCross(Schematic schematic)
+  public static NodeValue instantiateElectrophoreticCross(Schematic schematic,
+      int numAnalytes, List<Value> analyteElectrophoreticMobility,
+      List<Value> analyteInitialSurfaceConcentration,
+      List<Value> analyteDiffusionCoefficient)
       throws SchematicException {
+    Map<String, Value> attrsMap = new HashMap<>();
+    attrsMap.put("numAnalytes", new IntegerValue(numAnalytes));
+    attrsMap.put("analyteElectrophoreticMobility", 
+        new ArrayValue(realArrayType, analyteElectrophoreticMobility));
+    attrsMap.put("analyteInitialSurfaceConcentration", 
+        new ArrayValue(realArrayType, analyteInitialSurfaceConcentration));
+    attrsMap.put("analyteDiffusionCoefficient", 
+        new ArrayValue(realArrayType, analyteDiffusionCoefficient));
+
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
     portAttrsMap.put("sample", noAttributes);
     portAttrsMap.put("waste", noAttributes);
     portAttrsMap.put("cathode", noAttributes);
     portAttrsMap.put("anode", noAttributes);
+    
     NodeValue electrophoreticCross = new NodeValue(
         schematic.getNodeType("electrophoreticCross"),
-        noAttributes, portAttrsMap);
+        attrsMap, portAttrsMap);
     return electrophoreticCross;
   }
   
