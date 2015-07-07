@@ -23,6 +23,9 @@ import org.manifold.compiler.middle.Schematic;
 
 public class TJunctionDeviceStrategy extends TranslationStrategy {
 
+  private static boolean calculateDropletDerivedQuantities = false;
+  private static boolean performWorstCaseAnalysis = false;
+  
   //get the connection associated with this port
   // TODO this is VERY EXPENSIVE, find an optimization
   protected ConnectionValue getConnection(
@@ -342,90 +345,98 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.assertEqual(vOutput, calculatedDropletVolume(
         h, w, wIn, epsilon, qD, qC)));
     
-    // constraint: assume interfacial tension = 0.042 N*m
-    // TODO figure out what this is a property of
-    Symbol interfacialTension = new Symbol("interfacialTension");
-    exprs.add(QFNRA.declareRealVariable(interfacialTension));
-    exprs.add(QFNRA.assertEqual(interfacialTension, new Decimal(0.042)));
+    if (calculateDropletDerivedQuantities) {
     
-    // constraint: calculate droplet resistance
-    Symbol dropletResistance = SymbolNameGenerator
-        .getsym_ChannelDropletResistance(schematic, chOutput);
-    // assume this is declared elsewhere
-    exprs.add(QFNRA.assertEqual(dropletResistance, 
-        calculatedDropletResistance(
-            SymbolNameGenerator.getsym_ChannelResistance(schematic, chOutput), 
-            new Decimal(1.0), // alpha
-            new Decimal(0.0036), // Ca 
-            interfacialTension, 
-            dispersedViscosity, continuousViscosity,
-            SymbolNameGenerator.getsym_ChannelLength(schematic, chOutput),
-            SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput), 
-            SymbolNameGenerator.getsym_ChannelHeight(schematic, chOutput)
-            )));
-    
-    // constraint: calculate droplet velocity
-    // v_d ~= Qd / (w * h)
+      // constraint: assume interfacial tension = 0.042 N*m
+      // TODO figure out what this is a property of
+      Symbol interfacialTension = new Symbol("interfacialTension");
+      exprs.add(QFNRA.declareRealVariable(interfacialTension));
+      exprs.add(QFNRA.assertEqual(interfacialTension, new Decimal(0.042)));
+      
+      // constraint: calculate droplet resistance
+      Symbol dropletResistance = SymbolNameGenerator
+          .getsym_ChannelDropletResistance(schematic, chOutput);
+      // assume this is declared elsewhere
+      exprs.add(QFNRA.assertEqual(dropletResistance, 
+          calculatedDropletResistance(
+              SymbolNameGenerator.getsym_ChannelResistance(schematic, chOutput), 
+              new Decimal(1.0), // alpha
+              new Decimal(0.0036), // Ca 
+              interfacialTension, 
+              dispersedViscosity, continuousViscosity,
+              SymbolNameGenerator.getsym_ChannelLength(schematic, chOutput),
+              SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput), 
+              SymbolNameGenerator.getsym_ChannelHeight(schematic, chOutput)
+              )));
+      
+      // constraint: calculate droplet velocity
+      // v_d ~= Qd / (w * h)
+  
+      Symbol dropletVelocity = SymbolNameGenerator
+          .getsym_ChannelDropletVelocity(schematic, chOutput);
+      exprs.add(QFNRA.declareRealVariable(dropletVelocity));
+      exprs.add(QFNRA.assertEqual(dropletVelocity, 
+          QFNRA.divide(qD, QFNRA.multiply(
+              SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput), 
+              SymbolNameGenerator.getsym_ChannelHeight(schematic, chOutput)))));
+      
+      // constraint: calculate droplet production frequency
+      // f = Qd / Vd
+      Symbol dropletFrequency = SymbolNameGenerator
+          .getsym_ChannelDropletFrequency(schematic, chOutput);
+      exprs.add(QFNRA.declareRealVariable(dropletFrequency));
+      exprs.add(QFNRA.assertEqual(dropletFrequency, QFNRA.divide(qD, vOutput)));
+      
+      // constraint: calculate droplet spacing
+      // spacing = v_d / f
+      Symbol dropletSpacing = SymbolNameGenerator
+          .getsym_ChannelDropletSpacing(schematic, chOutput);
+      exprs.add(QFNRA.declareRealVariable(dropletSpacing));
+      exprs.add(QFNRA.assertEqual(dropletSpacing, 
+          QFNRA.divide(dropletVelocity, dropletFrequency)));
+      
+      // constraint: calculate maximum number of droplets
+      // n ~= length / spacing
+      Symbol nDroplets_Continuous = SymbolNameGenerator
+          .getsym_ChannelMaxDroplets(schematic, chContinuous);
+      Symbol nDroplets_Dispersed = SymbolNameGenerator
+          .getsym_ChannelMaxDroplets(schematic, chDispersed);
+      Symbol nDroplets_Output = SymbolNameGenerator
+          .getsym_ChannelMaxDroplets(schematic, chOutput);
+      // assume this is already declared for every channel
+      // continuous and dispersed channels can have zero droplets
+      // TODO droplets inside droplets break this
+      exprs.add(QFNRA.assertEqual(nDroplets_Continuous, new Numeral(0)));
+      exprs.add(QFNRA.assertEqual(nDroplets_Dispersed, new Numeral(0)));
+      // compute upper bound for output channel
+      exprs.add(QFNRA.assertEqual(nDroplets_Output, 
+          QFNRA.divide(SymbolNameGenerator
+              .getsym_ChannelLength(schematic, chOutput), dropletSpacing)));
 
-    Symbol dropletVelocity = SymbolNameGenerator
-        .getsym_ChannelDropletVelocity(schematic, chOutput);
-    exprs.add(QFNRA.declareRealVariable(dropletVelocity));
-    exprs.add(QFNRA.assertEqual(dropletVelocity, 
-        QFNRA.divide(qD, QFNRA.multiply(
-            SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput), 
-            SymbolNameGenerator.getsym_ChannelHeight(schematic, chOutput)))));
+    } // calculateDropletDerivedQuantities
     
-    // constraint: calculate droplet production frequency
-    // f = Qd / Vd
-    Symbol dropletFrequency = SymbolNameGenerator
-        .getsym_ChannelDropletFrequency(schematic, chOutput);
-    exprs.add(QFNRA.declareRealVariable(dropletFrequency));
-    exprs.add(QFNRA.assertEqual(dropletFrequency, QFNRA.divide(qD, vOutput)));
+    if (performWorstCaseAnalysis) {
     
-    // constraint: calculate droplet spacing
-    // spacing = v_d / f
-    Symbol dropletSpacing = SymbolNameGenerator
-        .getsym_ChannelDropletSpacing(schematic, chOutput);
-    exprs.add(QFNRA.declareRealVariable(dropletSpacing));
-    exprs.add(QFNRA.assertEqual(dropletSpacing, 
-        QFNRA.divide(dropletVelocity, dropletFrequency)));
+      // constraint: calculate worst-case/steady-state droplet volume
+      // this is a function of a slightly different flow rate than before
+      Symbol vOutput_WorstCase = SymbolNameGenerator
+          .getsym_ChannelDropletVolume_WorstCase(schematic, chOutput);
+      Symbol qD_WorstCase = SymbolNameGenerator
+          .getsym_ChannelFlowRate_WorstCase(schematic, chDispersed);
+      Symbol qC_WorstCase = SymbolNameGenerator
+          .getsym_ChannelFlowRate_WorstCase(schematic, chContinuous);
+      exprs.add(QFNRA.declareRealVariable(vOutput_WorstCase));
+      exprs.add(QFNRA.assertEqual(vOutput_WorstCase, calculatedDropletVolume(
+          h, w, wIn, epsilon, qD_WorstCase, qC_WorstCase)));
+      
+      // constraint: target volume and worst-case volume differ by at most 5%
+      SExpression tolerance = new Decimal(0.05);
+      exprs.add(QFNRA.assertGreaterEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
+          QFNRA.subtract(new Numeral(1), tolerance)));
+      exprs.add(QFNRA.assertLessThanEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
+          QFNRA.add(new Numeral(1), tolerance)));
     
-    // constraint: calculate maximum number of droplets
-    // n ~= length / spacing
-    Symbol nDroplets_Continuous = SymbolNameGenerator
-        .getsym_ChannelMaxDroplets(schematic, chContinuous);
-    Symbol nDroplets_Dispersed = SymbolNameGenerator
-        .getsym_ChannelMaxDroplets(schematic, chDispersed);
-    Symbol nDroplets_Output = SymbolNameGenerator
-        .getsym_ChannelMaxDroplets(schematic, chOutput);
-    // assume this is already declared for every channel
-    // continuous and dispersed channels can have zero droplets
-    // TODO droplets inside droplets break this
-    exprs.add(QFNRA.assertEqual(nDroplets_Continuous, new Numeral(0)));
-    exprs.add(QFNRA.assertEqual(nDroplets_Dispersed, new Numeral(0)));
-    // compute upper bound for output channel
-    exprs.add(QFNRA.assertEqual(nDroplets_Output, 
-        QFNRA.divide(SymbolNameGenerator
-            .getsym_ChannelLength(schematic, chOutput), dropletSpacing)));
-
-    // constraint: calculate worst-case/steady-state droplet volume
-    // this is a function of a slightly different flow rate than before
-    Symbol vOutput_WorstCase = SymbolNameGenerator
-        .getsym_ChannelDropletVolume_WorstCase(schematic, chOutput);
-    Symbol qD_WorstCase = SymbolNameGenerator
-        .getsym_ChannelFlowRate_WorstCase(schematic, chDispersed);
-    Symbol qC_WorstCase = SymbolNameGenerator
-        .getsym_ChannelFlowRate_WorstCase(schematic, chContinuous);
-    exprs.add(QFNRA.declareRealVariable(vOutput_WorstCase));
-    exprs.add(QFNRA.assertEqual(vOutput_WorstCase, calculatedDropletVolume(
-        h, w, wIn, epsilon, qD_WorstCase, qC_WorstCase)));
-    
-    // constraint: target volume and worst-case volume differ by at most 5%
-    SExpression tolerance = new Decimal(0.05);
-    exprs.add(QFNRA.assertGreaterEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
-        QFNRA.subtract(new Numeral(1), tolerance)));
-    exprs.add(QFNRA.assertLessThanEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
-        QFNRA.add(new Numeral(1), tolerance)));
+    } // performWorstCaseAnalysis
     
     return exprs;
   }
