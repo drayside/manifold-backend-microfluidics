@@ -167,10 +167,10 @@ public class DRealSolver implements AutoCloseable {
 	    String upperBound = line.substring(commaRangeIdx + 1, endRangeIdx).trim();
 	    model.addResult(symbolName, lowerBound, upperBound);	    
     } 
-//    else {
-//    	String infinityOperator = String.valueOf(line.charAt(infinityIdx));
-//    	model.addResult(symbolName, infinityOperator+"IN");
-//    }
+    else {
+    	String infinityOperator = String.valueOf(line.charAt(infinityIdx-1));
+    	System.out.println("Warning: variable \""+symbolName+"\" has range of "+infinityOperator+"INFTY");
+    }
     
     
     
