@@ -173,8 +173,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);
     Symbol bulkMobility = SymbolNameGenerator
       .getsym_EPCrossBulkMobility(schematic, nCross);
-    Symbol bulkViscosity = SymbolNameGenerator
-      .getsym_EPCrossBulkViscosity(schematic, nCross);
     Symbol separationDistance = SymbolNameGenerator
       .getsym_EPCrossSeparationDistance(schematic, nCross);
     Symbol injectionChannelRadius = SymbolNameGenerator
@@ -238,7 +236,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(injectionSeparationChannelE));
     exprs.add(QFNRA.declareRealVariable(injectionInjectionChannelE));
     exprs.add(QFNRA.declareRealVariable(bulkMobility));
-    exprs.add(QFNRA.declareRealVariable(bulkViscosity));
     exprs.add(QFNRA.declareRealVariable(separationDistance));
     exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
     exprs.add(QFNRA.declareRealVariable(sampleInitialSpread));
@@ -268,16 +265,15 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     // masses are in kilograms, and surface concentrations are in moles per 
     // metres squared.
     exprs.add(QFNRA.assertEqual(
-      bulkViscosity, 
-      new Decimal(0.001002)
-    ));
-    exprs.add(QFNRA.assertEqual(
-      bulkMobility, 
-      new Decimal(1e-8)
+      bulkMobility,
+      new Decimal(((RealValue)nCross.getAttribute("bulkMobility")).toDouble())
     ));
     exprs.add(QFNRA.assertEqual(
       injectionCathodeNodeVoltage, 
-      new Decimal(-1e2)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("injectionCathodeNodeVoltage"))
+        .toDouble()
+      )
     ));
     exprs.add(QFNRA.assertEqual(
       injectionAnodeNodeVoltage, 
@@ -285,27 +281,37 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     ));
     exprs.add(QFNRA.assertEqual(
       lenSeparationChannel, 
-      new Decimal(0.030)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("lenSeparationChannel")).toDouble()
+      )
     ));
     exprs.add(QFNRA.assertEqual(
       lenTail, 
-      new Decimal(0.0045)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("lenInjectionChannel")).toDouble()
+      )
     ));
     exprs.add(QFNRA.assertEqual(
       lenInjectionChannel, 
-      new Decimal(0.0045)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("lenInjectionChannel")).toDouble()
+      )
     ));
     exprs.add(QFNRA.assertEqual(
       lenWasteChannel, 
-      new Decimal(0.0045)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("lenInjectionChannel")).toDouble()
+      )
     ));
     exprs.add(QFNRA.assertEqual(
       injectionChannelRadius, 
-      new Decimal(5e-5)
+      new Decimal(((RealValue)nCross.getAttribute("channelRadius")).toDouble())
     ));
     exprs.add(QFNRA.assertEqual(
       baselineConcentration, 
-      new Decimal(0.01)
+      new Decimal(
+        ((RealValue)nCross.getAttribute("baselineConcentration")).toDouble()
+      )
     ));
 
     for (int i = 0; i < numAnalytes; ++i) {
@@ -385,11 +391,17 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       for (int i = 0; i < numAnalytes - 1; ++i) {
         exprs.add(QFNRA.assertGreater(
           fadeTime[i],
-          peakTime[i]
+          QFNRA.add(
+            peakTime[i],
+            new Numeral(1)
+          )
         ));
         exprs.add(QFNRA.assertGreater(
           peakTime[i + 1],
-          fadeTime[i]
+          QFNRA.add(
+            fadeTime[i],
+            new Numeral(1)
+          )
         ));
       }
       exprs.add(QFNRA.assertGreater(
@@ -441,12 +453,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               )
             ),
             QFNRA.multiply(
-              QFNRA.sqrt(
-                QFNRA.multiply(
-                  new Numeral(2),
-                  new Decimal(3.14159) // TODO: refactor out
-                )
-              ),
+              new Decimal(2.506628), // sqrt(2*pi)
               peakTimeAnalyteSpread[j]
             )
           );
@@ -573,12 +580,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                 )
               ),
               QFNRA.multiply(
-                QFNRA.sqrt(
-                  QFNRA.multiply(
-                    new Numeral(2),
-                    new Decimal(3.14159) // TODO: refactor out
-                  )
-                ),
+                new Decimal(2.506628), // sqrt(2*pi)
                 QFNRA.add(
                   sampleInitialSpread,
                   QFNRA.sqrt(
@@ -634,12 +636,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
                 )
               ),
               QFNRA.multiply(
-                QFNRA.sqrt(
-                  QFNRA.multiply(
-                    new Numeral(2),
-                    new Decimal(3.14159) // TODO: refactor out
-                  )
-                ),
+                new Decimal(2.506628), // sqrt(2*pi)
                 QFNRA.add(
                   sampleInitialSpread,
                   QFNRA.sqrt(
@@ -701,12 +698,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               )
             ),
             QFNRA.multiply(
-              QFNRA.sqrt(
-                QFNRA.multiply(
-                  new Numeral(2),
-                  new Decimal(3.14159) // TODO: refactor out
-                )
-              ),
+              new Decimal(2.506628), // sqrt(2*pi)
               fadeTimeAnalyteSpread[j]
             )
           );
@@ -736,6 +728,10 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               new Numeral(2),
               fadeTimeAnalyteConcentration[i]
             ),
+            /*QFNRA.add(
+              fadeTimeAnalyteConcentration[i],
+              fadeTimeAnalyteConcentration[i + 1]
+            ),*/
             fadeTimeConcentration[i]
           ),
           new Decimal(0.95)

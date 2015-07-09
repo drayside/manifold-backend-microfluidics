@@ -114,6 +114,18 @@ public class UtilSchematicConstruction {
     Map<String, TypeValue> electrophoreticCrossAttributes = new HashMap<>();
     electrophoreticCrossAttributes.put("numAnalytes", 
         IntegerTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("bulkMobility", 
+        RealTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("injectionCathodeNodeVoltage", 
+        RealTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("lenSeparationChannel", 
+        RealTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("lenInjectionChannel", 
+        RealTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("channelRadius", 
+        RealTypeValue.getInstance());
+    electrophoreticCrossAttributes.put("baselineConcentration", 
+        RealTypeValue.getInstance());
     electrophoreticCrossAttributes.put("analyteElectrophoreticMobility",
         realArrayType);
     electrophoreticCrossAttributes.put("analyteInitialSurfaceConcentration",
@@ -222,12 +234,23 @@ public class UtilSchematicConstruction {
   }
 
   public static NodeValue instantiateElectrophoreticCross(Schematic schematic,
-      int numAnalytes, List<Value> analyteElectrophoreticMobility,
+      int numAnalytes, double bulkMobility, double injectionCathodeNodeVoltage, 
+      double lenSeparationChannel, double lenInjectionChannel, 
+      double channelRadius, double baselineConcentration, 
+      List<Value> analyteElectrophoreticMobility,
       List<Value> analyteInitialSurfaceConcentration,
       List<Value> analyteDiffusionCoefficient)
       throws SchematicException {
     Map<String, Value> attrsMap = new HashMap<>();
     attrsMap.put("numAnalytes", new IntegerValue(numAnalytes));
+    attrsMap.put("bulkMobility", new RealValue(bulkMobility));
+    attrsMap.put("injectionCathodeNodeVoltage", 
+        new RealValue(injectionCathodeNodeVoltage));
+    attrsMap.put("lenSeparationChannel", new RealValue(lenSeparationChannel));
+    attrsMap.put("lenInjectionChannel", new RealValue(lenInjectionChannel));
+    attrsMap.put("channelRadius", new RealValue(channelRadius));
+    attrsMap.put("baselineConcentration", 
+        new RealValue(baselineConcentration));
     attrsMap.put("analyteElectrophoreticMobility", 
         new ArrayValue(realArrayType, analyteElectrophoreticMobility));
     attrsMap.put("analyteInitialSurfaceConcentration", 

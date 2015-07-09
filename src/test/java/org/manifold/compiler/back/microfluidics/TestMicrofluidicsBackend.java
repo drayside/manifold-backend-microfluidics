@@ -78,27 +78,40 @@ public class TestMicrofluidicsBackend {
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("electrophoreticCrossTest");
    
-    final int numAnalytes = 4;
+    final int numAnalytes = 2;
+    final double bulkMobility = 5.7e-8;
+    final double injectionCathodeNodeVoltage = 6e2;
+    final double lenSeparationChannel = 7.5e-2;
+    final double lenInjectionChannel = 1.5e-2;
+    final double channelRadius = 2e-5;
+    final double baselineConcentration = 1e-2;
     List<Value> analyteElectrophoreticMobility = new ArrayList<Value>();
     List<Value> analyteInitialSurfaceConcentration = new ArrayList<Value>();
     List<Value> analyteDiffusionCoefficient = new ArrayList<Value>();
-    analyteElectrophoreticMobility.add(new RealValue(-3.75e-8)); // N_bp = 1000
-    analyteElectrophoreticMobility.add(new RealValue(-3.70e-8)); // N_bp = 100
-    analyteElectrophoreticMobility.add(new RealValue(-3.65e-8));
-    analyteElectrophoreticMobility.add(new RealValue(-3.60e-8)); // N_bp = 50
-    analyteInitialSurfaceConcentration.add(new RealValue(2.66e-5));
-    analyteInitialSurfaceConcentration.add(new RealValue(1.06e-4));
-    analyteInitialSurfaceConcentration.add(new RealValue(4.24e-4));
-    analyteInitialSurfaceConcentration.add(new RealValue(5.32e-5));
-    analyteDiffusionCoefficient.add(new RealValue(5.85e-12));
-    analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
-    analyteDiffusionCoefficient.add(new RealValue(5.00e-12));
-    analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
+    //analyteElectrophoreticMobility.add(new RealValue(-3.75e-8)); // N_bp = 1000
+    //analyteElectrophoreticMobility.add(new RealValue(-3.70e-8)); // N_bp = 100
+    //analyteElectrophoreticMobility.add(new RealValue(-3.65e-8));
+    //analyteElectrophoreticMobility.add(new RealValue(-3.60e-8)); // N_bp = 50
+    //analyteInitialSurfaceConcentration.add(new RealValue(2.66e-5));
+    //analyteInitialSurfaceConcentration.add(new RealValue(1.06e-4));
+    //analyteInitialSurfaceConcentration.add(new RealValue(4.24e-4));
+    //analyteInitialSurfaceConcentration.add(new RealValue(5.32e-5));
+    //analyteDiffusionCoefficient.add(new RealValue(5.85e-12));
+    //analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
+    //analyteDiffusionCoefficient.add(new RealValue(5.00e-12));
+    //analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
+    analyteElectrophoreticMobility.add(new RealValue(7.747e-8));
+    analyteElectrophoreticMobility.add(new RealValue(5.281e-8));
+    analyteInitialSurfaceConcentration.add(new RealValue(1e-3));
+    analyteInitialSurfaceConcentration.add(new RealValue(1e-3));
+    analyteDiffusionCoefficient.add(new RealValue(1.957e-9));
+    analyteDiffusionCoefficient.add(new RealValue(1.334e-9));
 
     NodeValue cross = UtilSchematicConstruction
-        .instantiateElectrophoreticCross(schematic, numAnalytes, 
-        analyteElectrophoreticMobility, analyteInitialSurfaceConcentration,
-        analyteDiffusionCoefficient);
+        .instantiateElectrophoreticCross(schematic, numAnalytes, bulkMobility, 
+        injectionCathodeNodeVoltage, lenSeparationChannel, lenInjectionChannel,
+        channelRadius, baselineConcentration, analyteElectrophoreticMobility, 
+        analyteInitialSurfaceConcentration, analyteDiffusionCoefficient);
     NodeValue sampleReservoir = UtilSchematicConstruction
         .instantiateReservoir(schematic);
     NodeValue wasteReservoir = UtilSchematicConstruction
