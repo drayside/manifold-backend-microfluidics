@@ -14,6 +14,7 @@ import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
+import org.manifold.compiler.back.microfluidics.smt2.Numeral;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
@@ -72,6 +73,10 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getSym_PortPressure(schematic, 
             node.getPort("output"))));
+    // constraint: port pressure >= 0
+    exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
+        SymbolNameGenerator.getSym_PortPressure(schematic, node.getPort("output"))));
+    
     // the viscosity in the channel connected to output
     // is the viscosity given at the entry
     ConnectionValue ch = getConnection(schematic, node.getPort("output"));
@@ -92,6 +97,11 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getSym_PortPressure(schematic, 
             node.getPort("input"))));
+    
+    // constraint: port pressure >= 0
+    exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
+        SymbolNameGenerator.getSym_PortPressure(schematic, node.getPort("input"))));
+    
     return exprs;
   }
   
