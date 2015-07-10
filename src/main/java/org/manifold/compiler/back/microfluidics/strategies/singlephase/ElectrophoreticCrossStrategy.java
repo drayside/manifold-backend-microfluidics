@@ -738,7 +738,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         ));
       }
      
-      SExpression threshold = new Decimal(0.8);
+      SExpression threshold = new Decimal(0.85);
       exprs.add(QFNRA.assertLessThanEqual(
         QFNRA.divide(
           fadeTimeConcentration[0],
