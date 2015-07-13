@@ -528,11 +528,11 @@ public class SymbolNameGenerator {
    * Retrieves the symbol that defines the minimum concentration in the 
    * electropherogram output immediately following a specific peak.
    **/
-  public static Symbol getsym_EPCrossFadeTimeConcentration(
+  public static Symbol getsym_EPCrossVoidTimeConcentration(
       Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
-      "_fadeTimeConcentration" + analyteId));
+      "_voidTimeConcentration" + analyteId));
   }
   
   /**
@@ -643,6 +643,12 @@ public class SymbolNameGenerator {
       Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_fadeTime" + analyteId));
+  }
+  
+  public static Symbol getsym_EPCrossVoidTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_voidTime" + analyteId));
   }
   
   /**
