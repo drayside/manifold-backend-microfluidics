@@ -32,7 +32,7 @@ public class SymbolNameGenerator {
    */
   public static Symbol getsym_NodeY(Schematic schematic, NodeValue node) {
     String nodeName = schematic.getNodeName(node);
-    return new Symbol(nodeName.concat("_pos_Y"));
+    return new Symbol(nodeName.concat("_pos_y"));
   }
   
   /**
@@ -73,7 +73,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelLength(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_pos_x"));
+    return new Symbol(chName.concat("_length"));
   }
   
   /**
@@ -85,6 +85,22 @@ public class SymbolNameGenerator {
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
     return new Symbol(chName.concat("_flowrate"));
+  }
+  
+  public static Symbol getsym_ChannelFlowRate_WorstCase(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_flowrate_worst_case"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the viscosity of fluid
+   * present in a channel.
+   */
+  public static Symbol getsym_ChannelViscosity(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_viscosity"));
   }
   
   /**
@@ -106,7 +122,62 @@ public class SymbolNameGenerator {
     String chName = schematic.getConnectionName(ch);
     return new Symbol(chName.concat("_droplet_volume"));
   }
+  
+  public static Symbol getsym_ChannelDropletVolume_WorstCase(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_volume_worst_case"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the resistance of a droplet
+   * in a channel.
+   */
+  public static Symbol getsym_ChannelDropletResistance(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_resistance"));
+  }
 
+  /**
+   * Retrieves the symbol that defines the speed of a droplet in a channel.
+   */
+  public static Symbol getsym_ChannelDropletVelocity(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_velocity"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the frequency with which droplets
+   * are produced into a channel.
+   */
+  public static Symbol getsym_ChannelDropletFrequency(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_frequency"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the spacing between droplets
+   * in a channel.
+   */
+  public static Symbol getsym_ChannelDropletSpacing(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_droplet_spacing"));
+  }
+  
+  /**
+   * Retrieves the symbol that defines the maximum number of droplets
+   * that can be in a channel at one time.
+   */
+  public static Symbol getsym_ChannelMaxDroplets(Schematic schematic,
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_max_droplets"));
+  }
+  
   /**
    * Retrieves the symbol that defines the height of a (rectangular) channel.
    */

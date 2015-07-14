@@ -35,20 +35,48 @@ public class UtilSchematicConstruction {
   private static Map<String, PortTypeValue> noPorts = new HashMap<>();
   
   private static PortTypeValue microfluidPortType;
+  // multi-phase
+  private static NodeTypeValue fluidEntryNodeType;
+  private static NodeTypeValue fluidExitNodeType;
+  private static NodeTypeValue tJunctionNodeType;
+  // single-phase
   private static NodeTypeValue controlPointNodeType;
   private static NodeTypeValue voltageCPNodeType; 
   private static NodeTypeValue pressureCPNodeType;
   private static NodeTypeValue channelCrossingNodeType;
-  private static NodeTypeValue tJunctionNodeType;
+  
 
   private static ConstraintType controlPointPlacementConstraintType;
   private static ConstraintType channelPlacementConstraintType;
+  private static ConstraintType channelDropletVolumeConstraintType;
   
   public static void setupIntermediateTypes() {
 
     // TODO which signal type do we want here?
     microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
         noTypeAttributes);
+    
+    // multi-phase
+    Map<String, PortTypeValue> fluidEntryPorts = new HashMap<>();
+    fluidEntryPorts.put("output", microfluidPortType);
+    Map<String, TypeValue> fluidEntryAttributes = new HashMap<>();
+    fluidEntryAttributes.put("viscosity", RealTypeValue.getInstance());
+    fluidEntryNodeType = new NodeTypeValue(
+        fluidEntryAttributes, fluidEntryPorts);
+    
+    Map<String, PortTypeValue> fluidExitPorts = new HashMap<>();
+    fluidExitPorts.put("input", microfluidPortType);
+    fluidExitNodeType = new NodeTypeValue(
+        noTypeAttributes, fluidExitPorts);
+    
+    Map<String, PortTypeValue> tJunctionPorts = new HashMap<>();
+    tJunctionPorts.put("continuous", microfluidPortType);
+    tJunctionPorts.put("dispersed", microfluidPortType);
+    tJunctionPorts.put("output", microfluidPortType);
+    // TODO attributes
+    tJunctionNodeType = new NodeTypeValue(noTypeAttributes, tJunctionPorts);
+    
+    // single-phase
     controlPointNodeType = new NodeTypeValue(noTypeAttributes, noPorts);
     pressureCPNodeType = new NodeTypeValue(noTypeAttributes, noPorts, 
         controlPointNodeType);
@@ -66,13 +94,6 @@ public class UtilSchematicConstruction {
     channelCrossingPorts.put("channelB1", microfluidPortType);
     channelCrossingNodeType = new NodeTypeValue(noTypeAttributes, 
         channelCrossingPorts);
-
-    Map<String, PortTypeValue> tJunctionPorts = new HashMap<>();
-    tJunctionPorts.put("continuous", microfluidPortType);
-    tJunctionPorts.put("dispersed", microfluidPortType);
-    tJunctionPorts.put("output", microfluidPortType);
-    // TODO attributes
-    tJunctionNodeType = new NodeTypeValue(noTypeAttributes, tJunctionPorts);
     
     // controlPointPlacementConstraint(ControlPointNode node, Real x, Real y)
     Map<String, TypeValue> cxtCPPlaceAttrs = new HashMap<>();
@@ -81,12 +102,19 @@ public class UtilSchematicConstruction {
     cxtCPPlaceAttrs.put("y", RealTypeValue.getInstance());
     controlPointPlacementConstraintType = new ConstraintType(cxtCPPlaceAttrs);
     
-    // controlPointPlacementConstraint(microfluidChannel node, Real x, Real y)
+    // channelPlacementConstraint(Connection channel, Real x, Real y)
     Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
     cxtChanPlaceAttrs.put("channel", ConnectionTypeValue.getInstance());
     cxtChanPlaceAttrs.put("x", RealTypeValue.getInstance());
     cxtChanPlaceAttrs.put("y", RealTypeValue.getInstance());
     channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
+    
+    // channelDropletVolumeConstraint(Connection channel, Real volume)
+    Map<String, TypeValue> cxtChanDropVolAttrs = new HashMap<>();
+    cxtChanDropVolAttrs.put("channel", ConnectionTypeValue.getInstance());
+    cxtChanDropVolAttrs.put("volume", RealTypeValue.getInstance());
+    channelDropletVolumeConstraintType = 
+        new ConstraintType(cxtChanDropVolAttrs);
     
     setUp = true;
   }
@@ -99,12 +127,16 @@ public class UtilSchematicConstruction {
     Schematic s = new Schematic(name);
     
     s.addPortType("microfluidPort", microfluidPortType);
-
+    // multi-phase
+    s.addNodeType("fluidEntry", fluidEntryNodeType);
+    s.addNodeType("fluidExit", fluidExitNodeType);
+    s.addNodeType("tJunction", tJunctionNodeType);
+    
+    // single-phase
     s.addNodeType("controlPoint", controlPointNodeType);
     s.addNodeType("pressureControlPoint", pressureCPNodeType);
     s.addNodeType("voltageControlPoint", voltageCPNodeType);
     s.addNodeType("channelCrossing", channelCrossingNodeType);
-    s.addNodeType("tJunction", tJunctionNodeType);
     
     s.addConstraintType(
         "controlPointPlacementConstraint",
@@ -112,10 +144,53 @@ public class UtilSchematicConstruction {
     s.addConstraintType(
         "channelPlacementConstraint",
         channelPlacementConstraintType);
+    s.addConstraintType(
+        "channelDropletVolumeConstraint",
+        channelDropletVolumeConstraintType);
 
     return s;
   }
 
+  public static ConnectionValue instantiateChannel(PortValue from, PortValue to)
+      throws UndeclaredAttributeException, InvalidAttributeException,
+      TypeMismatchException {
+    ConnectionValue channel = new ConnectionValue(from, to, noAttributes);
+    return channel;
+  }
+  
+  public static NodeValue instantiateFluidEntry(Schematic schematic,
+      double viscosity)
+      throws SchematicException {
+    Map<String, Value> attrsMap = new HashMap<>();
+    RealValue mu = new RealValue(viscosity);
+    attrsMap.put("viscosity", mu);
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("output", noAttributes);
+    NodeValue exit = new NodeValue(schematic.getNodeType("fluidEntry"),
+        attrsMap, portAttrsMap);
+    return exit;
+  }
+  
+  public static NodeValue instantiateFluidExit(Schematic schematic)
+      throws SchematicException {
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("input", noAttributes);
+    NodeValue exit = new NodeValue(schematic.getNodeType("fluidExit"),
+        noAttributes, portAttrsMap);
+    return exit;
+  }
+  
+  public static NodeValue instantiateTJunction(Schematic schematic)
+      throws SchematicException {
+    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+    portAttrsMap.put("continuous", noAttributes);
+    portAttrsMap.put("dispersed", noAttributes);
+    portAttrsMap.put("output", noAttributes);
+    NodeValue tj = new NodeValue(schematic.getNodeType("tJunction"),
+        noAttributes, portAttrsMap);
+    return tj;
+  }
+  
   /**
    * Instantiate a pressure control point with the given number of ports.
    * The control point's typename will be "pressureControlPointN",
@@ -181,13 +256,6 @@ public class UtilSchematicConstruction {
     NodeValue cp = new NodeValue(cpType, noAttributes, portAttrsMap);
     return cp;
   }
-
-  public static ConnectionValue instantiateChannel(PortValue from, PortValue to)
-      throws UndeclaredAttributeException, InvalidAttributeException,
-      TypeMismatchException {
-    ConnectionValue channel = new ConnectionValue(from, to, noAttributes);
-    return channel;
-  }
   
   public static ConstraintValue instantiateControlPointPlacementConstraint(
       NodeValue node, Double x, Double y) throws UndeclaredAttributeException, 
@@ -211,6 +279,18 @@ public class UtilSchematicConstruction {
     attrs.put("y", new RealValue(y));
     ConstraintValue cxt = new ConstraintValue(
         channelPlacementConstraintType, attrs);
+    return cxt;
+  }
+ 
+  public static ConstraintValue instantiateChannelDropletVolumeConstraint(
+      ConnectionValue channel, Double volume) 
+      throws UndeclaredAttributeException, InvalidAttributeException, 
+        TypeMismatchException {
+    Map<String, Value> attrs = new HashMap<>();
+    attrs.put("channel", channel);
+    attrs.put("volume", new RealValue(volume));
+    ConstraintValue cxt = new ConstraintValue(
+        channelDropletVolumeConstraintType, attrs);
     return cxt;
   }
   

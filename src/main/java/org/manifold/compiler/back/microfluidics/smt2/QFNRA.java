@@ -1,5 +1,8 @@
 package org.manifold.compiler.back.microfluidics.smt2;
 
+import java.util.LinkedList;
+import java.util.List;
+
 // Helper class for generating valid QF_NRA S-expressions.
 public class QFNRA {
   
@@ -12,8 +15,33 @@ public class QFNRA {
     return new ParenList(exprs);
   }
   
+  public static SExpression useQFNRA() {
+    SExpression exprs[] = new SExpression[] {
+      new Symbol("set-logic"),
+      new Symbol("QF_NRA")
+    };
+    return new ParenList(exprs);
+  }
+  
+  public static SExpression declareRealVariable(Symbol var) {
+    SExpression exprs[] = new SExpression[] {
+      new Symbol("declare-fun"),
+      var,
+      new ParenList(),
+      new Symbol("Real")
+    };
+    return new ParenList(exprs);
+  }
+  
   public static SExpression add(SExpression e1, SExpression e2) {
     return infix(e1, "+", e2);
+  }
+  
+  public static SExpression add(List<SExpression> terms) {
+    List<SExpression> exprs = new LinkedList<SExpression>();
+    exprs.add(new Symbol("+"));
+    exprs.addAll(terms);
+    return new ParenList(exprs);
   }
   
   public static SExpression subtract(SExpression e1, SExpression e2) {
