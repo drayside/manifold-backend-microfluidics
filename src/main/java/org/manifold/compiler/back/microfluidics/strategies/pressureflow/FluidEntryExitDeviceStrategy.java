@@ -73,6 +73,7 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getSym_PortPressure(schematic, 
             node.getPort("output"))));
+    
     // constraint: port pressure >= 0
     exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
         SymbolNameGenerator.getSym_PortPressure(schematic, node.getPort("output"))));
@@ -82,6 +83,7 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     ConnectionValue ch = getConnection(schematic, node.getPort("output"));
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, ch);
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
+    exprs.add(QFNRA.declareRealVariable(mu));
     exprs.add(QFNRA.assertEqual(mu, new Decimal(viscosity.toDouble())));
     return exprs;
   }

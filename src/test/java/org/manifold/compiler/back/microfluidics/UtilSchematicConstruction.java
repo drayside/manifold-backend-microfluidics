@@ -158,6 +158,23 @@ public class UtilSchematicConstruction {
     return channel;
   }
   
+  /**
+   * Instantiate Channel with ports and attributes
+   * @param from
+   * @param to
+   * @param attr
+   * @return
+   * @throws UndeclaredAttributeException
+   * @throws InvalidAttributeException
+   * @throws TypeMismatchException
+   */
+  public static ConnectionValue instantiateChannel(PortValue from, PortValue to, Map<String, Value> attr)
+	      throws UndeclaredAttributeException, InvalidAttributeException,
+	      TypeMismatchException {
+	    ConnectionValue channel = new ConnectionValue(from, to, attr);
+	    return channel;
+	  }
+  
   public static NodeValue instantiateFluidEntry(Schematic schematic,
       double viscosity)
       throws SchematicException {

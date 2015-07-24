@@ -104,6 +104,16 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the radius of a
+   * circular channel.
+   */
+  public static Symbol getsym_ChannelRadius(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_radius"));
+  }
+  
+  /**
    * Retrieves the symbol that defines the hydrodynamic resistance
    * of a channel.
    */
