@@ -169,19 +169,19 @@ public class MicrofluidicsBackend implements Backend {
     
     List<SExpression> unsortedExprs = new LinkedList<>();
     
-    PlacementTranslationStrategySet placeSet = 
+    /*PlacementTranslationStrategySet placeSet = 
         new PlacementTranslationStrategySet();
     unsortedExprs.addAll(placeSet.translate(
         schematic, processParams, primitiveTypes));
     MultiPhaseStrategySet multiPhase = new MultiPhaseStrategySet();
     unsortedExprs.addAll(multiPhase.translate(
-        schematic, processParams, primitiveTypes));
+        schematic, processParams, primitiveTypes));*/
     SinglePhaseStrategySet singlePhase = new SinglePhaseStrategySet();
     unsortedExprs.addAll(singlePhase.translate(
         schematic, processParams, primitiveTypes));
-    PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
+    /*PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
     unsortedExprs.addAll(pressureFlow.translate(
-        schematic, processParams, primitiveTypes));
+        schematic, processParams, primitiveTypes));*/
     
     exprs.addAll(sortExprs(unsortedExprs));
     
