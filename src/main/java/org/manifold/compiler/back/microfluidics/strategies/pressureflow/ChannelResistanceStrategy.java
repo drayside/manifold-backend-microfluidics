@@ -104,6 +104,8 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
 	    exprs.add(QFNRA.declareRealVariable(chL));
 	    exprs.add(QFNRA.assertGreater(chL, new Decimal(0.0)));
 	    
+	    /*Some typechecking needs to happen here to ensure the attributes are
+	     * indeed of type RealValue*/
 	    RealValue length;
 		try {
 			length = (RealValue) channel.getAttribute("length");

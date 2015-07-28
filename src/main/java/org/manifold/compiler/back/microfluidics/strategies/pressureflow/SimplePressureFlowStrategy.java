@@ -39,7 +39,7 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     // we still need to declare the flow rate
     exprs.add(QFNRA.declareRealVariable(chV));
     
-    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
+    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p2, p1),
         QFNRA.multiply(chV, chR)));
     
     // now declare a "worst case" flow rate, i.e. with maximum # of droplets

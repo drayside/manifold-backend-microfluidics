@@ -85,6 +85,17 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
     exprs.add(QFNRA.declareRealVariable(mu));
     exprs.add(QFNRA.assertEqual(mu, new Decimal(viscosity.toDouble())));
+    
+    //If any input parameters, such as output_pressure, is given: make equality
+    //constraints
+    System.out.println(node.getPort("output").getAttributes().getAll());
+    if(!node.getPort("output").getAttributes().getAll().isEmpty()){
+    	System.out.println("foo2");
+    	RealValue pressure = (RealValue) node.getPort("output").getAttribute("pressure");
+    	exprs.add(QFNRA.assertEqual(SymbolNameGenerator.getSym_PortPressure(schematic, 
+            node.getPort("output")), new Decimal(pressure.toDouble())));
+    }
+    
     return exprs;
   }
   
