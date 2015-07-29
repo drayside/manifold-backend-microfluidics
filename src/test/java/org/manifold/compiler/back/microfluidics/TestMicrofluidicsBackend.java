@@ -107,18 +107,21 @@ public class TestMicrofluidicsBackend {
     analyteElectrophoreticMobility.add(new RealValue(-3.65e-8));
     analyteElectrophoreticMobility.add(new RealValue(-3.60e-8)); // N_bp = 50
     analyteElectrophoreticMobility.add(new RealValue(-3.50e-8));
+    analyteElectrophoreticMobility.add(new RealValue(-3.45e-8));
     analyteInitialSurfaceConcentration.add(new RealValue(4.66e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(2.66e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(1.06e-4));
     analyteInitialSurfaceConcentration.add(new RealValue(4.24e-4));
     analyteInitialSurfaceConcentration.add(new RealValue(5.32e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(8.32e-5));
+    analyteInitialSurfaceConcentration.add(new RealValue(3.32e-4));
     analyteDiffusionCoefficient.add(new RealValue(1.80e-11));
     analyteDiffusionCoefficient.add(new RealValue(5.85e-12));
     analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
     analyteDiffusionCoefficient.add(new RealValue(5.00e-12));
     analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
     analyteDiffusionCoefficient.add(new RealValue(9.23e-11));
+    analyteDiffusionCoefficient.add(new RealValue(9.23e-12));
 
     NodeValue cross = UtilSchematicConstruction
         .instantiateElectrophoreticCross(schematic, numAnalytes, bulkMobility, 

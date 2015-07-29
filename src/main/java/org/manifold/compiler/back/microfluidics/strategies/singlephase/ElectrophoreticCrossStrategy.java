@@ -1,5 +1,6 @@
 package org.manifold.compiler.back.microfluidics.strategies.singlephase;
 
+import java.lang.Math;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -696,10 +697,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             baselineConcentration
           )
         ));
-        exprs.add(QFNRA.assertEqual(
-          voidTimeAnalyteConcentration[i],
-          voidTimeAnalyteConcentration[i + 1]
-        ));
         /*exprs.add(QFNRA.assertEqual(
           voidTimeConcentration[i],
           QFNRA.add(
@@ -710,6 +707,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             baselineConcentration
           )
         ));*/
+
+        exprs.add(QFNRA.assertEqual(
+          voidTimeAnalyteConcentration[i],
+          voidTimeAnalyteConcentration[i + 1]
+        ));
       }
      
       SExpression threshold = new Decimal(0.85);
@@ -1327,30 +1329,145 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           voidTimeConcentrationExpr
         ));
 
-        exprs.add(QFNRA.assertEqual(
-          voidTimeAnalyteConcentration[i],
-          voidTimeAnalyteConcentration[i + 1]
-        ));
-        exprs.add(QFNRA.assertGreaterEqual(
-          QFNRA.divide(
-            QFNRA.multiply(
-              new Numeral(2),
-              voidTimeAnalyteConcentration[i]
-            ),
-            voidTimeConcentration[i]
-          ),
-          new Decimal(0.95)
-        ));
-        /*exprs.add(QFNRA.assertGreaterEqual(
-          QFNRA.divide(
-            QFNRA.add(
+        // TODO: might be able to use more accurate heuristic (taking into 
+        // account separation time) if evaluated in dReal
+        final double m1 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble() / 
+            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble());
+        final double m2 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1)).toDouble() / 
+            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble());
+        final double diff = m1 / m2; 
+        if (diff >= 10 || diff <= 0.1) {
+          SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
+            QFNRA.divide(
               voidTimeAnalyteConcentration[i],
-              voidTimeAnalyteConcentration[i + 1]
+              voidTimeAnalyteSpread[i]
             ),
-            voidTimeConcentration[i]
-          ),
-          new Decimal(0.95)
-        ));*/
+            QFNRA.add(
+              QFNRA.divide(
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i],
+                  QFNRA.subtract(
+                    separationDistance,
+                    QFNRA.multiply(
+                      injectionSeparationChannelAnalyteVelocity[i],
+                      voidTime[i]
+                    )
+                  )
+                ),
+                voidTimeAnalyteSpread[i]
+              ),
+              QFNRA.multiply(
+                QFNRA.subtract(
+                  QFNRA.pow(
+                    QFNRA.divide(
+                      QFNRA.subtract(
+                        separationDistance,
+                        QFNRA.multiply(
+                          injectionSeparationChannelAnalyteVelocity[i],
+                          voidTime[i]
+                        )
+                      ),
+                      voidTimeAnalyteSpread[i]
+                    ),
+                    new Numeral(2)
+                  ),
+                  new Numeral(1)
+                ),
+                QFNRA.sqrt(
+                  QFNRA.divide(
+                    analyteDiffusionCoefficient[i],
+                    QFNRA.multiply(
+                      new Numeral(2),
+                      voidTime[i]
+                    )
+                  )
+                )
+              )
+            )
+          );
+          SExpression voidTimeAnalyteConcentrationDerivative2 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i + 1],
+              voidTimeAnalyteSpread[i + 1]
+            ),
+            QFNRA.add(
+              QFNRA.divide(
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i + 1],
+                  QFNRA.subtract(
+                    separationDistance,
+                    QFNRA.multiply(
+                      injectionSeparationChannelAnalyteVelocity[i + 1],
+                      voidTime[i]
+                    )
+                  )
+                ),
+                voidTimeAnalyteSpread[i + 1]
+              ),
+              QFNRA.multiply(
+                QFNRA.subtract(
+                  QFNRA.pow(
+                    QFNRA.divide(
+                      QFNRA.subtract(
+                        separationDistance,
+                        QFNRA.multiply(
+                          injectionSeparationChannelAnalyteVelocity[i + 1],
+                          voidTime[i]
+                        )
+                      ),
+                      voidTimeAnalyteSpread[i + 1]
+                    ),
+                    new Numeral(2)
+                  ),
+                  new Numeral(1)
+                ),
+                QFNRA.sqrt(
+                  QFNRA.divide(
+                    analyteDiffusionCoefficient[i + 1],
+                    QFNRA.multiply(
+                      new Numeral(2),
+                      voidTime[i]
+                    )
+                  )
+                )
+              )
+            )
+          );
+          exprs.add(QFNRA.assertEqual(
+            new Numeral(0),
+            QFNRA.add(
+              voidTimeAnalyteConcentrationDerivative1, 
+              voidTimeAnalyteConcentrationDerivative2 
+            )
+          ));
+          exprs.add(QFNRA.assertGreaterEqual(
+            QFNRA.divide(
+              QFNRA.add(
+                voidTimeAnalyteConcentration[i],
+                voidTimeAnalyteConcentration[i + 1]
+              ),
+              voidTimeConcentration[i]
+            ),
+            new Decimal(0.95)
+          ));
+        } else {
+          exprs.add(QFNRA.assertEqual(
+            voidTimeAnalyteConcentration[i],
+            voidTimeAnalyteConcentration[i + 1]
+          ));
+          exprs.add(QFNRA.assertGreaterEqual(
+            QFNRA.divide(
+              QFNRA.multiply(
+                new Numeral(2),
+                voidTimeAnalyteConcentration[i]
+              ),
+              voidTimeConcentration[i]
+            ),
+            new Decimal(0.95)
+          ));
+        }
       }
      
       SExpression threshold = new Decimal(0.85);
