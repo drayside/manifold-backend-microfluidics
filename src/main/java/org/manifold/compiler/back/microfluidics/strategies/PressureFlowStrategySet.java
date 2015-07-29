@@ -15,6 +15,11 @@ import org.manifold.compiler.middle.Schematic;
 
 public class PressureFlowStrategySet extends TranslationStrategy {
 
+  private boolean worstCaseAnalysis = false;
+  public void performWorstCastAnalysis(boolean b) {
+    this.worstCaseAnalysis = b;
+  }
+  
   private ChannelResistanceStrategy channelResistanceStrategy;
   public void useChannelResistanceStrategy(
       ChannelResistanceStrategy strat) {
@@ -35,7 +40,7 @@ public class PressureFlowStrategySet extends TranslationStrategy {
   public PressureFlowStrategySet() {
     channelResistanceStrategy = new ChannelResistanceStrategy();
     entryExitStrategy = new FluidEntryExitDeviceStrategy();
-    pressureFlow = new SimplePressureFlowStrategy();
+    pressureFlow = new SimplePressureFlowStrategy(worstCaseAnalysis);
   }
   
   @Override

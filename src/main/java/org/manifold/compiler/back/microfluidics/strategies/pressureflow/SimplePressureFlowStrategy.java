@@ -14,7 +14,11 @@ import org.manifold.compiler.middle.Schematic;
 
 public class SimplePressureFlowStrategy extends PressureFlowStrategy {
 
-  private static boolean performWorstCaseAnalysis = false;
+  private final boolean performWorstCaseAnalysis;
+  
+  public SimplePressureFlowStrategy(boolean performWorstCaseAnalysis) {
+    this.performWorstCaseAnalysis = performWorstCaseAnalysis;
+  }
   
   @Override
   protected List<SExpression> translationStep(Schematic schematic,

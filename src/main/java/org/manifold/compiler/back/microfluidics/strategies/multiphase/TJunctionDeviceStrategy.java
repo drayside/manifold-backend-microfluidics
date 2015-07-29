@@ -24,7 +24,12 @@ import org.manifold.compiler.middle.Schematic;
 public class TJunctionDeviceStrategy extends TranslationStrategy {
 
   private static boolean calculateDropletDerivedQuantities = false;
-  private static boolean performWorstCaseAnalysis = false;
+  
+  private final boolean performWorstCaseAnalysis;
+  
+  public TJunctionDeviceStrategy(boolean performWorstCaseAnalysis) {
+    this.performWorstCaseAnalysis = performWorstCaseAnalysis;
+  }
   
   //get the connection associated with this port
   // TODO this is VERY EXPENSIVE, find an optimization

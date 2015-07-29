@@ -14,6 +14,11 @@ import org.manifold.compiler.middle.Schematic;
 // Contains strategies for generation of multi-phase circuits
 public class MultiPhaseStrategySet extends TranslationStrategy {
 
+  private boolean worstCaseAnalysis = false;
+  public void performWorstCastAnalysis(boolean b) {
+    this.worstCaseAnalysis = b;
+  }
+  
   private DropletConstraintStrategy dropletConstraintStrategy;
   public void useDropletConstraintStrategy(DropletConstraintStrategy strat) {
     this.dropletConstraintStrategy = strat;
@@ -27,7 +32,7 @@ public class MultiPhaseStrategySet extends TranslationStrategy {
   public MultiPhaseStrategySet() {
     // initialize default strategies
     dropletConstraintStrategy = new DropletConstraintStrategy();
-    tjunctionDeviceStrategy = new TJunctionDeviceStrategy();
+    tjunctionDeviceStrategy = new TJunctionDeviceStrategy(worstCaseAnalysis);
   }
   
   @Override
