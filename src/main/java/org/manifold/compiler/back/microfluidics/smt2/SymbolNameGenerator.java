@@ -215,5 +215,16 @@ public class SymbolNameGenerator {
     String jName = schematic.getNodeName(junc);
     return new Symbol(jName.concat("_epsilon"));
   }
+
+  /***
+   * Retrieves the sumpbol for channel velocity
+   * @param schematic
+   * @param conn
+   * @return
+   */
+  public static Symbol getsym_ChannelVelocity(Schematic schematic, ConnectionValue conn) {
+	String chName = schematic.getConnectionName(conn);
+	return new Symbol(chName.concat("_velocity"));
+}
   
 }

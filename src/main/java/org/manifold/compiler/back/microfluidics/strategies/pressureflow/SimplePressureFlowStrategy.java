@@ -6,6 +6,7 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
@@ -59,6 +60,18 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     // TODO is this right?
     exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
         QFNRA.multiply(chV_WorstCase, chR_WorstCase)));
+    
+    //Channel Velocity constraint
+    Symbol channel_velocity = SymbolNameGenerator.getsym_ChannelVelocity(schematic, conn);
+    exprs.add(QFNRA.declareRealVariable(channel_velocity));
+    
+    exprs.add(QFNRA.assertEqual(channel_velocity, 
+    		QFNRA.divide(
+    				SymbolNameGenerator.getsym_ChannelFlowRate(schematic, conn),
+    				QFNRA.multiply(
+    						SymbolNameGenerator.getsym_constant_pi(), 
+    						QFNRA.pow(SymbolNameGenerator.getsym_ChannelRadius(schematic, conn),
+    								new Decimal(2.0))))));
     
     return exprs;
   }
