@@ -36,6 +36,7 @@ public class UtilSchematicConstruction {
   private static Map<String, PortTypeValue> noPorts = new HashMap<>();
   
   private static PortTypeValue microfluidPortType;
+  private static PortTypeValue fluidEntryExitPortType;
   // multi-phase
   private static NodeTypeValue fluidEntryNodeType;
   private static NodeTypeValue fluidExitNodeType;
@@ -52,21 +53,26 @@ public class UtilSchematicConstruction {
   private static ConstraintType channelDropletVolumeConstraintType;
   
   public static void setupIntermediateTypes() {
-
+    //TypeAttributes for fluid entry exit ports
+	Map<String, TypeValue> fluidEntryExitTypeAttribute = new HashMap<String, TypeValue>();
+	fluidEntryExitTypeAttribute.put("pressure", RealTypeValue.getInstance());
+	  
     // TODO which signal type do we want here?
     microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
         noTypeAttributes);
+    fluidEntryExitPortType = new PortTypeValue(NilTypeValue.getInstance(), fluidEntryExitTypeAttribute);
     
     // multi-phase
+    //Changing these values with potentiall break the other designs... but lets see if this works
     Map<String, PortTypeValue> fluidEntryPorts = new HashMap<>();
-    fluidEntryPorts.put("output", microfluidPortType);
+    fluidEntryPorts.put("output", fluidEntryExitPortType);
     Map<String, TypeValue> fluidEntryAttributes = new HashMap<>();
     fluidEntryAttributes.put("viscosity", RealTypeValue.getInstance());
     fluidEntryNodeType = new NodeTypeValue(
         fluidEntryAttributes, fluidEntryPorts);
     
     Map<String, PortTypeValue> fluidExitPorts = new HashMap<>();
-    fluidExitPorts.put("input", microfluidPortType);
+    fluidExitPorts.put("input", fluidEntryExitPortType);
     fluidExitNodeType = new NodeTypeValue(
         noTypeAttributes, fluidExitPorts);
     
@@ -128,6 +134,7 @@ public class UtilSchematicConstruction {
     Schematic s = new Schematic(name);
     
     s.addPortType("microfluidPort", microfluidPortType);
+    s.addPortType("fluidEntryExitPort", fluidEntryExitPortType);
     // multi-phase
     s.addNodeType("fluidEntry", fluidEntryNodeType);
     s.addNodeType("fluidExit", fluidExitNodeType);
@@ -189,7 +196,7 @@ public class UtilSchematicConstruction {
     return exit;
   }
   
-  /*
+  /* TODO
    * This needs to be refactored, so that all the attribute are stored
    * in some data structure, instead of having an overloaded method for
    * every attribute combination such as viscosity and inputpressure.
@@ -218,7 +225,7 @@ public class UtilSchematicConstruction {
     return exit;
   }
   
-  /*
+  /* TODO
    * This needs to be refactored, so that all the attribute are stored
    * in some data structure, instead of having an overloaded method for
    * every attribute combination such as viscosity and inputpressure.

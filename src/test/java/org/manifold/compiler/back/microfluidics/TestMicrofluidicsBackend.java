@@ -126,7 +126,9 @@ public class TestMicrofluidicsBackend {
 	    	      "-bProcessMaximumChipSizeY", "0.04",
 	    	      "-bProcessCriticalCrossingAngle", "0.0872664626"
 	    	    };
+	    		// TODO Refactor as inputs somehow
 	    	    double inputpressure = 94.0;
+	    	    double outputpressure = 7899.0;
 	    		
 	    	    Schematic schematic = UtilSchematicConstruction
 	    	        .instantiateSchematic("testSimpleSynthesis");
@@ -136,7 +138,7 @@ public class TestMicrofluidicsBackend {
 	    	    NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
 	    	        schematic, viscosityOfWater,inputpressure);
 	    	    schematic.addNode("in0", entry);
-	    	    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
+	    	    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic,outputpressure);
 	    	    schematic.addNode("out0", exit);
 	    	    /*attributes for channel of pipe model*/
 	    	    Map<String, Value> attrsMap=new HashMap<>();
