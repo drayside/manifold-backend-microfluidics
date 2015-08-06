@@ -75,8 +75,8 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       }
       // pull connections out of the node
       try {
-        exprs.addAll(translateElectrophoreticCross(schematic, node)); 
-        //exprs.addAll(translateElectrophoreticCrossNew(schematic, node)); 
+        //exprs.addAll(translateElectrophoreticCross(schematic, node)); 
+        exprs.addAll(translateElectrophoreticCrossNew(schematic, node)); 
       } catch (UndeclaredIdentifierException e) {
         throw new CodeGenerationError("undeclared identifier '" 
             + e.getIdentifier() + "' when inspecting electrophoretic node '"
@@ -186,6 +186,8 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossEndTime(schematic, nCross);
     Symbol baselineConcentration = SymbolNameGenerator
       .getsym_EPCrossBaselineConcentration(schematic, nCross);
+    Symbol negligibleConcentration = SymbolNameGenerator
+      .getsym_EPCrossNegligibleConcentration(schematic, nCross);
         
     Symbol[] injectionSeparationChannelAnalyteVelocity = 
       new Symbol[numAnalytes];
@@ -195,9 +197,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     Symbol[] analyteElectrophoreticMobility = new Symbol[numAnalytes];
     Symbol[] peakTimeConcentration = new Symbol[numAnalytes];
     Symbol[] voidTimeConcentration = new Symbol[numAnalytes - 1];
-    Symbol[] peakTime = new Symbol[numAnalytes];
+    Symbol[] startFocusTime = new Symbol[numAnalytes];
     Symbol[] focusTime = new Symbol[numAnalytes];
+    Symbol[] peakTime = new Symbol[numAnalytes];
     Symbol[] fadeTime = new Symbol[numAnalytes];
+    Symbol[] endFadeTime = new Symbol[numAnalytes];
     Symbol[] voidTime = new Symbol[numAnalytes - 1];
     
     for (int i = 0; i < numAnalytes; ++i) {
@@ -215,12 +219,16 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         .getsym_EPCrossAnalyteElectrophoreticMobility(schematic, nCross, i);
       peakTimeConcentration[i] = SymbolNameGenerator
         .getsym_EPCrossPeakTimeConcentration(schematic, nCross, i);
-      peakTime[i] = SymbolNameGenerator
-        .getsym_EPCrossPeakTime(schematic, nCross, i);
+      startFocusTime[i] = SymbolNameGenerator
+        .getsym_EPCrossStartFocusTime(schematic, nCross, i);
       focusTime[i] = SymbolNameGenerator
         .getsym_EPCrossFocusTime(schematic, nCross, i);
+      peakTime[i] = SymbolNameGenerator
+        .getsym_EPCrossPeakTime(schematic, nCross, i);
       fadeTime[i] = SymbolNameGenerator
         .getsym_EPCrossFadeTime(schematic, nCross, i);
+      endFadeTime[i] = SymbolNameGenerator
+        .getsym_EPCrossEndFadeTime(schematic, nCross, i);
     }
     for (int i = 0; i < numAnalytes - 1; ++i) {
       voidTimeConcentration[i] = SymbolNameGenerator
@@ -249,6 +257,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(startTime));
     exprs.add(QFNRA.declareRealVariable(endTime));
     exprs.add(QFNRA.declareRealVariable(baselineConcentration));
+    exprs.add(QFNRA.declareRealVariable(negligibleConcentration));
     
     for (int i = 0; i < numAnalytes; ++i) {
       exprs.add(QFNRA.declareRealVariable(
@@ -260,9 +269,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       exprs.add(QFNRA.declareRealVariable(analyteDiffusionCoefficient[i]));
       exprs.add(QFNRA.declareRealVariable(analyteElectrophoreticMobility[i]));
       exprs.add(QFNRA.declareRealVariable(peakTimeConcentration[i]));
-      exprs.add(QFNRA.declareRealVariable(peakTime[i]));
+      exprs.add(QFNRA.declareRealVariable(startFocusTime[i]));
       exprs.add(QFNRA.declareRealVariable(focusTime[i]));
+      exprs.add(QFNRA.declareRealVariable(peakTime[i]));
       exprs.add(QFNRA.declareRealVariable(fadeTime[i]));
+      exprs.add(QFNRA.declareRealVariable(endFadeTime[i]));
     }
     for (int i = 0; i < numAnalytes - 1; ++i) {
       exprs.add(QFNRA.declareRealVariable(voidTimeConcentration[i]));
@@ -413,38 +424,125 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         ));
       }
 
-      // we also prohibit non-adjacent peaks (Gaussian curves) from 
-      // overlapping in any "significant" manner 
-      for (int i = 0; i < numAnalytes - 1; ++i) {
-        exprs.add(QFNRA.assertGreater(
-          peakTime[i + 1],
-          fadeTime[i]
-        ));
+      if (numAnalytes > 3) {
+        for (int i = 0; i < numAnalytes - 1; ++i) {
+          exprs.add(QFNRA.assertGreater(
+            startFocusTime[i + 1],
+            startFocusTime[i]
+          ));
+          exprs.add(QFNRA.assertGreater(
+            endFadeTime[i + 1],
+            endFadeTime[i]
+          ));
+        }
+      }
+      for (int i = 0; i < numAnalytes; ++i) {
+        if (numAnalytes > 3 || numAnalytes == 3 && i != 1) {
+          exprs.add(QFNRA.assertGreater(
+            endFadeTime[i],
+            fadeTime[i]
+          ));
+        }
         exprs.add(QFNRA.assertGreater(
           fadeTime[i],
           peakTime[i]
         ));
-      }
-      exprs.add(QFNRA.assertGreater(
-        fadeTime[numAnalytes - 1],
-        peakTime[numAnalytes - 1]
-      ));
-      for (int i = numAnalytes - 1; i > 0; --i) {
         exprs.add(QFNRA.assertGreater(
           peakTime[i],
           focusTime[i]
         ));
-        exprs.add(QFNRA.assertGreater(
-          focusTime[i],
-          peakTime[i - 1]
-        ));
+        if (numAnalytes > 3 || numAnalytes == 3 && i != 1) {
+          exprs.add(QFNRA.assertGreater(
+            focusTime[i],
+            startFocusTime[i]
+          ));
+        }
+
+        // we also prohibit non-adjacent peaks (Gaussian curves) from 
+        // overlapping in any "significant" manner
+        // TODO: optimize code generation
+        for (int j = 0; j < i; ++j) {
+          if (j == i - 1) {
+            exprs.add(QFNRA.assertGreater(
+              peakTime[i],
+              fadeTime[j]
+            ));
+          } else if (j == i - 2) {
+            exprs.add(QFNRA.assertGreater(
+              peakTime[i],
+              endFadeTime[j]
+            ));
+          }
+        }
+        for (int j = i + 1; j < numAnalytes; ++j) {
+          if (j == i + 1) {
+            exprs.add(QFNRA.assertGreater(
+              focusTime[j],
+              peakTime[i]
+            ));
+          } else if (j == i + 2) {
+            exprs.add(QFNRA.assertGreater(
+              startFocusTime[j],
+              peakTime[i]
+            ));
+          }
+        }
       }
-      exprs.add(QFNRA.assertGreater(
-        peakTime[0],
-        focusTime[0]
-      ));
+      for (int i = 0; i < numAnalytes - 1; ++i) {
+        if (i + 2 < numAnalytes) {
+          exprs.add(QFNRA.assertGreater(
+            startFocusTime[i + 2],
+            voidTime[i]
+          ));
+        }
+        if (i - 2 >= 0) {
+          exprs.add(QFNRA.assertGreater(
+            voidTime[i],
+            endFadeTime[i - 2]
+          ));
+        }
+      }
 
       for (int i = 0; i < numAnalytes; ++i) {
+        SExpression startFocusTimeAnalyteSpread = QFNRA.add(
+          sampleInitialSpread,
+          QFNRA.sqrt(
+            QFNRA.multiply(
+              new Numeral(2),
+              QFNRA.multiply(
+                analyteDiffusionCoefficient[i],
+                startFocusTime[i]
+              )
+            )
+          )
+        );
+        SExpression startFocusTimeAnalyteConcentration = QFNRA.divide(
+          QFNRA.multiply(
+            analyteInitialSurfaceConcentration[i],
+            QFNRA.exp(
+              QFNRA.divide(
+                QFNRA.pow(
+                  QFNRA.divide(
+                    QFNRA.subtract(
+                      separationDistance,
+                      QFNRA.multiply(
+                        injectionSeparationChannelAnalyteVelocity[i],
+                        startFocusTime[i]
+                      )
+                    ),
+                    startFocusTimeAnalyteSpread
+                  ),
+                  new Numeral(2)
+                ),
+                new Numeral(-2)
+              )
+            )
+          ),
+          QFNRA.multiply(
+            new Decimal(2.506628), // sqrt(2*pi)
+            startFocusTimeAnalyteSpread
+          )
+        );
         SExpression focusTimeAnalyteSpread = QFNRA.add(
           sampleInitialSpread,
           QFNRA.sqrt(
@@ -523,45 +621,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             peakTimeAnalyteSpread
           )
         );
-        SExpression fadeTimeAnalyteSpread = QFNRA.add(
-          sampleInitialSpread,
-          QFNRA.sqrt(
-            QFNRA.multiply(
-              new Numeral(2),
-              QFNRA.multiply(
-                analyteDiffusionCoefficient[i],
-                fadeTime[i]
-              )
-            )
-          )
-        );
-        SExpression fadeTimeAnalyteConcentration = QFNRA.divide(
-          QFNRA.multiply(
-            analyteInitialSurfaceConcentration[i],
-            QFNRA.exp(
-              QFNRA.divide(
-                QFNRA.pow(
-                  QFNRA.divide(
-                    QFNRA.subtract(
-                      separationDistance,
-                      QFNRA.multiply(
-                        injectionSeparationChannelAnalyteVelocity[i],
-                        fadeTime[i]
-                      )
-                    ),
-                    fadeTimeAnalyteSpread
-                  ),
-                  new Numeral(2)
-                ),
-                new Numeral(-2)
-              )
-            )
-          ),
-          QFNRA.multiply(
-            new Decimal(2.506628), // sqrt(2*pi)
-            fadeTimeAnalyteSpread
-          )
-        );
         SExpression peakTimeAnalyteConcentrationDerivative = QFNRA.multiply(
           QFNRA.divide(
             peakTimeAnalyteConcentration,
@@ -610,35 +669,137 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             )
           )
         );
-        exprs.add(QFNRA.assertEqual(
+        SExpression fadeTimeAnalyteSpread = QFNRA.add(
+          sampleInitialSpread,
+          QFNRA.sqrt(
+            QFNRA.multiply(
+              new Numeral(2),
+              QFNRA.multiply(
+                analyteDiffusionCoefficient[i],
+                fadeTime[i]
+              )
+            )
+          )
+        );
+        SExpression fadeTimeAnalyteConcentration = QFNRA.divide(
+          QFNRA.multiply(
+            analyteInitialSurfaceConcentration[i],
+            QFNRA.exp(
+              QFNRA.divide(
+                QFNRA.pow(
+                  QFNRA.divide(
+                    QFNRA.subtract(
+                      separationDistance,
+                      QFNRA.multiply(
+                        injectionSeparationChannelAnalyteVelocity[i],
+                        fadeTime[i]
+                      )
+                    ),
+                    fadeTimeAnalyteSpread
+                  ),
+                  new Numeral(2)
+                ),
+                new Numeral(-2)
+              )
+            )
+          ),
+          QFNRA.multiply(
+            new Decimal(2.506628), // sqrt(2*pi)
+            fadeTimeAnalyteSpread
+          )
+        );
+        SExpression endFadeTimeAnalyteSpread = QFNRA.add(
+          sampleInitialSpread,
+          QFNRA.sqrt(
+            QFNRA.multiply(
+              new Numeral(2),
+              QFNRA.multiply(
+                analyteDiffusionCoefficient[i],
+                endFadeTime[i]
+              )
+            )
+          )
+        );
+        SExpression endFadeTimeAnalyteConcentration = QFNRA.divide(
+          QFNRA.multiply(
+            analyteInitialSurfaceConcentration[i],
+            QFNRA.exp(
+              QFNRA.divide(
+                QFNRA.pow(
+                  QFNRA.divide(
+                    QFNRA.subtract(
+                      separationDistance,
+                      QFNRA.multiply(
+                        injectionSeparationChannelAnalyteVelocity[i],
+                        endFadeTime[i]
+                      )
+                    ),
+                    endFadeTimeAnalyteSpread
+                  ),
+                  new Numeral(2)
+                ),
+                new Numeral(-2)
+              )
+            )
+          ),
+          QFNRA.multiply(
+            new Decimal(2.506628), // sqrt(2*pi)
+            endFadeTimeAnalyteSpread
+          )
+        );
+
+        /*exprs.add(QFNRA.assertEqual(
           peakTimeAnalyteConcentrationDerivative,
           new Numeral(0)
+        ));*/
+        exprs.add(QFNRA.assertEqual(
+          peakTime[i],
+          QFNRA.divide(
+            separationDistance,
+            injectionSeparationChannelAnalyteVelocity[i]
+          )
         ));
         exprs.add(QFNRA.assertGreaterEqual(
           QFNRA.divide(
             peakTimeAnalyteConcentration,
             baselineConcentration
           ),
-          new Numeral(19)
-        ));
-        exprs.add(QFNRA.assertEqual(
-          focusTimeAnalyteConcentration,
-          QFNRA.divide(
-            baselineConcentration,
-            new Numeral(numAnalytes - 1)
-          )
-        ));
-        exprs.add(QFNRA.assertEqual(
-          fadeTimeAnalyteConcentration,
-          QFNRA.divide(
-            baselineConcentration,
-            new Numeral(numAnalytes - 1)
-          )
+          new Numeral(10)
         ));
         exprs.add(QFNRA.assertEqual(
           peakTimeConcentration[i],
           peakTimeAnalyteConcentration
         ));
+        exprs.add(QFNRA.assertEqual(
+          focusTimeAnalyteConcentration,
+          QFNRA.multiply(
+            negligibleConcentration,
+            new Decimal(0.45)
+          )
+        ));
+        exprs.add(QFNRA.assertEqual(
+          fadeTimeAnalyteConcentration,
+          QFNRA.multiply(
+            negligibleConcentration,
+            new Decimal(0.45)
+          )
+        ));
+        if (numAnalytes > 3 || numAnalytes == 3 && i != 1) {
+          exprs.add(QFNRA.assertEqual(
+            startFocusTimeAnalyteConcentration,
+            QFNRA.multiply(
+              negligibleConcentration,
+              new Decimal((numAnalytes == 3) ? 0.1 : (0.1 / (numAnalytes - 3)))
+            )
+          ));
+          exprs.add(QFNRA.assertEqual(
+            endFadeTimeAnalyteConcentration,
+            QFNRA.multiply(
+              negligibleConcentration,
+              new Decimal((numAnalytes == 3) ? 0.1 : (0.1 / (numAnalytes - 3)))
+            )
+          ));
+        }
       }
 
       for (int i = 0; i < numAnalytes - 1; ++i) {
@@ -687,33 +848,239 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             )
           );
         }
-        exprs.add(QFNRA.assertEqual(
-          voidTimeConcentration[i],
-          QFNRA.add(
-            QFNRA.multiply(
-              new Numeral(2),
-              voidTimeAnalyteConcentration[i]
-            ),
-            baselineConcentration
-          )
-        ));
-        /*exprs.add(QFNRA.assertEqual(
-          voidTimeConcentration[i],
-          QFNRA.add(
-            QFNRA.add(
-              voidTimeAnalyteConcentration[i],
-              voidTimeAnalyteConcentration[i + 1]
-            ),
-            baselineConcentration
-          )
-        ));*/
 
-        exprs.add(QFNRA.assertEqual(
-          voidTimeAnalyteConcentration[i],
-          voidTimeAnalyteConcentration[i + 1]
-        ));
+        // TODO: might be able to use more accurate heuristic (taking into 
+        // account separation time) if evaluated in dReal
+        final double m1 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble() / 
+            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble());
+        final double m2 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1)).toDouble() / 
+            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble());
+        final double diff = m1 / m2; 
+        if (diff >= 10 || diff <= 0.1) {
+          /*SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i],
+              QFNRA.pow(
+                voidTimeAnalyteSpread[i],
+                new Numeral(2)
+              )
+            ),
+            QFNRA.multiply(
+              injectionSeparationChannelAnalyteVelocity[i],
+              QFNRA.subtract(
+                separationDistance,
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i],
+                  voidTime[i]
+                )
+              )
+            )
+          );
+          SExpression voidTimeAnalyteConcentrationDerivative2 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i + 1],
+              QFNRA.pow(
+                voidTimeAnalyteSpread[i + 1],
+                new Numeral(2)
+              )
+            ),
+            QFNRA.multiply(
+              injectionSeparationChannelAnalyteVelocity[i + 1],
+              QFNRA.subtract(
+                separationDistance,
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i + 1],
+                  voidTime[i]
+                )
+              )
+            )
+          );*/
+          SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i],
+              voidTimeAnalyteSpread[i]
+            ),
+            QFNRA.add(
+              QFNRA.divide(
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i],
+                  QFNRA.subtract(
+                    separationDistance,
+                    QFNRA.multiply(
+                      injectionSeparationChannelAnalyteVelocity[i],
+                      voidTime[i]
+                    )
+                  )
+                ),
+                voidTimeAnalyteSpread[i]
+              ),
+              QFNRA.multiply(
+                QFNRA.subtract(
+                  QFNRA.pow(
+                    QFNRA.divide(
+                      QFNRA.subtract(
+                        separationDistance,
+                        QFNRA.multiply(
+                          injectionSeparationChannelAnalyteVelocity[i],
+                          voidTime[i]
+                        )
+                      ),
+                      voidTimeAnalyteSpread[i]
+                    ),
+                    new Numeral(2)
+                  ),
+                  new Numeral(1)
+                ),
+                QFNRA.sqrt(
+                  QFNRA.divide(
+                    analyteDiffusionCoefficient[i],
+                    QFNRA.multiply(
+                      new Numeral(2),
+                      voidTime[i]
+                    )
+                  )
+                )
+              )
+            )
+          );
+          SExpression voidTimeAnalyteConcentrationDerivative2 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i + 1],
+              voidTimeAnalyteSpread[i + 1]
+            ),
+            QFNRA.add(
+              QFNRA.divide(
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i + 1],
+                  QFNRA.subtract(
+                    separationDistance,
+                    QFNRA.multiply(
+                      injectionSeparationChannelAnalyteVelocity[i + 1],
+                      voidTime[i]
+                    )
+                  )
+                ),
+                voidTimeAnalyteSpread[i + 1]
+              ),
+              QFNRA.multiply(
+                QFNRA.subtract(
+                  QFNRA.pow(
+                    QFNRA.divide(
+                      QFNRA.subtract(
+                        separationDistance,
+                        QFNRA.multiply(
+                          injectionSeparationChannelAnalyteVelocity[i + 1],
+                          voidTime[i]
+                        )
+                      ),
+                      voidTimeAnalyteSpread[i + 1]
+                    ),
+                    new Numeral(2)
+                  ),
+                  new Numeral(1)
+                ),
+                QFNRA.sqrt(
+                  QFNRA.divide(
+                    analyteDiffusionCoefficient[i + 1],
+                    QFNRA.multiply(
+                      new Numeral(2),
+                      voidTime[i]
+                    )
+                  )
+                )
+              )
+            )
+          );
+          exprs.add(QFNRA.assertEqual(
+            new Numeral(0),
+            QFNRA.add(
+              voidTimeAnalyteConcentrationDerivative1, 
+              voidTimeAnalyteConcentrationDerivative2 
+            )
+          ));
+          exprs.add(QFNRA.assertEqual(
+            voidTimeConcentration[i],
+            QFNRA.add(
+              QFNRA.add(
+                voidTimeAnalyteConcentration[i],
+                voidTimeAnalyteConcentration[i + 1]
+              ),
+              QFNRA.multiply(
+                negligibleConcentration,
+                new Decimal(0.3)
+              )
+            )
+          ));
+        } else {
+          exprs.add(QFNRA.assertEqual(
+            voidTimeAnalyteConcentration[i],
+            voidTimeAnalyteConcentration[i + 1]
+          ));
+          exprs.add(QFNRA.assertEqual(
+            voidTimeConcentration[i],
+            QFNRA.add(
+              QFNRA.multiply(
+                new Numeral(2),
+                voidTimeAnalyteConcentration[i]
+              ),
+              QFNRA.multiply(
+                negligibleConcentration,
+                new Decimal(0.3)
+              )
+            )
+          ));
+        }
       }
-     
+    
+      // TODO: determining the minimum initial surface concentration and 
+      // maximum diffusion coefficient can be done with SMT2 constraints 
+      // (would require dReal3)
+      double minInitialSurfaceConcentration = Double.POSITIVE_INFINITY;
+      double maxDiffusionCoefficient = 0;
+      for (int i = 0; i < numAnalytes; ++i) {
+        minInitialSurfaceConcentration = Math.min(minInitialSurfaceConcentration, 
+          ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble());
+        maxDiffusionCoefficient = Math.max(maxDiffusionCoefficient, 
+            ((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble());
+      }
+      exprs.add(QFNRA.assertEqual(
+        negligibleConcentration,
+        QFNRA.divide(
+          new Decimal(minInitialSurfaceConcentration / 5),
+          QFNRA.add(
+            sampleInitialSpread,
+            QFNRA.sqrt(
+              QFNRA.multiply(
+                new Numeral(2),
+                QFNRA.multiply(
+                  new Decimal(maxDiffusionCoefficient),
+                  peakTime[numAnalytes - 1]
+                )
+              )
+            )
+          )
+        )
+      ));
+      /*SExpression minPeakConcentration = QFNRA.min(
+        peakTimeConcentration[0],
+        peakTimeConcentration[1]
+      );
+      for (int i = 2; i < numAnalytes; ++i) {
+        minPeakConcentration = QFNRA.min(
+          minPeakConcentration,
+          peakTimeConcentration[i]
+        );
+      }
+      exprs.add(QFNRA.assertEqual(
+        negligibleConcentration,
+        QFNRA.divide(
+          minPeakConcentration,
+          new Numeral(20)
+        )
+      ));*/
+
       SExpression threshold = new Decimal(0.85);
       exprs.add(QFNRA.assertLessThanEqual(
         QFNRA.divide(
@@ -1158,7 +1525,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             peakTimeAnalyteConcentration[i],
             peakTimeConcentration[i]
           ),
-          new Decimal(0.95)
+          new Decimal(5.0 / 6)
         ));
         if (i == 0) {
           exprs.add(QFNRA.assertEqual(
@@ -1339,6 +1706,44 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble());
         final double diff = m1 / m2; 
         if (diff >= 10 || diff <= 0.1) {
+          /*SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i],
+              QFNRA.pow(
+                voidTimeAnalyteSpread[i],
+                new Numeral(2)
+              )
+            ),
+            QFNRA.multiply(
+              injectionSeparationChannelAnalyteVelocity[i],
+              QFNRA.subtract(
+                separationDistance,
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i],
+                  voidTime[i]
+                )
+              )
+            )
+          );
+          SExpression voidTimeAnalyteConcentrationDerivative2 = QFNRA.multiply(
+            QFNRA.divide(
+              voidTimeAnalyteConcentration[i + 1],
+              QFNRA.pow(
+                voidTimeAnalyteSpread[i + 1],
+                new Numeral(2)
+              )
+            ),
+            QFNRA.multiply(
+              injectionSeparationChannelAnalyteVelocity[i + 1],
+              QFNRA.subtract(
+                separationDistance,
+                QFNRA.multiply(
+                  injectionSeparationChannelAnalyteVelocity[i + 1],
+                  voidTime[i]
+                )
+              )
+            )
+          );*/
           SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
             QFNRA.divide(
               voidTimeAnalyteConcentration[i],
@@ -1442,7 +1847,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               voidTimeAnalyteConcentrationDerivative2 
             )
           ));
-          exprs.add(QFNRA.assertGreaterEqual(
+          /*exprs.add(QFNRA.assertGreaterEqual(
             QFNRA.divide(
               QFNRA.add(
                 voidTimeAnalyteConcentration[i],
@@ -1451,13 +1856,13 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               voidTimeConcentration[i]
             ),
             new Decimal(0.95)
-          ));
+          ));*/
         } else {
           exprs.add(QFNRA.assertEqual(
             voidTimeAnalyteConcentration[i],
             voidTimeAnalyteConcentration[i + 1]
           ));
-          exprs.add(QFNRA.assertGreaterEqual(
+          /*exprs.add(QFNRA.assertGreaterEqual(
             QFNRA.divide(
               QFNRA.multiply(
                 new Numeral(2),
@@ -1466,7 +1871,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               voidTimeConcentration[i]
             ),
             new Decimal(0.95)
-          ));
+          ));*/
         }
       }
      

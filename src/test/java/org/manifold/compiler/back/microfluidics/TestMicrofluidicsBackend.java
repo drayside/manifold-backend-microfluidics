@@ -120,7 +120,7 @@ public class TestMicrofluidicsBackend {
     analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
     analyteDiffusionCoefficient.add(new RealValue(5.00e-12));
     analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
-    analyteDiffusionCoefficient.add(new RealValue(9.23e-11));
+    analyteDiffusionCoefficient.add(new RealValue(6.23e-11));
     analyteDiffusionCoefficient.add(new RealValue(9.23e-12));
 
     NodeValue cross = UtilSchematicConstruction

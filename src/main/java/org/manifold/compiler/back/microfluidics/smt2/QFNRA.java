@@ -91,6 +91,15 @@ public class QFNRA {
     return new ParenList(exprs);
   }
   
+  public static SExpression min(SExpression e1, SExpression e2) {
+    SExpression exprs[] = new SExpression[] {
+      new Symbol("min"),
+      e1,
+      e2
+    };
+    return new ParenList(exprs);
+  }
+  
   public static SExpression assertThat(SExpression term) {
     SExpression assertExprs[] = new SExpression[] {
       new Symbol("assert"),

@@ -625,6 +625,12 @@ public class SymbolNameGenerator {
     return new Symbol(nodeName.concat("_peakTime" + analyteId));
   }
   
+  public static Symbol getsym_EPCrossStartFocusTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_startFocusTime" + analyteId));
+  }
+  
   /**
    * Retrieves the symbol that defines the time at which the concentration of 
    * an analyte exceeds the baseline level in the electropherogram output.
@@ -643,6 +649,12 @@ public class SymbolNameGenerator {
       Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_fadeTime" + analyteId));
+  }
+  
+  public static Symbol getsym_EPCrossEndFadeTime(
+      Schematic schematic, NodeValue electrophoreticCross, int analyteId) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_endFadeTime" + analyteId));
   }
   
   public static Symbol getsym_EPCrossVoidTime(
@@ -679,5 +691,11 @@ public class SymbolNameGenerator {
       Schematic schematic, NodeValue electrophoreticCross) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_baselineConcentration"));
+  }
+  
+  public static Symbol getsym_EPCrossNegligibleConcentration(
+      Schematic schematic, NodeValue electrophoreticCross) {
+    String nodeName = schematic.getNodeName(electrophoreticCross);
+    return new Symbol(nodeName.concat("_negligibleConcentration"));
   }
 }
