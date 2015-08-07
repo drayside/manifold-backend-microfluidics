@@ -158,20 +158,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossWasteChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
       .getsym_EPCrossLength(schematic, nCross);
-    Symbol injectionSampleNodeVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionSampleNodeVoltage(schematic, nCross);
-    Symbol injectionWasteNodeVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionWasteNodeVoltage(schematic, nCross);
     Symbol injectionCathodeNodeVoltage = SymbolNameGenerator
       .getsym_EPCrossInjectionCathodeNodeVoltage(schematic, nCross);
     Symbol injectionAnodeNodeVoltage = SymbolNameGenerator
       .getsym_EPCrossInjectionAnodeNodeVoltage(schematic, nCross);
-    Symbol injectionIntersectionVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionIntersectionVoltage(schematic, nCross);
     Symbol injectionSeparationChannelE = SymbolNameGenerator
       .getsym_EPCrossInjectionSeparationChannelE(schematic, nCross);
-    Symbol injectionInjectionChannelE = SymbolNameGenerator
-      .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);
     Symbol bulkMobility = SymbolNameGenerator
       .getsym_EPCrossBulkMobility(schematic, nCross);
     Symbol separationDistance = SymbolNameGenerator
@@ -243,13 +235,9 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(lenInjectionChannel));
     exprs.add(QFNRA.declareRealVariable(lenWasteChannel));
     exprs.add(QFNRA.declareRealVariable(lenCross));
-    exprs.add(QFNRA.declareRealVariable(injectionSampleNodeVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionWasteNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionCathodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionIntersectionVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionSeparationChannelE));
-    exprs.add(QFNRA.declareRealVariable(injectionInjectionChannelE));
     exprs.add(QFNRA.declareRealVariable(bulkMobility));
     exprs.add(QFNRA.declareRealVariable(separationDistance));
     exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
@@ -460,32 +448,29 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
 
         // we also prohibit non-adjacent peaks (Gaussian curves) from 
         // overlapping in any "significant" manner
-        // TODO: optimize code generation
-        for (int j = 0; j < i; ++j) {
-          if (j == i - 1) {
-            exprs.add(QFNRA.assertGreater(
-              peakTime[i],
-              fadeTime[j]
-            ));
-          } else if (j == i - 2) {
-            exprs.add(QFNRA.assertGreater(
-              peakTime[i],
-              endFadeTime[j]
-            ));
-          }
+        if (i - 1 >= 0) {
+          exprs.add(QFNRA.assertGreater(
+            peakTime[i],
+            fadeTime[i - 1]
+          ));
         }
-        for (int j = i + 1; j < numAnalytes; ++j) {
-          if (j == i + 1) {
-            exprs.add(QFNRA.assertGreater(
-              focusTime[j],
-              peakTime[i]
-            ));
-          } else if (j == i + 2) {
-            exprs.add(QFNRA.assertGreater(
-              startFocusTime[j],
-              peakTime[i]
-            ));
-          }
+        if (i - 2 >= 0) {
+          exprs.add(QFNRA.assertGreater(
+            peakTime[i],
+            endFadeTime[i - 2]
+          ));
+        }
+        if (i + 1 < numAnalytes) {
+          exprs.add(QFNRA.assertGreater(
+            focusTime[i + 1],
+            peakTime[i]
+          ));
+        }
+        if (i + 2 < numAnalytes) {
+          exprs.add(QFNRA.assertGreater(
+            startFocusTime[i + 2],
+            peakTime[i]
+          ));
         }
       }
       for (int i = 0; i < numAnalytes - 1; ++i) {
@@ -849,15 +834,24 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           );
         }
 
-        // TODO: might be able to use more accurate heuristic (taking into 
-        // account separation time) if evaluated in dReal
-        final double m1 = 
-            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble() / 
-            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble());
-        final double m2 = 
-            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1)).toDouble() / 
-            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble());
-        final double diff = m1 / m2; 
+        final double C1 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i))
+            .toDouble();
+        final double C2 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1))
+            .toDouble();
+        final double D1 = 
+            ((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble();
+        final double D2 = 
+            ((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble();
+        final double u1 = 
+            ((RealValue)nCross.getAttribute("bulkMobility")).toDouble() + 
+            ((RealValue)analyteElectrophoreticMobilityAttr.get(i)).toDouble();
+        final double u2 = 
+            ((RealValue)nCross.getAttribute("bulkMobility")).toDouble() + 
+            ((RealValue)analyteElectrophoreticMobilityAttr.get(i + 1))
+            .toDouble();
+        final double diff = (C1 / C2) * Math.sqrt((D2 * u1) / (D1 * u2));
         if (diff >= 10 || diff <= 0.1) {
           /*SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
             QFNRA.divide(
@@ -1036,7 +1030,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     
       // TODO: determining the minimum initial surface concentration and 
       // maximum diffusion coefficient can be done with SMT2 constraints 
-      // (would require dReal3)
+      // (note that min/max operators would require dReal3)
       double minInitialSurfaceConcentration = Double.POSITIVE_INFINITY;
       double maxDiffusionCoefficient = 0;
       for (int i = 0; i < numAnalytes; ++i) {
@@ -1140,20 +1134,12 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossWasteChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
       .getsym_EPCrossLength(schematic, nCross);
-    Symbol injectionSampleNodeVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionSampleNodeVoltage(schematic, nCross);
-    Symbol injectionWasteNodeVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionWasteNodeVoltage(schematic, nCross);
     Symbol injectionCathodeNodeVoltage = SymbolNameGenerator
       .getsym_EPCrossInjectionCathodeNodeVoltage(schematic, nCross);
     Symbol injectionAnodeNodeVoltage = SymbolNameGenerator
       .getsym_EPCrossInjectionAnodeNodeVoltage(schematic, nCross);
-    Symbol injectionIntersectionVoltage = SymbolNameGenerator
-      .getsym_EPCrossInjectionIntersectionVoltage(schematic, nCross);
     Symbol injectionSeparationChannelE = SymbolNameGenerator
       .getsym_EPCrossInjectionSeparationChannelE(schematic, nCross);
-    Symbol injectionInjectionChannelE = SymbolNameGenerator
-      .getsym_EPCrossInjectionInjectionChannelE(schematic, nCross);
     Symbol bulkMobility = SymbolNameGenerator
       .getsym_EPCrossBulkMobility(schematic, nCross);
     Symbol separationDistance = SymbolNameGenerator
@@ -1211,13 +1197,9 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(lenInjectionChannel));
     exprs.add(QFNRA.declareRealVariable(lenWasteChannel));
     exprs.add(QFNRA.declareRealVariable(lenCross));
-    exprs.add(QFNRA.declareRealVariable(injectionSampleNodeVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionWasteNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionCathodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
-    exprs.add(QFNRA.declareRealVariable(injectionIntersectionVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionSeparationChannelE));
-    exprs.add(QFNRA.declareRealVariable(injectionInjectionChannelE));
     exprs.add(QFNRA.declareRealVariable(bulkMobility));
     exprs.add(QFNRA.declareRealVariable(separationDistance));
     exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
@@ -1696,15 +1678,24 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           voidTimeConcentrationExpr
         ));
 
-        // TODO: might be able to use more accurate heuristic (taking into 
-        // account separation time) if evaluated in dReal
-        final double m1 = 
-            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i)).toDouble() / 
-            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble());
-        final double m2 = 
-            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1)).toDouble() / 
-            Math.sqrt(((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble());
-        final double diff = m1 / m2; 
+        final double C1 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i))
+            .toDouble();
+        final double C2 = 
+            ((RealValue)analyteInitialSurfaceConcentrationAttr.get(i + 1))
+            .toDouble();
+        final double D1 = 
+            ((RealValue)analyteDiffusionCoefficientAttr.get(i)).toDouble();
+        final double D2 = 
+            ((RealValue)analyteDiffusionCoefficientAttr.get(i + 1)).toDouble();
+        final double u1 = 
+            ((RealValue)nCross.getAttribute("bulkMobility")).toDouble() + 
+            ((RealValue)analyteElectrophoreticMobilityAttr.get(i)).toDouble();
+        final double u2 = 
+            ((RealValue)nCross.getAttribute("bulkMobility")).toDouble() + 
+            ((RealValue)analyteElectrophoreticMobilityAttr.get(i + 1))
+            .toDouble();
+        final double diff = (C1 / C2) * Math.sqrt((D2 * u1) / (D1 * u2));
         if (diff >= 10 || diff <= 0.1) {
           /*SExpression voidTimeAnalyteConcentrationDerivative1 = QFNRA.multiply(
             QFNRA.divide(
@@ -1847,31 +1838,11 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               voidTimeAnalyteConcentrationDerivative2 
             )
           ));
-          /*exprs.add(QFNRA.assertGreaterEqual(
-            QFNRA.divide(
-              QFNRA.add(
-                voidTimeAnalyteConcentration[i],
-                voidTimeAnalyteConcentration[i + 1]
-              ),
-              voidTimeConcentration[i]
-            ),
-            new Decimal(0.95)
-          ));*/
         } else {
           exprs.add(QFNRA.assertEqual(
             voidTimeAnalyteConcentration[i],
             voidTimeAnalyteConcentration[i + 1]
           ));
-          /*exprs.add(QFNRA.assertGreaterEqual(
-            QFNRA.divide(
-              QFNRA.multiply(
-                new Numeral(2),
-                voidTimeAnalyteConcentration[i]
-              ),
-              voidTimeConcentration[i]
-            ),
-            new Decimal(0.95)
-          ));*/
         }
       }
      
@@ -1907,46 +1878,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         threshold
       ));
     }
-    
-    // pull-back voltage constraints
-    /*exprs.add(QFNRA.assertEqual(
-        injectionIntersectionVoltage,
-        QFNRA.add(
-            injectionAnodeNodeVoltage,
-            QFNRA.multiply(
-                QFNRA.subtract(
-                    injectionCathodeNodeVoltage, 
-                    injectionAnodeNodeVoltage
-                ),
-                QFNRA.divide(
-                    lenSeparationChannel,
-                    lenCross
-                )
-            )
-        )
-    ));
-    exprs.add(QFNRA.assertEqual(
-        injectionSampleNodeVoltage, 
-        injectionWasteNodeVoltage
-    ));
-    exprs.add(QFNRA.assertLessThan(
-        injectionSampleNodeVoltage, 
-        injectionAnodeNodeVoltage
-    ));
-    exprs.add(QFNRA.assertGreater(
-        injectionSampleNodeVoltage,
-        injectionIntersectionVoltage
-    ));
-    exprs.add(QFNRA.assertEqual(
-        injectionInjectionChannelE,
-        QFNRA.divide(
-            QFNRA.subtract(
-                injectionIntersectionVoltage,
-                injectionSampleNodeVoltage
-            ),
-            lenInjectionChannel
-        )
-    ));*/
 
     return exprs;
   }

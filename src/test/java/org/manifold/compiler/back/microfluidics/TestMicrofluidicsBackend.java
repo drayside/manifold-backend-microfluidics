@@ -108,6 +108,7 @@ public class TestMicrofluidicsBackend {
     analyteElectrophoreticMobility.add(new RealValue(-3.60e-8)); // N_bp = 50
     analyteElectrophoreticMobility.add(new RealValue(-3.50e-8));
     analyteElectrophoreticMobility.add(new RealValue(-3.45e-8));
+    analyteElectrophoreticMobility.add(new RealValue(-3.30e-8));
     analyteInitialSurfaceConcentration.add(new RealValue(4.66e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(2.66e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(1.06e-4));
@@ -115,6 +116,7 @@ public class TestMicrofluidicsBackend {
     analyteInitialSurfaceConcentration.add(new RealValue(5.32e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(8.32e-5));
     analyteInitialSurfaceConcentration.add(new RealValue(3.32e-4));
+    analyteInitialSurfaceConcentration.add(new RealValue(6.32e-5));
     analyteDiffusionCoefficient.add(new RealValue(1.80e-11));
     analyteDiffusionCoefficient.add(new RealValue(5.85e-12));
     analyteDiffusionCoefficient.add(new RealValue(2.17e-11));
@@ -122,6 +124,7 @@ public class TestMicrofluidicsBackend {
     analyteDiffusionCoefficient.add(new RealValue(3.23e-11));
     analyteDiffusionCoefficient.add(new RealValue(6.23e-11));
     analyteDiffusionCoefficient.add(new RealValue(9.23e-12));
+    analyteDiffusionCoefficient.add(new RealValue(5.23e-11));
 
     NodeValue cross = UtilSchematicConstruction
         .instantiateElectrophoreticCross(schematic, numAnalytes, bulkMobility, 
@@ -168,30 +171,6 @@ public class TestMicrofluidicsBackend {
     backend.invokeBackend(schematic, cmd);
   }
  
- /*
-  @Test
-  public void testElectrophoreticSynthesis() throws Exception {
-    Schematic schematic = UtilSchematicConstruction.
-      instantiateSchematic("test");
-
-    NodeValue electrophoreticNode = UtilSchematicConstruction.
-        instantiateElectrophoreticNode(schematic);
-    schematic.addNode("n_electrophoretic", electrophoreticNode);
-    NodeValue entry = UtilSchematicConstruction.instantiateFluidEntry(
-        schematic, 0.001002);
-    schematic.addNode("n_entry", entry);
-    NodeValue exit = UtilSchematicConstruction.instantiateFluidExit(schematic);
-    schematic.addNode("n_exit", exit);
-    ConnectionValue entryChannel = UtilSchematicConstruction.
-        instantiateChannel(entry.getPort("output"), 
-        electrophoreticNode.getPort("sampleIn"));
-    schematic.addConnection("c_entry", entryChannel);
-    ConnectionValue exitChannel = UtilSchematicConstruction.instantiateChannel(
-        electrophoreticNode.getPort("wasteOut"), exit.getPort("input"));
-    schematic.addConnection("c_exit", exitChannel);
-  }
-*/
-
   // TODO update test for new interface
   /*
   @Test
