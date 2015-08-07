@@ -82,8 +82,8 @@ public class TestMicrofluidicsBackend {
     List<Value> analyteInitialSurfaceConcentration = new ArrayList<Value>();
     List<Value> analyteDiffusionCoefficient = new ArrayList<Value>();
     
-    final int numAnalytes = 2;
-    /*final double bulkMobility = 5.681e-8;
+    /*final int numAnalytes = 2;
+    final double bulkMobility = 5.681e-8;
     final double injectionCathodeNodeVoltage = 6e2;
     final double lenSeparationChannel = 7.5e-2;
     final double lenInjectionChannel = 1.5e-2;
@@ -94,8 +94,9 @@ public class TestMicrofluidicsBackend {
     analyteInitialSurfaceConcentration.add(new RealValue(1e-3));
     analyteInitialSurfaceConcentration.add(new RealValue(1e-3));
     analyteDiffusionCoefficient.add(new RealValue(1.957e-9));
-    analyteDiffusionCoefficient.add(new RealValue(1.334e-9));
-    */final double bulkMobility = 1e-8;
+    analyteDiffusionCoefficient.add(new RealValue(1.334e-9));*/
+    final int numAnalytes = 8;
+    final double bulkMobility = 1e-8;
     final double injectionCathodeNodeVoltage = -1e2;
     final double lenSeparationChannel = 3e-2;
     final double lenInjectionChannel = 4.5e-3;

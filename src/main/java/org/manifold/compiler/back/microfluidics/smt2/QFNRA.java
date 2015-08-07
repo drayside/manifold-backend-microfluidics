@@ -14,18 +14,18 @@ public class QFNRA {
   
   public static SExpression useQFNRA() {
     SExpression exprs[] = new SExpression[] {
-        new Symbol("set-logic"),
-        new Symbol("QF_NRA")
+      new Symbol("set-logic"),
+      new Symbol("QF_NRA")
     };
     return new ParenList(exprs);
   }
   
   public static SExpression declareRealVariable(Symbol var) {
     SExpression exprs[] = new SExpression[] {
-        new Symbol("declare-fun"),
-        var,
-        new ParenList(),
-        new Symbol("Real")
+      new Symbol("declare-fun"),
+      var,
+      new ParenList(),
+      new Symbol("Real")
     };
     return new ParenList(exprs);
   }

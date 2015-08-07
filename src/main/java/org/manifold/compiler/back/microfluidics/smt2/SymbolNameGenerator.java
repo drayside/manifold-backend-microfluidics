@@ -324,7 +324,8 @@ public class SymbolNameGenerator {
    * in the electropherogram output.
    **/
   public static Symbol getsym_EPCrossPeakTimeAnalyteConcentration(
-      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, 
+      int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
       "_peakTimeAnalyteConcentration" + timestepId + "_" + analyteId));
@@ -336,7 +337,8 @@ public class SymbolNameGenerator {
    * has peaked. 
    **/
   public static Symbol getsym_EPCrossPeakTimeAnalyteSpread(
-      Schematic schematic, NodeValue electrophoreticCross, int timestepId, int analyteId) {
+      Schematic schematic, NodeValue electrophoreticCross, int timestepId, 
+      int analyteId) {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat(
       "_peakTimeAnalyteSpread" + timestepId + "_" + analyteId));
