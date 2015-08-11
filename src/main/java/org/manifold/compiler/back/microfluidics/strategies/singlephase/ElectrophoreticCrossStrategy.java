@@ -479,10 +479,10 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             voidTime[i]
           ));
         }
-        if (i - 2 >= 0) {
+        if (i - 1 >= 0) {
           exprs.add(QFNRA.assertGreater(
             voidTime[i],
-            endFadeTime[i - 2]
+            endFadeTime[i - 1]
           ));
         }
       }
@@ -605,54 +605,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             peakTimeAnalyteSpread
           )
         );
-        SExpression peakTimeAnalyteConcentrationDerivative = QFNRA.multiply(
-          QFNRA.divide(
-            peakTimeAnalyteConcentration,
-            peakTimeAnalyteSpread
-          ),
-          QFNRA.add(
-            QFNRA.divide(
-              QFNRA.multiply(
-                injectionSeparationChannelAnalyteVelocity[i],
-                QFNRA.subtract(
-                  separationDistance,
-                  QFNRA.multiply(
-                    injectionSeparationChannelAnalyteVelocity[i],
-                    peakTime[i]
-                  )
-                )
-              ),
-              peakTimeAnalyteSpread
-            ),
-            QFNRA.multiply(
-              QFNRA.subtract(
-                QFNRA.pow(
-                  QFNRA.divide(
-                    QFNRA.subtract(
-                      separationDistance,
-                      QFNRA.multiply(
-                        injectionSeparationChannelAnalyteVelocity[i],
-                        peakTime[i]
-                      )
-                    ),
-                    peakTimeAnalyteSpread
-                  ),
-                  new Numeral(2)
-                ),
-                new Numeral(1)
-              ),
-              QFNRA.sqrt(
-                QFNRA.divide(
-                  analyteDiffusionCoefficient[i],
-                  QFNRA.multiply(
-                    new Numeral(2),
-                    peakTime[i]
-                  )
-                )
-              )
-            )
-          )
-        );
         SExpression fadeTimeAnalyteSpread = QFNRA.add(
           sampleInitialSpread,
           QFNRA.sqrt(
@@ -732,10 +684,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           )
         );
 
-        /*exprs.add(QFNRA.assertEqual(
-          peakTimeAnalyteConcentrationDerivative,
-          new Numeral(0)
-        ));*/
         exprs.add(QFNRA.assertEqual(
           peakTime[i],
           QFNRA.divide(
@@ -964,7 +912,10 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               ),
               QFNRA.multiply(
                 negligibleConcentration,
-                new Decimal(0.3)
+                new Decimal(
+                  (numAnalytes == 3) ? 0.1 : 
+                    0.1 * (numAnalytes - 2) / (numAnalytes - 3)
+                )
               )
             )
           ));
@@ -982,7 +933,10 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
               ),
               QFNRA.multiply(
                 negligibleConcentration,
-                new Decimal(0.3)
+                new Decimal(
+                  (numAnalytes == 3) ? 0.1 : 
+                    0.1 * (numAnalytes - 2) / (numAnalytes - 3)
+                )
               )
             )
           ));
@@ -1399,59 +1353,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           peakTimeConcentrationExpr
         ));
 
-        SExpression peakTimeAnalyteConcentrationDerivative = QFNRA.multiply(
-          QFNRA.divide(
-            peakTimeAnalyteConcentration[i],
-            peakTimeAnalyteSpread[i]
-          ),
-          QFNRA.add(
-            QFNRA.divide(
-              QFNRA.multiply(
-                injectionSeparationChannelAnalyteVelocity[i],
-                QFNRA.subtract(
-                  separationDistance,
-                  QFNRA.multiply(
-                    injectionSeparationChannelAnalyteVelocity[i],
-                    peakTime[i]
-                  )
-                )
-              ),
-              peakTimeAnalyteSpread[i]
-            ),
-            QFNRA.multiply(
-              QFNRA.subtract(
-                QFNRA.pow(
-                  QFNRA.divide(
-                    QFNRA.subtract(
-                      separationDistance,
-                      QFNRA.multiply(
-                        injectionSeparationChannelAnalyteVelocity[i],
-                        peakTime[i]
-                      )
-                    ),
-                    peakTimeAnalyteSpread[i]
-                  ),
-                  new Numeral(2)
-                ),
-                new Numeral(1)
-              ),
-              QFNRA.sqrt(
-                QFNRA.divide(
-                  analyteDiffusionCoefficient[i],
-                  QFNRA.multiply(
-                    new Numeral(2),
-                    peakTime[i]
-                  )
-                )
-              )
-            )
-          )
-        );
-
-        /*exprs.add(QFNRA.assertEqual(
-          peakTimeAnalyteConcentrationDerivative,
-          new Numeral(0)
-        ));*/
         exprs.add(QFNRA.assertEqual(
           peakTime[i],
           QFNRA.divide(
