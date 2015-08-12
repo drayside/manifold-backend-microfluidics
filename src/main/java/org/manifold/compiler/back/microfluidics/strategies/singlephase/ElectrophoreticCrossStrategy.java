@@ -171,10 +171,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossInjectionChannelRadius(schematic, nCross);
     Symbol sampleInitialSpread = SymbolNameGenerator
       .getsym_EPCrossSampleInitialSpread(schematic, nCross);
-    Symbol startTime = SymbolNameGenerator
-      .getsym_EPCrossStartTime(schematic, nCross);
-    Symbol endTime = SymbolNameGenerator
-      .getsym_EPCrossEndTime(schematic, nCross);
     Symbol baselineConcentration = SymbolNameGenerator
       .getsym_EPCrossBaselineConcentration(schematic, nCross);
     Symbol negligibleConcentration = SymbolNameGenerator
@@ -241,8 +237,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(separationDistance));
     exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
     exprs.add(QFNRA.declareRealVariable(sampleInitialSpread));
-    exprs.add(QFNRA.declareRealVariable(startTime));
-    exprs.add(QFNRA.declareRealVariable(endTime));
     exprs.add(QFNRA.declareRealVariable(baselineConcentration));
     exprs.add(QFNRA.declareRealVariable(negligibleConcentration));
     
@@ -1066,10 +1060,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossInjectionChannelRadius(schematic, nCross);
     Symbol sampleInitialSpread = SymbolNameGenerator
       .getsym_EPCrossSampleInitialSpread(schematic, nCross);
-    Symbol startTime = SymbolNameGenerator
-      .getsym_EPCrossStartTime(schematic, nCross);
-    Symbol endTime = SymbolNameGenerator
-      .getsym_EPCrossEndTime(schematic, nCross);
     Symbol baselineConcentration = SymbolNameGenerator
       .getsym_EPCrossBaselineConcentration(schematic, nCross);
         
@@ -1122,8 +1112,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(separationDistance));
     exprs.add(QFNRA.declareRealVariable(injectionChannelRadius));
     exprs.add(QFNRA.declareRealVariable(sampleInitialSpread));
-    exprs.add(QFNRA.declareRealVariable(startTime));
-    exprs.add(QFNRA.declareRealVariable(endTime));
     exprs.add(QFNRA.declareRealVariable(baselineConcentration));
     
     for (int i = 0; i < numAnalytes; ++i) {
@@ -1267,10 +1255,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
  
     // if sample only contains one analyte, then separation is not a concern
     if (numAnalytes > 1) {
-      exprs.add(QFNRA.assertGreater(
-        peakTime[0],
-        startTime
-      ));
       for (int i = 0; i < numAnalytes - 1; ++i) {
         exprs.add(QFNRA.assertGreater(
           voidTime[i],
@@ -1287,10 +1271,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           )
         ));
       }
-      exprs.add(QFNRA.assertGreater(
-        endTime,
-        peakTime[numAnalytes - 1]
-      ));
 
       for (int i = 0; i < numAnalytes; ++i) {
         SExpression[] peakTimeAnalyteSpread = new SExpression[numAnalytes];
@@ -1374,113 +1354,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
           ),
           new Decimal(5.0 / 6)
         ));
-        if (i == 0) {
-          exprs.add(QFNRA.assertEqual(
-            baselineConcentration,
-            QFNRA.divide(
-              QFNRA.multiply(
-                analyteInitialSurfaceConcentration[i],
-                QFNRA.exp(
-                  QFNRA.divide(
-                    QFNRA.pow(
-                      QFNRA.divide(
-                        QFNRA.subtract(
-                          separationDistance,
-                          QFNRA.multiply(
-                            injectionSeparationChannelAnalyteVelocity[i],
-                            startTime
-                          )
-                        ),
-                        QFNRA.add(
-                          sampleInitialSpread,
-                          QFNRA.sqrt(
-                            QFNRA.multiply(
-                              new Numeral(2),
-                              QFNRA.multiply(
-                                analyteDiffusionCoefficient[i],
-                                startTime
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      new Numeral(2)
-                    ),
-                    new Numeral(-2)
-                  )
-                )
-              ),
-              QFNRA.multiply(
-                new Decimal(2.506628), // sqrt(2*pi)
-                QFNRA.add(
-                  sampleInitialSpread,
-                  QFNRA.sqrt(
-                    QFNRA.multiply(
-                      new Numeral(2),
-                      QFNRA.multiply(
-                        analyteDiffusionCoefficient[i],
-                        startTime
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ));
-        } else if (i == numAnalytes - 1) {
-          exprs.add(QFNRA.assertEqual(
-            baselineConcentration,
-            QFNRA.divide(
-              QFNRA.multiply(
-                analyteInitialSurfaceConcentration[i],
-                QFNRA.exp(
-                  QFNRA.divide(
-                    QFNRA.pow(
-                      QFNRA.divide(
-                        QFNRA.subtract(
-                          separationDistance,
-                          QFNRA.multiply(
-                            injectionSeparationChannelAnalyteVelocity[i],
-                            endTime
-                          )
-                        ),
-                        QFNRA.add(
-                          sampleInitialSpread,
-                          QFNRA.sqrt(
-                            QFNRA.multiply(
-                              new Numeral(2),
-                              QFNRA.multiply(
-                                analyteDiffusionCoefficient[i],
-                                endTime
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      new Numeral(2)
-                    ),
-                    new Numeral(-2)
-                  )
-                )
-              ),
-              QFNRA.multiply(
-                new Decimal(2.506628), // sqrt(2*pi)
-                QFNRA.add(
-                  sampleInitialSpread,
-                  QFNRA.sqrt(
-                    QFNRA.multiply(
-                      new Numeral(2),
-                      QFNRA.multiply(
-                        analyteDiffusionCoefficient[i],
-                        endTime
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ));
-        }
       }
       for (int i = 0; i < numAnalytes - 1; ++i) {
         SExpression[] voidTimeAnalyteSpread = new SExpression[numAnalytes];
