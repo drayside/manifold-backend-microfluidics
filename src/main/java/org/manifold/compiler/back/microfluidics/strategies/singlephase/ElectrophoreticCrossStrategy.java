@@ -622,13 +622,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             injectionSeparationChannelAnalyteVelocity[i]
           )
         ));
-        exprs.add(QFNRA.assertGreaterEqual(
-          QFNRA.divide(
-            peakTimeAnalyteConcentration,
-            baselineConcentration
-          ),
-          new Numeral(10)
-        ));
         exprs.add(QFNRA.assertEqual(
           peakTimeConcentration[i],
           peakTimeAnalyteConcentration
@@ -663,6 +656,13 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
             )
           ));
         }
+        exprs.add(QFNRA.assertGreaterEqual(
+          QFNRA.divide(
+            peakTimeConcentration[i],
+            baselineConcentration
+          ),
+          new Numeral(10)
+        ));
       }
 
       for (int i = 0; i < numAnalytes - 1; ++i) {
@@ -1261,7 +1261,7 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
         ));
         exprs.add(QFNRA.assertGreaterEqual(
           QFNRA.divide(
-            peakTimeAnalyteConcentration[i],
+            peakTimeConcentration[i],
             baselineConcentration
           ),
           new Numeral(10)
