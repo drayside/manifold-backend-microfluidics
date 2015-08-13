@@ -173,26 +173,6 @@ public class SymbolNameGenerator {
     String nodeName = schematic.getNodeName(electrophoreticCross);
     return new Symbol(nodeName.concat("_separationChannelLength"));
   }
-
-  /**
-   * Retrieves the symbol that defines the length of an electrophoretic 
-   * cross's sample channel.
-   **/
-  public static Symbol getsym_EPCrossInjectionChannelLength(
-      Schematic schematic, NodeValue electrophoreticCross) {
-    String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_injectionChannelLength"));
-  }
-  
-  /**
-   * Retrieves the symbol that defines the length of an electrophoretic 
-   * cross's waste channel.
-   **/
-  public static Symbol getsym_EPCrossWasteChannelLength(
-      Schematic schematic, NodeValue electrophoreticCross) {
-    String nodeName = schematic.getNodeName(electrophoreticCross);
-    return new Symbol(nodeName.concat("_wasteChannelLength"));
-  }
   
   /**
    * Retrieves the symbol that defines the voltage applied at the cathode 

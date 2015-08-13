@@ -89,51 +89,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     return exprs;
   }
 
-  // approximate erfc(x) = 1 - erf(x), assuming x >= 0
-  protected SExpression erfc(SExpression exp) {
-    SExpression ret = QFNRA.divide(
-      new Numeral(1),
-      QFNRA.pow(
-        QFNRA.add(
-          new Numeral(1),
-          QFNRA.add(
-            QFNRA.multiply(
-              new Decimal(0.278393), 
-              exp
-            ),
-            QFNRA.add(
-              QFNRA.multiply(
-                new Decimal(0.230389),
-                QFNRA.pow(
-                  exp, 
-                  new Numeral(2)
-                )
-              ),
-              QFNRA.add(
-                QFNRA.multiply(
-                  new Decimal(0.000972),
-                  QFNRA.pow(
-                    exp,
-                    new Numeral(3)
-                  )
-                ),
-                QFNRA.multiply(
-                  new Decimal(0.078108),
-                  QFNRA.pow(
-                    exp,
-                    new Numeral(4)
-                  )
-                )
-              )
-            )
-          )
-        ),
-        new Numeral(4)
-      )
-    );
-    return ret;
-  }
-  
   private List<SExpression> translateElectrophoreticCrossNew(
       Schematic schematic, NodeValue nCross) throws 
       UndeclaredIdentifierException, UndeclaredAttributeException {
@@ -151,10 +106,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossSeparationChannelLength(schematic, nCross);
     Symbol lenTail = SymbolNameGenerator
       .getsym_EPCrossTailChannelLength(schematic, nCross);
-    Symbol lenInjectionChannel = SymbolNameGenerator
-      .getsym_EPCrossInjectionChannelLength(schematic, nCross);
-    Symbol lenWasteChannel = SymbolNameGenerator
-      .getsym_EPCrossWasteChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
       .getsym_EPCrossLength(schematic, nCross);
     Symbol injectionCathodeNodeVoltage = SymbolNameGenerator
@@ -227,8 +178,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     // declare variables
     exprs.add(QFNRA.declareRealVariable(lenSeparationChannel));
     exprs.add(QFNRA.declareRealVariable(lenTail));
-    exprs.add(QFNRA.declareRealVariable(lenInjectionChannel));
-    exprs.add(QFNRA.declareRealVariable(lenWasteChannel));
     exprs.add(QFNRA.declareRealVariable(lenCross));
     exprs.add(QFNRA.declareRealVariable(injectionCathodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
@@ -288,18 +237,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     ));
     exprs.add(QFNRA.assertEqual(
       lenTail, 
-      new Decimal(
-        ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
-      )
-    ));
-    exprs.add(QFNRA.assertEqual(
-      lenInjectionChannel, 
-      new Decimal(
-        ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
-      )
-    ));
-    exprs.add(QFNRA.assertEqual(
-      lenWasteChannel, 
       new Decimal(
         ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
       )
@@ -1040,10 +977,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
       .getsym_EPCrossSeparationChannelLength(schematic, nCross);
     Symbol lenTail = SymbolNameGenerator
       .getsym_EPCrossTailChannelLength(schematic, nCross);
-    Symbol lenInjectionChannel = SymbolNameGenerator
-      .getsym_EPCrossInjectionChannelLength(schematic, nCross);
-    Symbol lenWasteChannel = SymbolNameGenerator
-      .getsym_EPCrossWasteChannelLength(schematic, nCross);
     Symbol lenCross = SymbolNameGenerator
       .getsym_EPCrossLength(schematic, nCross);
     Symbol injectionCathodeNodeVoltage = SymbolNameGenerator
@@ -1102,8 +1035,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     // declare variables
     exprs.add(QFNRA.declareRealVariable(lenSeparationChannel));
     exprs.add(QFNRA.declareRealVariable(lenTail));
-    exprs.add(QFNRA.declareRealVariable(lenInjectionChannel));
-    exprs.add(QFNRA.declareRealVariable(lenWasteChannel));
     exprs.add(QFNRA.declareRealVariable(lenCross));
     exprs.add(QFNRA.declareRealVariable(injectionCathodeNodeVoltage));
     exprs.add(QFNRA.declareRealVariable(injectionAnodeNodeVoltage));
@@ -1158,18 +1089,6 @@ public class ElectrophoreticCrossStrategy extends TranslationStrategy {
     ));
     exprs.add(QFNRA.assertEqual(
       lenTail, 
-      new Decimal(
-        ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
-      )
-    ));
-    exprs.add(QFNRA.assertEqual(
-      lenInjectionChannel, 
-      new Decimal(
-        ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
-      )
-    ));
-    exprs.add(QFNRA.assertEqual(
-      lenWasteChannel, 
       new Decimal(
         ((RealValue) nCross.getAttribute("lenInjectionChannel")).toDouble()
       )
