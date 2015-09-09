@@ -1,0 +1,18 @@
+r0 20[um] Radius of channel
+l0 0.9[cm] Length of short channel
+l1 9[cm] Length of long channel
+eps_r 80.2 Relative permittivity of the fluid
+sigma_w 0.11845[S/m] Conductivity of the ionic solution
+rho_l 1e3[kg/m^3] Density of liquid
+mu_l 1e-3[Pa*s] Viscosity of liquid
+zeta -80[mV] Zeta Potential
+D1 1.334e-9[m^2/s] Diffusion coefficient of the solution
+D2 1.957e-9[m^2/s] Diff Coeff of species 2
+z1 1 Ion 1 charge
+z2 1 Ion 2 charge
+c0 0.01[mol/m^3] Initial concentration
+V1 200[V] Injection Voltage
+V2 600[V] Seperation Voltage
+t 0.1[s] Step time
+t_i 2.2[s] Injection time
+t_s 30[s] Seperation time
