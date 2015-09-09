@@ -15,6 +15,11 @@ public class PrimitiveTypeTable {
   public PortTypeValue getMicrofluidPortType() {
     return microfluidPortType;
   }
+  
+  private PortTypeValue fluidEntryExitPortType = null;
+  public PortTypeValue getFluidEntryExitPortType() {
+    return fluidEntryExitPortType;
+  }
 
   // multi-phase stuff
   
@@ -75,6 +80,7 @@ public class PrimitiveTypeTable {
   public void retrieveBaseTypes(Schematic schematic) {
     try {
       microfluidPortType = schematic.getPortType("microfluidPort");
+      fluidEntryExitPortType = schematic.getPortType("fluidEntryExitPort");
       
       // multi-phase
       fluidEntryNodeType = 

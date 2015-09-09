@@ -1,0 +1,16 @@
+Might have to initialize setup intermediate types in UtilSchematicConstruction
+
+merge the changes in master that reflect the worst case stuff.//
+-- there are stil some remnants... but opened an issue for those to be fixed.
+in0_output_pressure out0_input_pressure interchange //
+add the concrete values for input and output pressure
+refactor the channelresistancestrategy to loop through the attribute to put the equality constraints instead
+of doing them explicitly.
+refactor the channelresistance strategy to use circular strategy by doing the following:
+	- create new class for cylindrical channel
+	- edit pressureflowstrategy to have usechannelresistancestrategy method, to define which strategy to use.
+	- edit the test case to 
+Basically refactor it such that the Pipe stuff can run beside the other stuff.
+
+Refactor the Microfluidics backend class have a data structure to store which strategies to run.
+Strategies are like modules the use can add to the model.
