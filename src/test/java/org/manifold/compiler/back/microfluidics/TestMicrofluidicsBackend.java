@@ -88,7 +88,7 @@ public class TestMicrofluidicsBackend {
     final double lenSeparationChannel = 7.5e-2;
     final double lenInjectionChannel = 1.5e-2;
     final double channelRadius = 2e-5;
-    final double baselineConcentration = 1e-2;
+    final double detectableConcentration = 1e-2;
     analyteElectrophoreticMobility.add(new RealValue(5.622e-8));
     analyteElectrophoreticMobility.add(new RealValue(3.832e-8));
     analyteInitialSurfaceConcentration.add(new RealValue(1e-3));
@@ -101,7 +101,7 @@ public class TestMicrofluidicsBackend {
     final double lenSeparationChannel = 3e-2;
     final double lenInjectionChannel = 4.5e-3;
     final double channelRadius = 2.5e-5;
-    final double baselineConcentration = 1e-2;
+    final double detectableConcentration = 1e-2;
     analyteElectrophoreticMobility.add(new RealValue(-3.80e-8));
     analyteElectrophoreticMobility.add(new RealValue(-3.75e-8)); // N_bp = 1000
     analyteElectrophoreticMobility.add(new RealValue(-3.70e-8)); // N_bp = 100
@@ -130,7 +130,7 @@ public class TestMicrofluidicsBackend {
     NodeValue cross = UtilSchematicConstruction
         .instantiateElectrophoreticCross(schematic, numAnalytes, bulkMobility, 
         injectionCathodeNodeVoltage, lenSeparationChannel, lenInjectionChannel,
-        channelRadius, baselineConcentration, analyteElectrophoreticMobility, 
+        channelRadius, detectableConcentration, analyteElectrophoreticMobility, 
         analyteInitialSurfaceConcentration, analyteDiffusionCoefficient);
     NodeValue sampleReservoir = UtilSchematicConstruction
         .instantiateReservoir(schematic);

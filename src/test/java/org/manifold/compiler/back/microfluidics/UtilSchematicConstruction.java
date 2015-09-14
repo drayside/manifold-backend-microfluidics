@@ -124,7 +124,7 @@ public class UtilSchematicConstruction {
         RealTypeValue.getInstance());
     electrophoreticCrossAttributes.put("channelRadius", 
         RealTypeValue.getInstance());
-    electrophoreticCrossAttributes.put("baselineConcentration", 
+    electrophoreticCrossAttributes.put("detectableConcentration", 
         RealTypeValue.getInstance());
     electrophoreticCrossAttributes.put("analyteElectrophoreticMobility",
         realArrayType);
@@ -236,7 +236,7 @@ public class UtilSchematicConstruction {
   public static NodeValue instantiateElectrophoreticCross(Schematic schematic,
       int numAnalytes, double bulkMobility, double injectionCathodeNodeVoltage, 
       double lenSeparationChannel, double lenInjectionChannel, 
-      double channelRadius, double baselineConcentration, 
+      double channelRadius, double detectableConcentration, 
       List<Value> analyteElectrophoreticMobility,
       List<Value> analyteInitialSurfaceConcentration,
       List<Value> analyteDiffusionCoefficient)
@@ -249,8 +249,8 @@ public class UtilSchematicConstruction {
     attrsMap.put("lenSeparationChannel", new RealValue(lenSeparationChannel));
     attrsMap.put("lenInjectionChannel", new RealValue(lenInjectionChannel));
     attrsMap.put("channelRadius", new RealValue(channelRadius));
-    attrsMap.put("baselineConcentration", 
-        new RealValue(baselineConcentration));
+    attrsMap.put("detectableConcentration", 
+        new RealValue(detectableConcentration));
     attrsMap.put("analyteElectrophoreticMobility", 
         new ArrayValue(realArrayType, analyteElectrophoreticMobility));
     attrsMap.put("analyteInitialSurfaceConcentration", 
