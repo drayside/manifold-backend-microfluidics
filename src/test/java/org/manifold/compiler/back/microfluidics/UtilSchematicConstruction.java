@@ -38,6 +38,8 @@ public class UtilSchematicConstruction {
   private static PortTypeValue microfluidPortType;
   private static PortTypeValue fluidEntryExitPortType;
   // multi-phase
+  private static NodeTypeValue simpleFluidEntryNodeType;
+  private static NodeTypeValue simpleFluidExitNodeType;
   private static NodeTypeValue fluidEntryNodeType;
   private static NodeTypeValue fluidExitNodeType;
   private static NodeTypeValue tJunctionNodeType;
@@ -63,16 +65,27 @@ public class UtilSchematicConstruction {
     fluidEntryExitPortType = new PortTypeValue(NilTypeValue.getInstance(), fluidEntryExitTypeAttribute);
     
     // multi-phase
-    //Changing these values with potentiall break the other designs... but lets see if this works
+    //---------------- Simple fluid entry node without pressure--------------
     Map<String, PortTypeValue> fluidEntryPorts = new HashMap<>();
-    fluidEntryPorts.put("output", fluidEntryExitPortType);
+    fluidEntryPorts.put("output", microfluidPortType);
     Map<String, TypeValue> fluidEntryAttributes = new HashMap<>();
     fluidEntryAttributes.put("viscosity", RealTypeValue.getInstance());
-    fluidEntryNodeType = new NodeTypeValue(
+    simpleFluidEntryNodeType = new NodeTypeValue(
         fluidEntryAttributes, fluidEntryPorts);
     
     Map<String, PortTypeValue> fluidExitPorts = new HashMap<>();
-    fluidExitPorts.put("input", fluidEntryExitPortType);
+    fluidExitPorts.put("input", microfluidPortType);
+    simpleFluidExitNodeType = new NodeTypeValue(
+        noTypeAttributes, fluidExitPorts);
+
+  //---------------- fluid entry node with input and output pressure--------------    
+    Map<String, PortTypeValue> pressuredFluidEntryPorts = new HashMap<>();
+    pressuredFluidEntryPorts.put("output", fluidEntryExitPortType);
+    fluidEntryNodeType = new NodeTypeValue(
+        fluidEntryAttributes, fluidEntryPorts);
+    
+    Map<String, PortTypeValue> pressuredFluidExitPorts = new HashMap<>();
+    pressuredFluidExitPorts.put("input", fluidEntryExitPortType);
     fluidExitNodeType = new NodeTypeValue(
         noTypeAttributes, fluidExitPorts);
     
@@ -136,6 +149,8 @@ public class UtilSchematicConstruction {
     s.addPortType("microfluidPort", microfluidPortType);
     s.addPortType("fluidEntryExitPort", fluidEntryExitPortType);
     // multi-phase
+    s.addNodeType("simpleFluidEntry", fluidEntryNodeType);
+    s.addNodeType("simpleFluidExit", fluidExitNodeType);    
     s.addNodeType("fluidEntry", fluidEntryNodeType);
     s.addNodeType("fluidExit", fluidExitNodeType);
     s.addNodeType("tJunction", tJunctionNodeType);
@@ -191,7 +206,7 @@ public class UtilSchematicConstruction {
     attrsMap.put("viscosity", mu);
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
     portAttrsMap.put("output", noAttributes);
-    NodeValue exit = new NodeValue(schematic.getNodeType("fluidEntry"),
+    NodeValue exit = new NodeValue(schematic.getNodeType("simpleFluidEntry"),
         attrsMap, portAttrsMap);
     return exit;
   }

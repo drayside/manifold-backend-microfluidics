@@ -8,6 +8,7 @@ import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.ChannelResistanceStrategy;
+import org.manifold.compiler.back.microfluidics.strategies.pressureflow.CircularChannelResistanceStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.FluidEntryExitDeviceStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.PressureFlowStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.SimplePressureFlowStrategy;
@@ -20,6 +21,12 @@ public class PressureFlowStrategySet extends TranslationStrategy {
       ChannelResistanceStrategy strat) {
     this.channelResistanceStrategy = strat;
   }
+  
+  private CircularChannelResistanceStrategy circularChannelResistanceStrategy;
+  public void useCircularChannelResistanceStrategy(
+	      CircularChannelResistanceStrategy strat) {
+	    this.circularChannelResistanceStrategy = strat;
+	  }
   
   private FluidEntryExitDeviceStrategy entryExitStrategy;
   public void useFluidEntryExitDeviceStrategy(
@@ -34,6 +41,7 @@ public class PressureFlowStrategySet extends TranslationStrategy {
   
   public PressureFlowStrategySet() {
     channelResistanceStrategy = new ChannelResistanceStrategy();
+    circularChannelResistanceStrategy = new CircularChannelResistanceStrategy();
     entryExitStrategy = new FluidEntryExitDeviceStrategy();
     pressureFlow = new SimplePressureFlowStrategy();
   }
@@ -44,6 +52,8 @@ public class PressureFlowStrategySet extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
     exprs.addAll(channelResistanceStrategy.translate(
         schematic, processParams, typeTable));
+    //exprs.addAll(circularChannelResistanceStrategy.translate(  // Uncomment for circular channels
+     //       schematic, processParams, typeTable));
     exprs.addAll(entryExitStrategy.translate(
         schematic, processParams, typeTable));
     exprs.addAll(pressureFlow.translate(
