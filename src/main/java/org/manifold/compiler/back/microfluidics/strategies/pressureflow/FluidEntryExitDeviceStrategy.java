@@ -41,10 +41,11 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
     for (NodeValue node : schematic.getNodes().values()) {
       try {
-        if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType())) {
+        if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType()) || 
+        		node.getType().isSubtypeOf(typeTable.getSimpleFluidEntryNodeType())) {
           exprs.addAll(translateFluidEntryNode(schematic, node));
-        } else if (node.getType().isSubtypeOf(
-            typeTable.getFluidExitNodeType())) {
+        } else if (node.getType().isSubtypeOf(typeTable.getFluidExitNodeType()) ||
+        		node.getType().isSubtypeOf(typeTable.getSimpleFluidExitNodeType())) {
           exprs.addAll(translateFluidExitNode(schematic, node));
         }
       } catch (UndeclaredIdentifierException e) {
@@ -83,7 +84,6 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     ConnectionValue ch = getConnection(schematic, node.getPort("output"));
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, ch);
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
-    exprs.add(QFNRA.declareRealVariable(mu));
     exprs.add(QFNRA.assertEqual(mu, new Decimal(viscosity.toDouble())));
     
     //If any input parameters, such as output_pressure, is given: make equality

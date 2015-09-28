@@ -78,16 +78,16 @@ public class UtilSchematicConstruction {
     simpleFluidExitNodeType = new NodeTypeValue(
         noTypeAttributes, fluidExitPorts);
 
-  //---------------- fluid entry node with input and output pressure--------------    
+  //---------------- fluid entry node with input andoooo output pressure--------------    
     Map<String, PortTypeValue> pressuredFluidEntryPorts = new HashMap<>();
     pressuredFluidEntryPorts.put("output", fluidEntryExitPortType);
     fluidEntryNodeType = new NodeTypeValue(
-        fluidEntryAttributes, fluidEntryPorts);
+        fluidEntryAttributes, pressuredFluidEntryPorts);
     
     Map<String, PortTypeValue> pressuredFluidExitPorts = new HashMap<>();
     pressuredFluidExitPorts.put("input", fluidEntryExitPortType);
     fluidExitNodeType = new NodeTypeValue(
-        noTypeAttributes, fluidExitPorts);
+        noTypeAttributes, pressuredFluidExitPorts);
     
     Map<String, PortTypeValue> tJunctionPorts = new HashMap<>();
     tJunctionPorts.put("continuous", microfluidPortType);
@@ -149,8 +149,8 @@ public class UtilSchematicConstruction {
     s.addPortType("microfluidPort", microfluidPortType);
     s.addPortType("fluidEntryExitPort", fluidEntryExitPortType);
     // multi-phase
-    s.addNodeType("simpleFluidEntry", fluidEntryNodeType);
-    s.addNodeType("simpleFluidExit", fluidExitNodeType);    
+    s.addNodeType("simpleFluidEntry", simpleFluidEntryNodeType);
+    s.addNodeType("simpleFluidExit", simpleFluidExitNodeType);    
     s.addNodeType("fluidEntry", fluidEntryNodeType);
     s.addNodeType("fluidExit", fluidExitNodeType);
     s.addNodeType("tJunction", tJunctionNodeType);
@@ -235,7 +235,7 @@ public class UtilSchematicConstruction {
       throws SchematicException {
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
     portAttrsMap.put("input", noAttributes);
-    NodeValue exit = new NodeValue(schematic.getNodeType("fluidExit"),
+    NodeValue exit = new NodeValue(schematic.getNodeType("simpleFluidExit"),
         noAttributes, portAttrsMap);
     return exit;
   }

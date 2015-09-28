@@ -61,18 +61,6 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
         QFNRA.multiply(chV_WorstCase, chR_WorstCase)));
     
-    //Channel Velocity constraint
-    Symbol channel_velocity = SymbolNameGenerator.getsym_ChannelVelocity(schematic, conn);
-    exprs.add(QFNRA.declareRealVariable(channel_velocity));
-    
-    exprs.add(QFNRA.assertEqual(channel_velocity, 
-    		QFNRA.divide(
-    				SymbolNameGenerator.getsym_ChannelFlowRate(schematic, conn),
-    				QFNRA.multiply(
-    						SymbolNameGenerator.getsym_constant_pi(), 
-    						QFNRA.pow(SymbolNameGenerator.getsym_ChannelRadius(schematic, conn),
-    								new Decimal(2.0))))));
-    
     return exprs;
   }
   

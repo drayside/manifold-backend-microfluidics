@@ -31,7 +31,8 @@ public class CircularChannelResistanceStrategy extends TranslationStrategy {
       // part of the SMT2 equations so we could solve for that too
       // TODO we are just assuming all channels are rectangular right now
       
-      // TODO this might not stay here
+      if(typeCheckCircular(conn)){
+      System.out.println("check circ!");
       Symbol nDroplets = SymbolNameGenerator
           .getsym_ChannelMaxDroplets(schematic, conn);
       exprs.add(QFNRA.declareRealVariable(nDroplets));
@@ -42,11 +43,21 @@ public class CircularChannelResistanceStrategy extends TranslationStrategy {
       
       //Need to find a refactored way to do this
       exprs.addAll(translateCircularChannel(schematic, conn));
+      }
     }
     return exprs;
   }
   
-  private List<SExpression> translateCircularChannel(
+  private boolean typeCheckCircular(ConnectionValue conn) {
+	try {
+		if(conn.getAttributes().get("radius")!=null)return true;
+	} catch (UndeclaredAttributeException e) {
+		return false;
+	}
+	return false;
+}
+
+private List<SExpression> translateCircularChannel(
 	      Schematic schematic, ConnectionValue channel) {
 	    List<SExpression> exprs = new LinkedList<>();
 	    // R = (8 * mu * L) / (pi * R^4)
@@ -63,6 +74,7 @@ public class CircularChannelResistanceStrategy extends TranslationStrategy {
 	    exprs.add(QFNRA.assertGreater(chR, new Decimal(0.0)));
 	    exprs.add(QFNRA.assertGreater(R, new Decimal(0.0)));
 	    exprs.add(QFNRA.declareRealVariable(R));
+	    exprs.add(QFNRA.declareRealVariable(mu));
 	    exprs.add(QFNRA.assertGreater(mu, new Decimal(0.0)));
 	    exprs.add(QFNRA.declareRealVariable(chL));
 	    exprs.add(QFNRA.assertGreater(chL, new Decimal(0.0)));
@@ -86,6 +98,19 @@ public class CircularChannelResistanceStrategy extends TranslationStrategy {
 	            QFNRA.multiply(new Decimal(Math.PI), QFNRA.pow(R, new Decimal(4.0))
 	                )));
 	    exprs.add(resistancecircular);
+	    
+	    //Channel Velocity constraint
+	    Symbol channel_velocity = SymbolNameGenerator.getsym_ChannelVelocity(schematic, channel);
+	    exprs.add(QFNRA.declareRealVariable(channel_velocity));
+	    
+	    exprs.add(QFNRA.assertEqual(channel_velocity, 
+	    		QFNRA.divide(
+	    				SymbolNameGenerator.getsym_ChannelFlowRate(schematic, channel),
+	    				QFNRA.multiply(
+	    						SymbolNameGenerator.getsym_constant_pi(), 
+	    						QFNRA.pow(SymbolNameGenerator.getsym_ChannelRadius(schematic, channel),
+	    								new Decimal(2.0))))));
+	    
 	    return exprs;
 	  }
   

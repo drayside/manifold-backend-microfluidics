@@ -52,8 +52,8 @@ public class PressureFlowStrategySet extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
     exprs.addAll(channelResistanceStrategy.translate(
         schematic, processParams, typeTable));
-    //exprs.addAll(circularChannelResistanceStrategy.translate(  // Uncomment for circular channels
-     //       schematic, processParams, typeTable));
+    exprs.addAll(circularChannelResistanceStrategy.translate(
+            schematic, processParams, typeTable));
     exprs.addAll(entryExitStrategy.translate(
         schematic, processParams, typeTable));
     exprs.addAll(pressureFlow.translate(
