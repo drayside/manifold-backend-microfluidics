@@ -32,7 +32,6 @@ public class CircularChannelResistanceStrategy extends TranslationStrategy {
       // TODO we are just assuming all channels are rectangular right now
       
       if(typeCheckCircular(conn)){
-      System.out.println("check circ!");
       Symbol nDroplets = SymbolNameGenerator
           .getsym_ChannelMaxDroplets(schematic, conn);
       exprs.add(QFNRA.declareRealVariable(nDroplets));

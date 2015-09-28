@@ -34,7 +34,6 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
       // TODO this might not stay here
       //Check if rectuangular channel
       if(typeCheckRectangular(conn)){
-    	  System.out.println("check rec!");
 	      Symbol nDroplets = SymbolNameGenerator
 	          .getsym_ChannelMaxDroplets(schematic, conn);
 	      exprs.add(QFNRA.declareRealVariable(nDroplets));
