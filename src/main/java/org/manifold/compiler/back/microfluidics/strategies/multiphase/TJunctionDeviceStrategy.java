@@ -23,11 +23,12 @@ import org.manifold.compiler.middle.Schematic;
 
 public class TJunctionDeviceStrategy extends TranslationStrategy {
 
-  private static boolean calculateDropletDerivedQuantities = false;
+  private final boolean calculateDropletDerivedQuantities;
   
   private final boolean performWorstCaseAnalysis;
   
-  public TJunctionDeviceStrategy(boolean performWorstCaseAnalysis) {
+  public TJunctionDeviceStrategy(boolean calcDerivedQuantities, boolean performWorstCaseAnalysis) {
+    this.calculateDropletDerivedQuantities = calcDerivedQuantities;
     this.performWorstCaseAnalysis = performWorstCaseAnalysis;
   }
   

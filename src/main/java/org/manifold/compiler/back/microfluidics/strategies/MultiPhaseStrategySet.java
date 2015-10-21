@@ -19,6 +19,11 @@ public class MultiPhaseStrategySet extends TranslationStrategy {
     this.worstCaseAnalysis = b;
   }
   
+  private boolean derivedQuants = true;
+  public void calculateDerivedQuantities(boolean b) {
+    this.derivedQuants = b;
+  }
+  
   private DropletConstraintStrategy dropletConstraintStrategy;
   public void useDropletConstraintStrategy(DropletConstraintStrategy strat) {
     this.dropletConstraintStrategy = strat;
@@ -32,7 +37,7 @@ public class MultiPhaseStrategySet extends TranslationStrategy {
   public MultiPhaseStrategySet() {
     // initialize default strategies
     dropletConstraintStrategy = new DropletConstraintStrategy();
-    tjunctionDeviceStrategy = new TJunctionDeviceStrategy(worstCaseAnalysis);
+    tjunctionDeviceStrategy = new TJunctionDeviceStrategy(derivedQuants, worstCaseAnalysis);
   }
   
   @Override
