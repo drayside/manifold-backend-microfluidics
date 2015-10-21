@@ -415,12 +415,36 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       exprs.add(QFNRA.assertEqual(nDroplets_Continuous, new Numeral(0)));
       exprs.add(QFNRA.assertEqual(nDroplets_Dispersed, new Numeral(0)));
       // compute upper bound for output channel
-      exprs.add(QFNRA.assertEqual(nDroplets_Output, 
+      exprs.add(QFNRA.assertGreaterEqual(nDroplets_Output, new Numeral(0)));
+      exprs.add(QFNRA.assertLessThanEqual(nDroplets_Output, 
           QFNRA.divide(SymbolNameGenerator
               .getsym_ChannelLength(schematic, chOutput), dropletSpacing)));
 
-    } // calculateDropletDerivedQuantities
+      // since we have nDroplets, we can calculate channel resistance as
+      // R = geometryR + [0..nDroplets] * dropletR
+      
+      exprs.add(QFNRA.assertEqual(SymbolNameGenerator.getsym_ChannelResistance(schematic, chOutput),
+          QFNRA.add(SymbolNameGenerator.getsym_ChannelGeometryResistance(schematic, chOutput),
+              QFNRA.multiply(dropletResistance, nDroplets_Output)
+              )
+          ));
+      
+    } else { // calculateDropletDerivedQuantities
+      // as we do not have nDroplets, we approximate channel resistance as
+      // R = geometryR
+      exprs.add(QFNRA.assertEqual(
+          SymbolNameGenerator.getsym_ChannelResistance(schematic, chOutput), 
+          SymbolNameGenerator.getsym_ChannelGeometryResistance(schematic, chOutput)));
+    }
     
+    // for both input channels, R = geometryR as there are no droplets present
+    exprs.add(QFNRA.assertEqual(
+        SymbolNameGenerator.getsym_ChannelResistance(schematic, chContinuous), 
+        SymbolNameGenerator.getsym_ChannelGeometryResistance(schematic, chContinuous)));
+    exprs.add(QFNRA.assertEqual(
+        SymbolNameGenerator.getsym_ChannelResistance(schematic, chDispersed), 
+        SymbolNameGenerator.getsym_ChannelGeometryResistance(schematic, chDispersed)));
+      
     if (performWorstCaseAnalysis) {
     
       // constraint: calculate worst-case/steady-state droplet volume

@@ -104,8 +104,9 @@ public class SymbolNameGenerator {
   }
   
   /**
-   * Retrieves the symbol that defines the hydrodynamic resistance
-   * of a channel.
+   * Retrieves the symbol that defines the total hydrodynamic resistance
+   * of a channel. Typically equal to
+   * ChannelGeometryResistance + nDroplets * ChannelDropletResistance
    */
   public static Symbol getsym_ChannelResistance(Schematic schematic, 
       ConnectionValue ch) {
@@ -113,6 +114,16 @@ public class SymbolNameGenerator {
     return new Symbol(chName.concat("_resistance"));
   }
 
+  /**
+   * Retrieves the symbol that defines the hydrodynamic resistance
+   * of a channel due to its geometry.
+   */
+  public static Symbol getsym_ChannelGeometryResistance(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_resistance"));
+  }
+  
   /**
    * Retrieves the symbol that defines the volume of a droplet 
    * emitted by a channel.

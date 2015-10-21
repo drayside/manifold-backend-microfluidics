@@ -47,7 +47,7 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
     // for channel width w, height h, h < w
     // total length L
     // viscosity of the solvent is mu
-    Symbol chR = SymbolNameGenerator.getsym_ChannelResistance(
+    Symbol chR = SymbolNameGenerator.getsym_ChannelGeometryResistance(
         schematic, channel);
     Symbol w = SymbolNameGenerator.getsym_ChannelWidth(schematic, channel);
     Symbol h = SymbolNameGenerator.getsym_ChannelHeight(schematic, channel);
