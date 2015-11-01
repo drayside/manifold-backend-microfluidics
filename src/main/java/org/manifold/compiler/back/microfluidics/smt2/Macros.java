@@ -27,7 +27,7 @@ public class Macros {
   // this is difficult because the actual flow direction may be backwards
   // with respect to the expected direction
   public static List<SExpression> generateConservationOfFlow(Schematic schematic,
-      List<PortValue> connectedPorts) {
+      List<PortValue> connectedPorts, boolean includeWorstCase) {
     List<SExpression> flowRatesIn = new LinkedList<SExpression>();
     List<SExpression> flowRatesOut = new LinkedList<SExpression>();
     
@@ -54,16 +54,22 @@ public class Macros {
       if (connectedIntoJunction) {
         // flow rate is positive into the junction
         flowRatesIn.add(flowRate);
-        flowRatesIn_WorstCase.add(flowRate_WorstCase);
+        if (includeWorstCase) {
+          flowRatesIn_WorstCase.add(flowRate_WorstCase);
+        }
       } else {
         // flow rate is positive out of the junction
         flowRatesOut.add(flowRate);
-        flowRatesOut_WorstCase.add(flowRate_WorstCase);
+        if (includeWorstCase) {
+          flowRatesOut_WorstCase.add(flowRate_WorstCase);
+        }
       }
     }
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn), QFNRA.add(flowRatesOut)));
-    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn_WorstCase), QFNRA.add(flowRatesOut_WorstCase)));
+    if (includeWorstCase) {
+      exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn_WorstCase), QFNRA.add(flowRatesOut_WorstCase)));
+    }
     return exprs;
   }
   

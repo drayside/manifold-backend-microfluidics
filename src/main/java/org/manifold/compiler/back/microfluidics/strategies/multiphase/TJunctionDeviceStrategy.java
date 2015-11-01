@@ -24,7 +24,6 @@ import org.manifold.compiler.middle.Schematic;
 public class TJunctionDeviceStrategy extends TranslationStrategy {
 
   private final boolean calculateDropletDerivedQuantities;
-  
   private final boolean performWorstCaseAnalysis;
   
   public TJunctionDeviceStrategy(boolean calcDerivedQuantities, boolean performWorstCaseAnalysis) {
@@ -333,7 +332,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     connectedPorts.add(pContinuous);
     connectedPorts.add(pDispersed);
     connectedPorts.add(pOutput);
-    exprs.addAll(Macros.generateConservationOfFlow(schematic, connectedPorts));
+    exprs.addAll(Macros.generateConservationOfFlow(schematic, connectedPorts, performWorstCaseAnalysis));
     
     // constraint: viscosity of output = viscosity of continuous
     Symbol dispersedViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
@@ -465,7 +464,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
           QFNRA.subtract(new Numeral(1), tolerance)));
       exprs.add(QFNRA.assertLessThanEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
           QFNRA.add(new Numeral(1), tolerance)));
-    
+      
     } // performWorstCaseAnalysis
     
     return exprs;
