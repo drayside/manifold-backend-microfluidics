@@ -14,7 +14,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
+import org.manifold.compiler.back.microfluidics.smt2.Decimal;
+import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
+import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.back.microfluidics.strategies.multiphase.TJunctionDeviceStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.ChannelResistanceStrategy;
 import org.manifold.compiler.back.microfluidics.strategies.pressureflow.FluidEntryExitDeviceStrategy;
@@ -83,6 +86,13 @@ public class TestDropletVolumeVariance {
     
     List<SExpression> exprs = new LinkedList<>();
     
+    // define constant pi
+    exprs.add(QFNRA.declareRealVariable(
+        SymbolNameGenerator.getsym_constant_pi()));
+    exprs.add(QFNRA.assertEqual(
+        SymbolNameGenerator.getsym_constant_pi(), 
+        new Decimal(Math.PI)));
+    
     // do calculate derived quantities, but skip worst-case analysis as we have something else in mind
     ChannelResistanceStrategy chanResStrat = new ChannelResistanceStrategy();
     FluidEntryExitDeviceStrategy entryExitStrat = new FluidEntryExitDeviceStrategy();
@@ -93,7 +103,7 @@ public class TestDropletVolumeVariance {
     exprs.addAll(entryExitStrat.translate(schematic, processParams, typeTable));
     exprs.addAll(flowStrat.translate(schematic, processParams, typeTable));
     exprs.addAll(tJunctionStrat.translate(schematic, processParams, typeTable));
-    
+
     for (SExpression expr : backend.sortExprs(exprs)) {
       System.err.println(expr.toString());
     }
