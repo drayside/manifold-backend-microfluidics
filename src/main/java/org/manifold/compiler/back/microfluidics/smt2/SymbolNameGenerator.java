@@ -123,8 +123,8 @@ public class SymbolNameGenerator {
     return new Symbol(chName.concat("_droplet_volume"));
   }
   
-  public static Symbol getsym_ChannelDropletVolume_WorstCase(Schematic schematic,
-      ConnectionValue ch) {
+  public static Symbol getsym_ChannelDropletVolume_WorstCase(
+      Schematic schematic, ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
     return new Symbol(chName.concat("_droplet_volume_worst_case"));
   }
