@@ -11,6 +11,7 @@ import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.Macros;
@@ -31,18 +32,6 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     this.performWorstCaseAnalysis = performWorstCaseAnalysis;
   }
   
-  //get the connection associated with this port
-  // TODO this is VERY EXPENSIVE, find an optimization
-  protected ConnectionValue getConnection(
-     Schematic schematic, PortValue port) {
-    for (ConnectionValue conn : schematic.getConnections().values()) {
-      if (conn.getFrom().equals(port) || conn.getTo().equals(port)) {
-        return conn;
-      }
-    }
-    return null;
-  }
-  
   @Override
   protected List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams, PrimitiveTypeTable typeTable) {
@@ -56,11 +45,11 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       // pull connections out of the node
       try {
         // TODO refactor these into constants
-        ConnectionValue chContinuous = getConnection(
+        ConnectionValue chContinuous = SchematicUtil.getConnection(
             schematic, node.getPort("continuous"));
-        ConnectionValue chDispersed = getConnection(
+        ConnectionValue chDispersed = SchematicUtil.getConnection(
             schematic, node.getPort("dispersed"));
-        ConnectionValue chOutput = getConnection(
+        ConnectionValue chOutput = SchematicUtil.getConnection(
             schematic, node.getPort("output"));
         exprs.addAll(translateTJunction(schematic, node, 
             chContinuous, chDispersed, chOutput));

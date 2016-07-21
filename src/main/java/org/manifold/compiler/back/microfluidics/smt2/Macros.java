@@ -6,21 +6,11 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.PortValue;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
+import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.middle.Schematic;
 
-public class Macros {
 
-  //get the connection associated with this port
-  // TODO this is VERY EXPENSIVE, find an optimization
-  protected static ConnectionValue getConnection(
-     Schematic schematic, PortValue port) {
-    for (ConnectionValue conn : schematic.getConnections().values()) {
-      if (conn.getFrom().equals(port) || conn.getTo().equals(port)) {
-        return conn;
-      }
-    }
-    return null;
-  }
+public class Macros {
   
   // generate an expression that describes the constraint
   // "total flow in = total flow out"
@@ -35,7 +25,7 @@ public class Macros {
     List<SExpression> flowRatesOut_WorstCase = new LinkedList<SExpression>();
     
     for (PortValue port : connectedPorts) {
-      ConnectionValue channel = getConnection(schematic, port);
+      ConnectionValue channel = SchematicUtil.getConnection(schematic, port);
       boolean connectedIntoJunction;
       // check which way the channel is connected
       if (channel.getFrom().equals(port)) {
