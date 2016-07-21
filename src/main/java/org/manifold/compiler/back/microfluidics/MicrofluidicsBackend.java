@@ -26,7 +26,7 @@ import org.manifold.compiler.middle.Schematic;
 
 public class MicrofluidicsBackend implements Backend {
 
-  private static Logger log = LogManager.getLogger("MicrofluidicsBackend");
+  private static final Logger log = LogManager.getLogger("MicrofluidicsBackend");
 
   private void err(String message) {
     log.error(message);

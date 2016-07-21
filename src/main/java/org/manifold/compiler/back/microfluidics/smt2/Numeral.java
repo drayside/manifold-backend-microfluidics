@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class Numeral extends SExpression {
-  private long value;
+  private final long value;
   public long getValue() {
     return this.value;
   }

@@ -20,29 +20,29 @@ import com.google.gson.JsonParser;
 // and limitations of the manufacturing process.
 public class ProcessParameters {
   // Minimum distance between nodes (meters)
-  private double minimumNodeDistance;
+  private final double minimumNodeDistance;
   public double getMinimumNodeDistance() {
     return minimumNodeDistance;
   }
   
   // Minimum channel length (meters)
-  private double minimumChannelLength;
+  private final double minimumChannelLength;
   public double getMinimumChannelLength() {
     return minimumChannelLength;
   }
   
   // Maximum chip area (meters)
-  private double maximumChipSizeX;
+  private final double maximumChipSizeX;
   public double getMaximumChipSizeX() {
     return maximumChipSizeX;
   }
-  private double maximumChipSizeY;
+  private final double maximumChipSizeY;
   public double getMaximumChipSizeY() {
     return maximumChipSizeY;
   }
   
   // Critical angle for channel crossings (radians)
-  private double criticalCrossingAngle;
+  private final double criticalCrossingAngle;
   public double getCriticalCrossingAngle() {
     return criticalCrossingAngle;
   }
