@@ -75,7 +75,8 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
             node.getPort("output"))));
     // constraint: port pressure >= 0
     exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
-        SymbolNameGenerator.getSym_PortPressure(schematic, node.getPort("output"))));
+        SymbolNameGenerator.getSym_PortPressure(schematic,
+            node.getPort("output"))));
     
     // the viscosity in the channel connected to output
     // is the viscosity given at the entry
@@ -100,7 +101,8 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     
     // constraint: port pressure >= 0
     exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
-        SymbolNameGenerator.getSym_PortPressure(schematic, node.getPort("input"))));
+        SymbolNameGenerator.getSym_PortPressure(schematic,
+            node.getPort("input"))));
     
     return exprs;
   }

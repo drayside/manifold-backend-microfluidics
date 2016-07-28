@@ -234,16 +234,16 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
   // muC: viscosity of continuous medium
   // L, w, h: channel length/width/height
   private SExpression calculatedDropletResistance(
-      SExpression R1, SExpression alpha, SExpression Ca,
+      SExpression r1, SExpression alpha, SExpression ca,
       SExpression sigma,
       SExpression muD, SExpression muC,
-      SExpression L, SExpression w, SExpression h) {
-    return QFNRA.multiply(R1, QFNRA.add(
-        QFNRA.divide(alpha, Ca), 
+      SExpression l, SExpression w, SExpression h) {
+    return QFNRA.multiply(r1, QFNRA.add(
+        QFNRA.divide(alpha, ca),
         QFNRA.multiply(sigma, 
             QFNRA.multiply(QFNRA.subtract(
                 QFNRA.divide(muD, muC), new Numeral(1)), 
-                QFNRA.divide(L, QFNRA.multiply(w, 
+                QFNRA.divide(l, QFNRA.multiply(w,
                     QFNRA.pow(h, new Numeral(3))))))));
   }
   
@@ -364,7 +364,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       // assume this is declared elsewhere
       exprs.add(QFNRA.assertEqual(dropletResistance, 
           calculatedDropletResistance(
-              SymbolNameGenerator.getsym_ChannelResistance(schematic, chOutput), 
+              SymbolNameGenerator.getsym_ChannelResistance(
+                  schematic, chOutput),
               new Decimal(1.0), // alpha
               new Decimal(0.0036), // Ca 
               interfacialTension, 
@@ -372,7 +373,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
               SymbolNameGenerator.getsym_ChannelLength(schematic, chOutput),
               SymbolNameGenerator.getsym_ChannelWidth(schematic, chOutput), 
               SymbolNameGenerator.getsym_ChannelHeight(schematic, chOutput)
-              )));
+        )));
       
       // constraint: calculate droplet velocity
       // v_d ~= Qd / (w * h)
@@ -402,19 +403,19 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
       
       // constraint: calculate maximum number of droplets
       // n ~= length / spacing
-      Symbol nDroplets_Continuous = SymbolNameGenerator
+      Symbol nDropletsContinuous = SymbolNameGenerator
           .getsym_ChannelMaxDroplets(schematic, chContinuous);
-      Symbol nDroplets_Dispersed = SymbolNameGenerator
+      Symbol nDropletsDispersed = SymbolNameGenerator
           .getsym_ChannelMaxDroplets(schematic, chDispersed);
-      Symbol nDroplets_Output = SymbolNameGenerator
+      Symbol nDropletsOutput = SymbolNameGenerator
           .getsym_ChannelMaxDroplets(schematic, chOutput);
       // assume this is already declared for every channel
       // continuous and dispersed channels can have zero droplets
       // TODO droplets inside droplets break this
-      exprs.add(QFNRA.assertEqual(nDroplets_Continuous, new Numeral(0)));
-      exprs.add(QFNRA.assertEqual(nDroplets_Dispersed, new Numeral(0)));
+      exprs.add(QFNRA.assertEqual(nDropletsContinuous, new Numeral(0)));
+      exprs.add(QFNRA.assertEqual(nDropletsDispersed, new Numeral(0)));
       // compute upper bound for output channel
-      exprs.add(QFNRA.assertEqual(nDroplets_Output, 
+      exprs.add(QFNRA.assertEqual(nDropletsOutput,
           QFNRA.divide(SymbolNameGenerator
               .getsym_ChannelLength(schematic, chOutput), dropletSpacing)));
 
@@ -424,21 +425,23 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     
       // constraint: calculate worst-case/steady-state droplet volume
       // this is a function of a slightly different flow rate than before
-      Symbol vOutput_WorstCase = SymbolNameGenerator
+      Symbol vOutputWorstCase = SymbolNameGenerator
           .getsym_ChannelDropletVolume_WorstCase(schematic, chOutput);
-      Symbol qD_WorstCase = SymbolNameGenerator
+      Symbol qDWorstCase = SymbolNameGenerator
           .getsym_ChannelFlowRate_WorstCase(schematic, chDispersed);
-      Symbol qC_WorstCase = SymbolNameGenerator
+      Symbol qCWorstCase = SymbolNameGenerator
           .getsym_ChannelFlowRate_WorstCase(schematic, chContinuous);
-      exprs.add(QFNRA.declareRealVariable(vOutput_WorstCase));
-      exprs.add(QFNRA.assertEqual(vOutput_WorstCase, calculatedDropletVolume(
-          h, w, wIn, epsilon, qD_WorstCase, qC_WorstCase)));
+      exprs.add(QFNRA.declareRealVariable(vOutputWorstCase));
+      exprs.add(QFNRA.assertEqual(vOutputWorstCase, calculatedDropletVolume(
+          h, w, wIn, epsilon, qDWorstCase, qCWorstCase)));
       
       // constraint: target volume and worst-case volume differ by at most 5%
       SExpression tolerance = new Decimal(0.05);
-      exprs.add(QFNRA.assertGreaterEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
+      exprs.add(QFNRA.assertGreaterEqual(
+          QFNRA.divide(vOutputWorstCase, vOutput),
           QFNRA.subtract(new Numeral(1), tolerance)));
-      exprs.add(QFNRA.assertLessThanEqual(QFNRA.divide(vOutput_WorstCase, vOutput), 
+      exprs.add(QFNRA.assertLessThanEqual(
+          QFNRA.divide(vOutputWorstCase, vOutput),
           QFNRA.add(new Numeral(1), tolerance)));
     
     } // performWorstCaseAnalysis
