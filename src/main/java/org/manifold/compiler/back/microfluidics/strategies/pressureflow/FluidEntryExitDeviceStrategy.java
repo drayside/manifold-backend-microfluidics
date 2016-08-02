@@ -69,7 +69,7 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     
     // the viscosity in the channel connected to output
     // is the viscosity given at the entry
-      ConnectionValue ch = SchematicUtil.getConnection(
+    ConnectionValue ch = SchematicUtil.getConnection(
         schematic, node.getPort("output"));
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, ch);
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
