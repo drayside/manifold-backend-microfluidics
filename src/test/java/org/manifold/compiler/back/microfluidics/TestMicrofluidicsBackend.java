@@ -88,14 +88,17 @@ public class TestMicrofluidicsBackend {
     schematic.addNode("junction0", junction);
     
     
-    ConnectionValue entryToJunction = UtilSchematicConstruction.instantiateChannel(
-        entry.getPort("output"), junction.getPort("continuous"));
+    ConnectionValue entryToJunction = UtilSchematicConstruction
+        .instantiateChannel(entry.getPort("output"),
+        junction.getPort("continuous"));
     schematic.addConnection("channelC", entryToJunction);
-    ConnectionValue disperseToJunction = UtilSchematicConstruction.instantiateChannel(
-        disperse.getPort("output"), junction.getPort("dispersed"));
+    ConnectionValue disperseToJunction = UtilSchematicConstruction
+        .instantiateChannel(disperse.getPort("output"),
+        junction.getPort("dispersed"));
     schematic.addConnection("channelD", disperseToJunction);
-    ConnectionValue junctionToExit = UtilSchematicConstruction.instantiateChannel(
-        junction.getPort("output"), exit.getPort("input"));
+    ConnectionValue junctionToExit = UtilSchematicConstruction
+        .instantiateChannel(junction.getPort("output"),
+        exit.getPort("input"));
     schematic.addConnection("channelE", junctionToExit);
     
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
