@@ -5,7 +5,7 @@ import java.io.Writer;
 
 public class Symbol extends SExpression {
  
-  private String name;
+  private final String name;
   public String getName() {
     return name;
   }
