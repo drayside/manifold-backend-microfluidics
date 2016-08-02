@@ -1,6 +1,7 @@
 package org.manifold.compiler.back.microfluidics.smt2;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -14,6 +15,9 @@ public class TestDRealSolver {
   @Test
   public void testFindDReal() {
     try (DRealSolver dReal = new DRealSolver()) { }
+    catch (IllegalStateException e) {
+      fail("dReal not found. Make sure dReal is installed and accessible.");
+    }
   }
   
   @Test
@@ -25,6 +29,8 @@ public class TestDRealSolver {
       dReal.write("(assert (= x 2.0))");
       DRealSolver.Result res = dReal.solve();
       assertFalse(res.isSatisfiable());
+    } catch (IllegalStateException e) {
+      fail("dReal not found. Make sure dReal is installed and accessible.");
     }
   }
   
@@ -36,6 +42,8 @@ public class TestDRealSolver {
       dReal.write("(assert (= x 1.0))");
       DRealSolver.Result res = dReal.solve();
       assertTrue(res.isSatisfiable());
+    } catch (IllegalStateException e) {
+      fail("dReal not found. Make sure dReal is installed and accessible.");
     }
   }
   
@@ -53,6 +61,8 @@ public class TestDRealSolver {
       assertNotNull(range);
       assertEquals(1.0, range.lowerBound, 0.001);
       assertEquals(1.0, range.upperBound, 0.001);
+    } catch (IllegalStateException e) {
+      fail("dReal not found. Make sure dReal is installed and accessible.");
     }
   }
   
