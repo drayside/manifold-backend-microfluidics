@@ -13,6 +13,7 @@ import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
@@ -22,17 +23,6 @@ import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
 public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
-
-  // get the connection associated with this port
-  // TODO this is VERY EXPENSIVE, find an optimization
-  protected ConnectionValue getConnection(Schematic schematic, PortValue port) {
-    for (ConnectionValue conn : schematic.getConnections().values()) {
-      if (conn.getFrom().equals(port) || conn.getTo().equals(port)) {
-        return conn;
-      }
-    }
-    return null;
-  }
   
   @Override
   protected List<SExpression> translationStep(Schematic schematic,
@@ -138,7 +128,8 @@ public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
     ExpandedPath expansion = new ExpandedPath();
     PortValue nextPort = port;
     while (true) {
-      ConnectionValue nextConn = getConnection(schematic, nextPort);
+      ConnectionValue nextConn = SchematicUtil.getConnection(
+          schematic, nextPort);
       if (nextConn == null) {
         // TODO throw exception
       }

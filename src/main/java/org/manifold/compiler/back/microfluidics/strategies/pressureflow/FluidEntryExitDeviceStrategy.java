@@ -12,6 +12,7 @@ import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.Numeral;
@@ -22,18 +23,6 @@ import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
 public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
-
-//get the connection associated with this port
-  // TODO this is VERY EXPENSIVE, find an optimization
-  protected ConnectionValue getConnection(
-     Schematic schematic, PortValue port) {
-    for (ConnectionValue conn : schematic.getConnections().values()) {
-      if (conn.getFrom().equals(port) || conn.getTo().equals(port)) {
-        return conn;
-      }
-    }
-    return null;
-  }
   
   @Override
   protected List<SExpression> translationStep(Schematic schematic,
@@ -80,7 +69,8 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     
     // the viscosity in the channel connected to output
     // is the viscosity given at the entry
-    ConnectionValue ch = getConnection(schematic, node.getPort("output"));
+      ConnectionValue ch = SchematicUtil.getConnection(
+        schematic, node.getPort("output"));
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, ch);
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
     exprs.add(QFNRA.assertEqual(mu, new Decimal(viscosity.toDouble())));
