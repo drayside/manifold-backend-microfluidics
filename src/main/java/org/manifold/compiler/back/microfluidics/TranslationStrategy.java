@@ -6,21 +6,41 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.PortValue;
+import org.manifold.compiler.back.microfluidics.matlab.CompoundStrategyVerifier;
+import org.manifold.compiler.back.microfluidics.matlab.StrategyVerifier;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.middle.Schematic;
 
 public abstract class TranslationStrategy { 
   private List<SExpression> cachedExprs = new LinkedList<SExpression>();
+  private List<StrategyVerifier> cachedMatlabStrategies = null;
+  
   protected final List<SExpression> getCachedExprs() {
     return cachedExprs;
   }
+  
+  protected final List<StrategyVerifier> getCachedMatlabStrategies() {
+	  return cachedMatlabStrategies;
+  }
+ 
   private boolean cacheValid = false;
   protected final void cacheIsValid() {
     cacheValid = true;
   }
+  
+  private boolean matlabCacheValid = false;
+  protected final void matlabCacheIsValid() {
+    matlabCacheValid = true;
+  }
+
   protected final void invalidateCache() {
     cachedExprs = new LinkedList<SExpression>();
     cacheValid = false;
+  }
+  
+  protected final void invalidateMatlabCache() {
+    cachedMatlabStrategies = null;
+    matlabCacheValid = false;
   }
   
   public final List<SExpression> translate(Schematic schematic, 
@@ -32,10 +52,25 @@ public abstract class TranslationStrategy {
     return cachedExprs;
   }
   
+  public final List<StrategyVerifier> translateMatlab(Schematic schematic,
+      ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    invalidateMatlabCache();
+    cachedMatlabStrategies = matlabTranslationStep(schematic, processParams, typeTable);
+    cacheIsValid();
+    return cachedMatlabStrategies;
+  }
+  
   // Cache-oblivious "real" translation step, overridden by implementors.
   protected abstract List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable);
+  
+  protected List<StrategyVerifier> matlabTranslationStep(Schematic schematic,
+      ProcessParameters processParams,
+      PrimitiveTypeTable typeTable) {
+    return null;
+  }
   
   public final List<SExpression> getTranslatedExprs() {
     if (cacheValid) {
@@ -43,6 +78,16 @@ public abstract class TranslationStrategy {
     } else {
       throw new CodeGenerationError(
           "cannot retrieve translated exprs before translation is done"
+          + " (cache may have been invalidated after a previous run)");
+    }
+  }
+  
+  public final List<StrategyVerifier> getMatlabTranslatedExprs() {
+    if (matlabCacheValid) {
+      return cachedMatlabStrategies;
+    } else {
+      throw new CodeGenerationError(
+          "cannot retrieve translated matlab exprs before translation is done"
           + " (cache may have been invalidated after a previous run)");
     }
   }
