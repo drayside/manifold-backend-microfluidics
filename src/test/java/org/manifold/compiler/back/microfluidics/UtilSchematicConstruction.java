@@ -3,6 +3,7 @@ package org.manifold.compiler.back.microfluidics;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.manifold.compiler.Attributes;
 import org.manifold.compiler.ConnectionTypeValue;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.ConstraintType;
@@ -35,7 +36,10 @@ public class UtilSchematicConstruction {
   private static Map<String, PortTypeValue> noPorts = new HashMap<>();
   
   private static PortTypeValue microfluidPortType;
+  private static PortTypeValue fluidEntryExitPortType;
   // multi-phase
+  private static NodeTypeValue simpleFluidEntryNodeType;
+  private static NodeTypeValue simpleFluidExitNodeType;
   private static NodeTypeValue fluidEntryNodeType;
   private static NodeTypeValue fluidExitNodeType;
   private static NodeTypeValue tJunctionNodeType;
@@ -51,23 +55,39 @@ public class UtilSchematicConstruction {
   private static ConstraintType channelDropletVolumeConstraintType;
   
   public static void setupIntermediateTypes() {
-
+    //TypeAttributes for fluid entry exit ports
+	Map<String, TypeValue> fluidEntryExitTypeAttribute = new HashMap<String, TypeValue>();
+	fluidEntryExitTypeAttribute.put("pressure", RealTypeValue.getInstance());
+	  
     // TODO which signal type do we want here?
     microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
         noTypeAttributes);
+    fluidEntryExitPortType = new PortTypeValue(NilTypeValue.getInstance(), fluidEntryExitTypeAttribute);
     
     // multi-phase
+    //---------------- Simple fluid entry node without pressure--------------
     Map<String, PortTypeValue> fluidEntryPorts = new HashMap<>();
     fluidEntryPorts.put("output", microfluidPortType);
     Map<String, TypeValue> fluidEntryAttributes = new HashMap<>();
     fluidEntryAttributes.put("viscosity", RealTypeValue.getInstance());
-    fluidEntryNodeType = new NodeTypeValue(
+    simpleFluidEntryNodeType = new NodeTypeValue(
         fluidEntryAttributes, fluidEntryPorts);
     
     Map<String, PortTypeValue> fluidExitPorts = new HashMap<>();
     fluidExitPorts.put("input", microfluidPortType);
-    fluidExitNodeType = new NodeTypeValue(
+    simpleFluidExitNodeType = new NodeTypeValue(
         noTypeAttributes, fluidExitPorts);
+
+  //---------------- fluid entry node with input andoooo output pressure--------------    
+    Map<String, PortTypeValue> pressuredFluidEntryPorts = new HashMap<>();
+    pressuredFluidEntryPorts.put("output", fluidEntryExitPortType);
+    fluidEntryNodeType = new NodeTypeValue(
+        fluidEntryAttributes, pressuredFluidEntryPorts);
+    
+    Map<String, PortTypeValue> pressuredFluidExitPorts = new HashMap<>();
+    pressuredFluidExitPorts.put("input", fluidEntryExitPortType);
+    fluidExitNodeType = new NodeTypeValue(
+        noTypeAttributes, pressuredFluidExitPorts);
     
     Map<String, PortTypeValue> tJunctionPorts = new HashMap<>();
     tJunctionPorts.put("continuous", microfluidPortType);
@@ -127,7 +147,10 @@ public class UtilSchematicConstruction {
     Schematic s = new Schematic(name);
     
     s.addPortType("microfluidPort", microfluidPortType);
+    s.addPortType("fluidEntryExitPort", fluidEntryExitPortType);
     // multi-phase
+    s.addNodeType("simpleFluidEntry", simpleFluidEntryNodeType);
+    s.addNodeType("simpleFluidExit", simpleFluidExitNodeType);    
     s.addNodeType("fluidEntry", fluidEntryNodeType);
     s.addNodeType("fluidExit", fluidExitNodeType);
     s.addNodeType("tJunction", tJunctionNodeType);
@@ -158,6 +181,23 @@ public class UtilSchematicConstruction {
     return channel;
   }
   
+  /**
+   * Instantiate Channel with ports and attributes
+   * @param from
+   * @param to
+   * @param attr
+   * @return
+   * @throws UndeclaredAttributeException
+   * @throws InvalidAttributeException
+   * @throws TypeMismatchException
+   */
+  public static ConnectionValue instantiateChannel(PortValue from, PortValue to, Map<String, Value> attr)
+	      throws UndeclaredAttributeException, InvalidAttributeException,
+	      TypeMismatchException {
+	    ConnectionValue channel = new ConnectionValue(from, to, attr);
+	    return channel;
+	  }
+  
   public static NodeValue instantiateFluidEntry(Schematic schematic,
       double viscosity)
       throws SchematicException {
@@ -166,19 +206,55 @@ public class UtilSchematicConstruction {
     attrsMap.put("viscosity", mu);
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
     portAttrsMap.put("output", noAttributes);
-    NodeValue exit = new NodeValue(schematic.getNodeType("fluidEntry"),
+    NodeValue exit = new NodeValue(schematic.getNodeType("simpleFluidEntry"),
         attrsMap, portAttrsMap);
     return exit;
   }
+  
+  /* TODO
+   * This needs to be refactored, so that all the attribute are stored
+   * in some data structure, instead of having an overloaded method for
+   * every attribute combination such as viscosity and inputpressure.
+   */
+  public static NodeValue instantiateFluidEntry(Schematic schematic,
+	      double viscosity, double inputpressure)
+	      throws SchematicException {
+	    Map<String, Value> attrsMap = new HashMap<>();
+	    RealValue mu = new RealValue(viscosity);
+	    attrsMap.put("viscosity", mu);
+	    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+	    Map<String, Value> portAttrsVals = new HashMap<>();
+	    portAttrsVals.put("pressure", new RealValue(inputpressure));
+	    portAttrsMap.put("output", portAttrsVals);
+	    NodeValue exit = new NodeValue(schematic.getNodeType("fluidEntry"),
+	        attrsMap, portAttrsMap);
+	    return exit;
+	  }
   
   public static NodeValue instantiateFluidExit(Schematic schematic)
       throws SchematicException {
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
     portAttrsMap.put("input", noAttributes);
-    NodeValue exit = new NodeValue(schematic.getNodeType("fluidExit"),
+    NodeValue exit = new NodeValue(schematic.getNodeType("simpleFluidExit"),
         noAttributes, portAttrsMap);
     return exit;
   }
+  
+  /* TODO
+   * This needs to be refactored, so that all the attribute are stored
+   * in some data structure, instead of having an overloaded method for
+   * every attribute combination such as viscosity and inputpressure.
+   */
+  public static NodeValue instantiateFluidExit(Schematic schematic,double outputpressure)
+	      throws SchematicException {
+	    Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
+	    Map<String, Value> portAttrsVals = new HashMap<>();
+	    portAttrsVals.put("pressure", new RealValue(outputpressure));
+	    portAttrsMap.put("input", portAttrsVals);
+	    NodeValue exit = new NodeValue(schematic.getNodeType("fluidExit"),
+	        noAttributes, portAttrsMap);
+	    return exit;
+	  }
   
   public static NodeValue instantiateTJunction(Schematic schematic)
       throws SchematicException {

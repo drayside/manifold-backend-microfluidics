@@ -25,7 +25,7 @@ public class DRealSolver implements AutoCloseable {
     }
   }
   
-  class Result {
+  public class Result {
     private final boolean satisfiable;
     public boolean isSatisfiable() {
       return this.satisfiable;
@@ -84,6 +84,10 @@ public class DRealSolver implements AutoCloseable {
   private BufferedWriter writer;
   private BufferedReader reader;
   
+  public BufferedWriter getWriter(){
+	  return writer;
+  }
+  
   public void open() throws IOException {
     List<String> command = new LinkedList<>();
     command.add(pathToDReal);
@@ -116,6 +120,10 @@ public class DRealSolver implements AutoCloseable {
     write(expr.toString());
   }
   
+  public String read() throws IOException {
+	  return reader.readLine();
+  }
+  
   protected void interpretResultLine(Result model, String line) {
     // expect a line of the form
     // x : [ ****** ] = [999.99, 999.99]
@@ -138,22 +146,34 @@ public class DRealSolver implements AutoCloseable {
       throw new IllegalArgumentException("invalid input '" + line 
           + "', no range [ found");
     }
-    int commaRangeIdx = line.indexOf(',', beginRangeIdx + 1);
-    if (commaRangeIdx == -1) {
-      throw new IllegalArgumentException("invalid input '" + line 
-          + "', no comma found in range");
-    }
-    int endRangeIdx = line.indexOf(']', commaRangeIdx + 1);
-    if (endRangeIdx == -1) {
-      throw new IllegalArgumentException("invalid input '" + line 
-          + "', no range ] found");
+    
+    int infinityIdx = line.indexOf("INFTY");
+    //if the value has INFTY skipping looking for range.
+    //Need to consider for positive and negative INFTY
+    if (infinityIdx== -1){
+	    int commaRangeIdx = line.indexOf(',', beginRangeIdx + 1);
+	    if (commaRangeIdx == -1) {
+	      throw new IllegalArgumentException("invalid input '" + line 
+	          + "', no comma found in range");
+	    }
+	    int endRangeIdx = line.indexOf(']', commaRangeIdx + 1);
+	    if (endRangeIdx == -1) {
+	      throw new IllegalArgumentException("invalid input '" + line 
+	          + "', no range ] found");
+	    }
+	 // everything between [ and , is the lower bound;
+	    String lowerBound = line.substring(beginRangeIdx + 1, commaRangeIdx).trim();
+	    // everything between , and ] is the upper bound
+	    String upperBound = line.substring(commaRangeIdx + 1, endRangeIdx).trim();
+	    model.addResult(symbolName, lowerBound, upperBound);	    
+    } 
+    else {
+    	String infinityOperator = String.valueOf(line.charAt(infinityIdx-1));
+    	System.out.println("Warning: variable \""+symbolName+"\" has range of "+infinityOperator+"INFTY");
     }
     
-    // everything between [ and , is the lower bound;
-    String lowerBound = line.substring(beginRangeIdx + 1, commaRangeIdx).trim();
-    // everything between , and ] is the upper bound
-    String upperBound = line.substring(commaRangeIdx + 1, endRangeIdx).trim();
-    model.addResult(symbolName, lowerBound, upperBound);
+    
+    
   }
   
   public Result solve() throws IOException {

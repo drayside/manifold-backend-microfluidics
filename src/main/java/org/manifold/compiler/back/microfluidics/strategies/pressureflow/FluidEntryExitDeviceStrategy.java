@@ -30,10 +30,11 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     List<SExpression> exprs = new LinkedList<>();
     for (NodeValue node : schematic.getNodes().values()) {
       try {
-        if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType())) {
+        if (node.getType().isSubtypeOf(typeTable.getFluidEntryNodeType()) || 
+        		node.getType().isSubtypeOf(typeTable.getSimpleFluidEntryNodeType())) {
           exprs.addAll(translateFluidEntryNode(schematic, node));
-        } else if (node.getType().isSubtypeOf(
-            typeTable.getFluidExitNodeType())) {
+        } else if (node.getType().isSubtypeOf(typeTable.getFluidExitNodeType()) ||
+        		node.getType().isSubtypeOf(typeTable.getSimpleFluidExitNodeType())) {
           exprs.addAll(translateFluidExitNode(schematic, node));
         }
       } catch (UndeclaredIdentifierException e) {
@@ -62,6 +63,7 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getSym_PortPressure(schematic, 
             node.getPort("output"))));
+    
     // constraint: port pressure >= 0
     exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
         SymbolNameGenerator.getSym_PortPressure(schematic,
@@ -74,12 +76,22 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     Symbol mu = SymbolNameGenerator.getsym_ChannelViscosity(schematic, ch);
     RealValue viscosity = (RealValue) node.getAttribute("viscosity");
     exprs.add(QFNRA.assertEqual(mu, new Decimal(viscosity.toDouble())));
+    
+    //If any input parameters, such as output_pressure, is given: make equality
+    //constraints
+    // TODO Currently it checks explicitly for pressure. It should not be concrete.
+    if(!node.getPort("output").getAttributes().getAll().isEmpty()){
+    	RealValue pressure = (RealValue) node.getPort("output").getAttribute("pressure");
+    	exprs.add(QFNRA.assertEqual(SymbolNameGenerator.getSym_PortPressure(schematic, 
+            node.getPort("output")), new Decimal(pressure.toDouble())));
+    }
+    
     return exprs;
   }
   
   private List<SExpression> translateFluidExitNode(
       Schematic schematic, NodeValue node) 
-      throws UndeclaredIdentifierException {
+      throws UndeclaredIdentifierException, UndeclaredAttributeException {
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_NodeX(schematic, node)));
@@ -93,6 +105,15 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     exprs.add(QFNRA.assertLessThanEqual(new Numeral(0), 
         SymbolNameGenerator.getSym_PortPressure(schematic,
             node.getPort("input"))));
+    
+    //If any input parameters, such as output_pressure, is given: make equality
+    //constraints
+    // TODO Currently it checks explicitly for pressure. It should not be concrete.
+    if(!node.getPort("input").getAttributes().getAll().isEmpty()){
+    	RealValue pressure = (RealValue) node.getPort("input").getAttribute("pressure");
+    	exprs.add(QFNRA.assertEqual(SymbolNameGenerator.getSym_PortPressure(schematic, 
+            node.getPort("input")), new Decimal(pressure.toDouble())));
+    }
     
     return exprs;
   }

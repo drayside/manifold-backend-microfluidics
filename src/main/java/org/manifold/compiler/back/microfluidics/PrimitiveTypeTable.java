@@ -15,6 +15,11 @@ public class PrimitiveTypeTable {
   public PortTypeValue getMicrofluidPortType() {
     return microfluidPortType;
   }
+  
+  private PortTypeValue fluidEntryExitPortType = null;
+  public PortTypeValue getFluidEntryExitPortType() {
+    return fluidEntryExitPortType;
+  }
 
   // multi-phase stuff
   
@@ -72,15 +77,30 @@ public class PrimitiveTypeTable {
     return channelCrossingNodeType;
   }
   
+  private NodeTypeValue simpleFluidEntryNodeType = null;
+  public NodeTypeValue getSimpleFluidEntryNodeType() {
+    return simpleFluidEntryNodeType;
+  }
+  
+  private NodeTypeValue simpleFluidExitNodeType = null;
+  public NodeTypeValue getSimpleFluidExitNodeType() {
+    return simpleFluidExitNodeType;
+  }
+  
   public void retrieveBaseTypes(Schematic schematic) {
     try {
       microfluidPortType = schematic.getPortType("microfluidPort");
+      fluidEntryExitPortType = schematic.getPortType("fluidEntryExitPort");
       
       // multi-phase
       fluidEntryNodeType = 
           schematic.getNodeType("fluidEntry");
       fluidExitNodeType = 
           schematic.getNodeType("fluidExit");
+      simpleFluidEntryNodeType = 
+              schematic.getNodeType("simpleFluidEntry");
+      simpleFluidExitNodeType = 
+              schematic.getNodeType("simpleFluidExit");
       tJunctionNodeType = 
           schematic.getNodeType("tJunction");
       

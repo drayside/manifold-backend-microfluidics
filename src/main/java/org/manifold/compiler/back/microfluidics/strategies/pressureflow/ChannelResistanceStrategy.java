@@ -2,8 +2,13 @@ package org.manifold.compiler.back.microfluidics.strategies.pressureflow;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.manifold.compiler.Attributes;
 import org.manifold.compiler.ConnectionValue;
+import org.manifold.compiler.RealValue;
+import org.manifold.compiler.UndeclaredAttributeException;
+import org.manifold.compiler.Value;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
@@ -27,20 +32,32 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
       // TODO we are just assuming all channels are rectangular right now
       
       // TODO this might not stay here
-      Symbol nDroplets = SymbolNameGenerator
-          .getsym_ChannelMaxDroplets(schematic, conn);
-      exprs.add(QFNRA.declareRealVariable(nDroplets));
-      
-      Symbol dropletResistance = SymbolNameGenerator
-          .getsym_ChannelDropletResistance(schematic, conn);
-      exprs.add(QFNRA.declareRealVariable(dropletResistance));
-      
-      exprs.addAll(translateRectangularChannel(schematic, conn));
+      //Check if rectuangular channel
+      if(typeCheckRectangular(conn)){
+	      Symbol nDroplets = SymbolNameGenerator
+	          .getsym_ChannelMaxDroplets(schematic, conn);
+	      exprs.add(QFNRA.declareRealVariable(nDroplets));
+	      
+	      Symbol dropletResistance = SymbolNameGenerator
+	          .getsym_ChannelDropletResistance(schematic, conn);
+	      exprs.add(QFNRA.declareRealVariable(dropletResistance));
+	      
+	      //Need to find a refactored way to do this
+	      exprs.addAll(translateRectangularChannel(schematic, conn));
+      }
     }
     return exprs;
   }
 
-  private List<SExpression> translateRectangularChannel(
+  private boolean typeCheckRectangular(ConnectionValue conn) {
+	/*TODO:Check channel type instead of checking attributes
+	 * Currenty rectangular channels have no attributes
+	 */
+	if(conn.getAttributes().getAll().isEmpty())return true;
+	return false;
+  }
+
+private List<SExpression> translateRectangularChannel(
       Schematic schematic, ConnectionValue channel) {
     List<SExpression> exprs = new LinkedList<>();
     // R = (12 * mu * L) / (w * h^3 * (1 - 0.630 (h/w)) )
@@ -76,5 +93,4 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
     exprs.add(heightLessThanWidth);
     return exprs;
   }
-  
 }

@@ -104,6 +104,16 @@ public class SymbolNameGenerator {
   }
   
   /**
+   * Retrieves the symbol that defines the radius of a
+   * circular channel.
+   */
+  public static Symbol getsym_ChannelRadius(Schematic schematic, 
+      ConnectionValue ch) {
+    String chName = schematic.getConnectionName(ch);
+    return new Symbol(chName.concat("_radius"));
+  }
+  
+  /**
    * Retrieves the symbol that defines the hydrodynamic resistance
    * of a channel.
    */
@@ -205,5 +215,16 @@ public class SymbolNameGenerator {
     String jName = schematic.getNodeName(junc);
     return new Symbol(jName.concat("_epsilon"));
   }
+
+  /***
+   * Retrieves the sumpbol for channel velocity
+   * @param schematic
+   * @param conn
+   * @return
+   */
+  public static Symbol getsym_ChannelVelocity(Schematic schematic, ConnectionValue conn) {
+	String chName = schematic.getConnectionName(conn);
+	return new Symbol(chName.concat("_velocity"));
+}
   
 }

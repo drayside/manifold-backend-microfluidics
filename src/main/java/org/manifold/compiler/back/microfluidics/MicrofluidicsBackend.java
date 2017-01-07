@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
+import org.manifold.compiler.back.microfluidics.smt2.DRealSolver;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.ParenList;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
@@ -93,6 +94,22 @@ public class MicrofluidicsBackend implements Backend {
       throws Exception {
     collectOptions(cmd);
     run(schematic);
+  }
+  
+  /**
+   * Temporary solution for having a different invoker for the 
+   * backend when the solution
+   * from dReal needs to be returned
+   * @param schematic
+   * @param cmd
+   * @param stdin
+   * @throws Exception
+   */
+  public DRealSolver.Result invokeBackend(Schematic schematic, 
+		  CommandLine cmd, String stdin)
+      throws Exception {
+    collectOptions(cmd);
+    return run(schematic, "stdin");
   }
 
   private PrimitiveTypeTable primitiveTypes = new PrimitiveTypeTable();
@@ -207,4 +224,66 @@ public class MicrofluidicsBackend implements Backend {
     }
   }
   
+  /**
+   * Overloaded run method for running dReal from stdin and reading solver output.
+   * @param schematic
+   * @param stdin
+   * @throws IOException
+   */
+  public DRealSolver.Result run(Schematic schematic, String stdin) throws IOException {
+  	primitiveTypes = constructTypeTable(schematic);
+    // translation step
+    // for now: one pass
+    List<SExpression> exprs = new LinkedList<>();
+    //exprs.add(QFNRA.useQFNRA()); // Already added by DRealSolver.open()
+    
+    List<SExpression> unsortedExprs = new LinkedList<>();
+    // define constant pi
+    unsortedExprs.add(QFNRA.declareRealVariable(
+        SymbolNameGenerator.getsym_constant_pi()));
+    unsortedExprs.add(QFNRA.assertEqual(
+        SymbolNameGenerator.getsym_constant_pi(), 
+        new Decimal(Math.PI)));
+    
+    PlacementTranslationStrategySet placeSet = 
+        new PlacementTranslationStrategySet();
+    unsortedExprs.addAll(placeSet.translate(
+        schematic, processParams, primitiveTypes));
+    MultiPhaseStrategySet multiPhase = new MultiPhaseStrategySet();
+    unsortedExprs.addAll(multiPhase.translate(
+        schematic, processParams, primitiveTypes));
+    PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
+    unsortedExprs.addAll(pressureFlow.translate(
+        schematic, processParams, primitiveTypes));
+    
+    exprs.addAll(sortExprs(unsortedExprs));
+    
+//	    // (check-sat) (exit)
+//	    exprs.add(new ParenList(new SExpression[] {
+//	      new Symbol("check-sat")
+//	    }));
+//	    exprs.add(new ParenList(new SExpression[] {
+//	      new Symbol("exit")
+//	    }));
+    
+    try (DRealSolver dReal = new DRealSolver()) {
+        dReal.open();
+        for(SExpression expr: exprs){
+        	System.out.println(expr);
+        	dReal.write(expr);           
+        }
+        
+        DRealSolver.Result res = dReal.solve();
+        return res;
+      }
+    
+//	    // write to "schematic-name.smt2"
+//	    String filename = schematic.getName() + ".smt2";
+//	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+//	      for (SExpression expr : exprs) {
+//	        expr.write(writer);
+//	        writer.newLine();
+//	      }
+//	    }
+  }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
+import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.Symbol;
@@ -45,7 +46,7 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     // we still need to declare the flow rate
     exprs.add(QFNRA.declareRealVariable(chV));
     
-    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
+    exprs.add(QFNRA.assertEqual(QFNRA.subtract(p2, p1),
         QFNRA.multiply(chV, chR)));
     
     if (performWorstCaseAnalysis) {
