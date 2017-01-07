@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
+import org.manifold.compiler.back.microfluidics.modelica.*;
 import org.manifold.compiler.back.microfluidics.smt2.Decimal;
 import org.manifold.compiler.back.microfluidics.smt2.ParenList;
 import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
@@ -164,20 +165,26 @@ public class MicrofluidicsBackend implements Backend {
   
   public void run(Schematic schematic) throws IOException {
     primitiveTypes = constructTypeTable(schematic);
+
+    generateDReal(schematic);
+    generateModelica(schematic);
+  }
+
+  public void generateDReal(Schematic schematic) throws IOException {
     // translation step
     // for now: one pass
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.useQFNRA());
-    
+
     List<SExpression> unsortedExprs = new LinkedList<>();
     // define constant pi
     unsortedExprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_constant_pi()));
     unsortedExprs.add(QFNRA.assertEqual(
-        SymbolNameGenerator.getsym_constant_pi(), 
+        SymbolNameGenerator.getsym_constant_pi(),
         new Decimal(Math.PI)));
-    
-    PlacementTranslationStrategySet placeSet = 
+
+    PlacementTranslationStrategySet placeSet =
         new PlacementTranslationStrategySet();
     unsortedExprs.addAll(placeSet.translate(
         schematic, processParams, primitiveTypes));
@@ -187,9 +194,9 @@ public class MicrofluidicsBackend implements Backend {
     PressureFlowStrategySet pressureFlow = new PressureFlowStrategySet();
     unsortedExprs.addAll(pressureFlow.translate(
         schematic, processParams, primitiveTypes));
-    
+
     exprs.addAll(sortExprs(unsortedExprs));
-    
+
     // (check-sat) (exit)
     exprs.add(new ParenList(new SExpression[] {
       new Symbol("check-sat")
@@ -204,6 +211,44 @@ public class MicrofluidicsBackend implements Backend {
         expr.write(writer);
         writer.newLine();
       }
+    }
+  }
+
+  public void generateModelica(Schematic schematic) throws IOException {
+
+    ComponentGenerator componentGenerator = new ComponentGenerator();
+    List<ModelicaComponent> components =
+      componentGenerator.componentList(schematic);
+
+    ConnectionGenerator connectionGenerator = new ConnectionGenerator();
+    List<ModelicaConnection> connections =
+      connectionGenerator.connectionList(schematic);
+
+    String filename = schematic.getName() + ".mo";
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+      writer.write(String.format("model %s", schematic.getName()));
+      writer.newLine();
+
+      for (ModelicaComponent component : components) {
+        writer.write("\t");
+        component.write(writer);
+        writer.newLine();
+      }
+
+      writer.write("equation");
+      writer.newLine();
+
+      for (ModelicaConnection connection : connections) {
+        writer.write("\t");
+        connection.write(writer);
+        writer.newLine();
+      }
+
+      writer.write(AnnotationGenerator.globalAnnotations());
+      writer.newLine();
+
+      writer.write(String.format("end %s;", schematic.getName()));
+      writer.newLine();
     }
   }
   

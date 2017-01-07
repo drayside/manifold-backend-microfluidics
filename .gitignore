@@ -18,6 +18,9 @@ nbproject/private/
 .project
 .settings
 
+# IntelliJ project files
+.idea/
+
 ## generic files
 *~
 *.lock
