@@ -19,7 +19,7 @@ public class ComponentGenerator {
     for (String nodeName : nodes.keySet()) {
       NodeValue node = nodes.get(nodeName);
 
-      // TODO: discriminate based on attributes
+      // TODO: decide the class of the component to be added.
       CapacitorComponent capacitorComponent =
         new CapacitorComponent(nodeName, node);
       components.add(capacitorComponent);
