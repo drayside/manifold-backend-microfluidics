@@ -33,9 +33,15 @@ public class ModelicaConnection {
       fromNode, connection.getFrom());
     String toPortName = SchematicUtil.getPortName(toNode, connection.getTo());
 
+    //writer.write(String.format(
+    //  "connect(%s.%s, %s.%s) ",
+    //  fromNodeName, fromPortName, toNodeName, toPortName));
+
+    // TODO: replace with above once we're no longer using electrical library
     writer.write(String.format(
-      "connect(%s.%s, %s.%s) ",
-      fromNodeName, fromPortName, toNodeName, toPortName));
+      "connect(%s.n, %s.p) ",
+      fromNodeName, toNodeName));
+
     writer.write(CONNECTION_ANNOTATION);
   }
 }

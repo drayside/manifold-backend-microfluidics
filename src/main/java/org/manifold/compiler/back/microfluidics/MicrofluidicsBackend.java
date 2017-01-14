@@ -226,7 +226,18 @@ public class MicrofluidicsBackend implements Backend {
 
     String filename = schematic.getName() + ".mo";
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-      writer.write(String.format("model %s", schematic.getName()));
+      writer.write("model Main");
+      writer.newLine();
+
+      // TODO: more systematic import management
+      writer.write("\timport Modelica.Constants.inf;");
+      writer.newLine();
+      writer.write("\timport Pi=Modelica.Constants.pi;");
+      writer.newLine();
+      writer.write("\timport Modelica.Constants.pi;");
+      writer.newLine();
+      writer.write("\timport Maplesoft.Constants.I;");
+      writer.newLine();
       writer.newLine();
 
       for (ModelicaComponent component : components) {
@@ -247,7 +258,7 @@ public class MicrofluidicsBackend implements Backend {
       writer.write(AnnotationGenerator.globalAnnotations());
       writer.newLine();
 
-      writer.write(String.format("end %s;", schematic.getName()));
+      writer.write("end Main;");
       writer.newLine();
     }
   }
