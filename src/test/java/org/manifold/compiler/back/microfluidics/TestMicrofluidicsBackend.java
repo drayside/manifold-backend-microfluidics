@@ -3,19 +3,24 @@ package org.manifold.compiler.back.microfluidics;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.middle.Schematic;
 
+import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class TestMicrofluidicsBackend {
   
   public static double viscosityOfWater = 0.001002; // Pa*s
+
+  private static final Logger log = LogManager.getRootLogger();
   
   @BeforeClass
   public static void setUpClass() {
@@ -52,12 +57,7 @@ public class TestMicrofluidicsBackend {
         entry.getPort("output"), exit.getPort("input"));
     schematic.addConnection("channel0", entryToExit);
     
-    MicrofluidicsBackend backend = new MicrofluidicsBackend();
-    Options options = new Options();
-    backend.registerArguments(options);
-    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
-    CommandLine cmd = parser.parse(options, args);
-    backend.invokeBackend(schematic, cmd);
+    acceptanceTest(schematic, args);
   }
   
   @Test
@@ -101,12 +101,87 @@ public class TestMicrofluidicsBackend {
         exit.getPort("input"));
     schematic.addConnection("channelE", junctionToExit);
     
+    acceptanceTest(schematic, args);
+  }
+
+  // A helper function that invokes the backend, makes an smt2 file,
+  // and compares it against a reference smt2 file in the acceptance folder.
+  private void acceptanceTest(Schematic schematic, String[] args)
+      throws Exception {
+
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     Options options = new Options();
     backend.registerArguments(options);
     CommandLineParser parser = new org.apache.commons.cli.BasicParser();
     CommandLine cmd = parser.parse(options, args);
     backend.invokeBackend(schematic, cmd);
+
+    // Backend puts its output smt2 files in the project root.
+    Path actualOutputPath = Paths.get(schematic.getName() + ".smt2");
+    Path expectedOutputPath = Paths.get(
+      "src/test/java/org/manifold/compiler/back/microfluidics/acceptance/" +
+      schematic.getName() + ".smt2");
+    Path errorPath = Paths.get(
+      "src/test/java/org/manifold/compiler/back/microfluidics/acceptance/" +
+      schematic.getName() + ".smt2.actual");
+
+    String expectedFileContents = null;
+    if (Files.exists(expectedOutputPath)) {
+      byte[] encoded = Files.readAllBytes(expectedOutputPath);
+      expectedFileContents = normalizeLineEndings(
+        new String(encoded, Charset.defaultCharset()));
+    }
+
+    String actualFileContents = null;
+    if (Files.exists(actualOutputPath)) {
+      byte[] encoded = Files.readAllBytes(actualOutputPath);
+      actualFileContents = normalizeLineEndings(
+        new String(encoded, Charset.defaultCharset()));
+    }
+
+    if (Files.exists(actualOutputPath)) {
+      Files.delete(actualOutputPath);
+    }
+
+    if (expectedFileContents != null) {
+      if (!expectedFileContents.equals(actualFileContents)) {
+        FileWriter fileWriter = new FileWriter(errorPath.toFile());
+        try {
+          fileWriter.write(actualFileContents);
+        } finally {
+          fileWriter.close();
+        }
+
+        String explanation = new StringBuilder()
+          .append("ERROR: This output does not match the expected output.\n")
+          .append("The new output has been saved as '")
+          .append(errorPath.getFileName())
+          .append("'.\n")
+          .append("If the changes are valid, regenerate it by deleting '")
+          .append(expectedOutputPath.getFileName())
+          .append("' and running tests again.\n")
+          .toString();
+
+        log.error(explanation);
+        throw new AssertionError(explanation);
+      }
+    } else {
+      log.warn("Generating new expected output: " + expectedOutputPath);
+      FileWriter fileWriter = new FileWriter(expectedOutputPath.toFile());
+      try {
+        fileWriter.write(actualFileContents);
+      } finally {
+        fileWriter.close();
+      }
+    }
+
+    if (Files.exists(errorPath)) {
+      Files.delete(errorPath);
+    }
+  }
+
+  private String normalizeLineEndings(String fileContents) {
+    return fileContents.replaceAll("\\r\\n?", "\n");
   }
   
   // TODO update test for new interface
