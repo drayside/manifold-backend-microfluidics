@@ -104,14 +104,14 @@ public class UtilSchematicConstruction {
     
     // channelPlacementConstraint(Connection channel, Real x, Real y)
     Map<String, TypeValue> cxtChanPlaceAttrs = new HashMap<>();
-    cxtChanPlaceAttrs.put("channel", ConnectionTypeValue.getInstance());
+    cxtChanPlaceAttrs.put("channel", RealTypeValue.getInstance());
     cxtChanPlaceAttrs.put("x", RealTypeValue.getInstance());
     cxtChanPlaceAttrs.put("y", RealTypeValue.getInstance());
     channelPlacementConstraintType = new ConstraintType(cxtChanPlaceAttrs);
     
     // channelDropletVolumeConstraint(Connection channel, Real volume)
     Map<String, TypeValue> cxtChanDropVolAttrs = new HashMap<>();
-    cxtChanDropVolAttrs.put("channel", ConnectionTypeValue.getInstance());
+    cxtChanDropVolAttrs.put("channel", RealTypeValue.getInstance());
     cxtChanDropVolAttrs.put("volume", RealTypeValue.getInstance());
     channelDropletVolumeConstraintType = 
         new ConstraintType(cxtChanDropVolAttrs);

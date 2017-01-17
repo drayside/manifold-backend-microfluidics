@@ -1,5 +1,6 @@
 package org.manifold.compiler.back.microfluidics;
 
+import com.google.gson.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -12,6 +13,10 @@ import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
 import org.manifold.compiler.middle.Schematic;
+import org.manifold.compiler.middle.serialization.SchematicSerializer;
+
+import java.io.FileWriter;
+import java.io.Writer;
 
 public class TestMicrofluidicsBackend {
   
@@ -51,13 +56,16 @@ public class TestMicrofluidicsBackend {
     ConnectionValue entryToExit = UtilSchematicConstruction.instantiateChannel(
         entry.getPort("output"), exit.getPort("input"));
     schematic.addConnection("channel0", entryToExit);
-    
+
+    writeSchematicJSON(schematic, "SimpleSynthesisSchematic.json");
+
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     Options options = new Options();
     backend.registerArguments(options);
     CommandLineParser parser = new org.apache.commons.cli.BasicParser();
     CommandLine cmd = parser.parse(options, args);
     backend.invokeBackend(schematic, cmd);
+
   }
   
   @Test
@@ -100,7 +108,9 @@ public class TestMicrofluidicsBackend {
         .instantiateChannel(junction.getPort("output"),
         exit.getPort("input"));
     schematic.addConnection("channelE", junctionToExit);
-    
+
+    writeSchematicJSON(schematic, "TJunctionSynthesisSchematic.json");
+
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     Options options = new Options();
     backend.registerArguments(options);
@@ -170,4 +180,21 @@ public class TestMicrofluidicsBackend {
     backend.invokeBackend(schematic, args); 
   }
   */
+
+  /**
+   * Given a manifold source file, returns schematic JSON.
+   * This a convenience function which returns a schematic JSON string.
+   */
+  protected final void writeSchematicJSON(Schematic schematic,
+                                          String pathName) throws Exception {
+    SchematicSerializer.serialize(schematic);
+
+    JsonObject schematicJson = SchematicSerializer.serialize(schematic);
+    try (Writer writer = new FileWriter(pathName)) {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      JsonParser jp = new JsonParser();
+      JsonElement je = jp.parse(schematicJson.toString());
+      gson.toJson(je, writer);
+    }
+  }
 }
