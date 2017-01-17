@@ -57,7 +57,7 @@ public class TestMicrofluidicsBackend {
         entry.getPort("output"), exit.getPort("input"));
     schematic.addConnection("channel0", entryToExit);
     
-    acceptanceTest(schematic, args);
+    runAcceptanceTest(schematic, args);
   }
   
   @Test
@@ -101,12 +101,10 @@ public class TestMicrofluidicsBackend {
         exit.getPort("input"));
     schematic.addConnection("channelE", junctionToExit);
     
-    acceptanceTest(schematic, args);
+    runAcceptanceTest(schematic, args);
   }
 
-  // A helper function that invokes the backend, makes an smt2 file,
-  // and compares it against a reference smt2 file in the acceptance folder.
-  private void acceptanceTest(Schematic schematic, String[] args)
+  private void runAcceptanceTest(Schematic schematic, String[] args)
       throws Exception {
 
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
@@ -116,14 +114,21 @@ public class TestMicrofluidicsBackend {
     CommandLine cmd = parser.parse(options, args);
     backend.invokeBackend(schematic, cmd);
 
-    // Backend puts its output smt2 files in the project root.
-    Path actualOutputPath = Paths.get(schematic.getName() + ".smt2");
+    verifyOutputFile(schematic.getName() + ".smt2");
+    verifyOutputFile(schematic.getName() + ".mo");
+  }
+
+  private void verifyOutputFile(String fileName)
+      throws Exception {
+
+    // Backend originally outputs its files at the project root.
+    Path actualOutputPath = Paths.get(fileName);
     Path expectedOutputPath = Paths.get(
       "src/test/java/org/manifold/compiler/back/microfluidics/acceptance/" +
-      schematic.getName() + ".smt2");
+      fileName);
     Path errorPath = Paths.get(
       "src/test/java/org/manifold/compiler/back/microfluidics/acceptance/" +
-      schematic.getName() + ".smt2.actual");
+      fileName + ".actual");
 
     String expectedFileContents = null;
     if (Files.exists(expectedOutputPath)) {
