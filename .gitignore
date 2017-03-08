@@ -29,3 +29,7 @@ nbproject/private/
 *.out
 /bin
 
+## Outputs not used in acceptance tests
+/*.mo
+/*.smt2
+
