@@ -1,0 +1,5 @@
+( set-logic QF_NRA )
+( declare-fun PI ( ) Real )
+( assert ( = PI 3.141592653589793 ) )
+( check-sat )
+( exit )

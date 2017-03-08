@@ -32,6 +32,66 @@ public class TestMicrofluidicsBackend {
     
     UtilSchematicConstruction.setupIntermediateTypes();
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOptionProcessParameters_FromCLI_MissingOptions()
+      throws Exception {
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    String[] args = {
+        "-bProcessMinimumNodeDistance", "0.0001",
+        "-bProcessMinimumChannelLength", "0.0001",
+        "-bProcessMaximumChipSizeX", "0.04",
+        "-bProcessMaximumChipSizeY", "0.04",
+        //"-bProcessCriticalCrossingAngle", "0.0872664626" // leave out
+    };
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("empty");
+
+    Options options = new Options();
+    backend.registerArguments(options);
+    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
+    CommandLine cmd = parser.parse(options, args);
+    backend.invokeBackend(schematic, cmd);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOptionProcessParameters_FromCLI_NotANumber()
+          throws Exception {
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    String[] args = {
+        "-bProcessMinimumNodeDistance", "foo",
+        "-bProcessMinimumChannelLength", "bar",
+        "-bProcessMaximumChipSizeX", "baz",
+        "-bProcessMaximumChipSizeY", "doge",
+        "-bProcessCriticalCrossingAngle", "wow"
+    };
+    Schematic schematic = UtilSchematicConstruction
+        .instantiateSchematic("empty");
+
+    Options options = new Options();
+    backend.registerArguments(options);
+    CommandLineParser parser = new org.apache.commons.cli.BasicParser();
+    CommandLine cmd = parser.parse(options, args);
+    backend.invokeBackend(schematic, cmd);
+  }
+
+  @Test
+  public void testInvokeBackend_EmptySchematic()
+      throws Exception {
+    MicrofluidicsBackend backend = new MicrofluidicsBackend();
+    String[] args = {
+        "-bProcessMinimumNodeDistance", "0.0001",
+        "-bProcessMinimumChannelLength", "0.0001",
+        "-bProcessMaximumChipSizeX", "0.04",
+        "-bProcessMaximumChipSizeY", "0.04",
+        // both single and double dash are correct
+        "--bProcessCriticalCrossingAngle", "0.0872664626"
+    };
+    Schematic schematic = UtilSchematicConstruction
+            .instantiateSchematic("empty");
+
+    runAcceptanceTest(schematic, args);
+  }
   
   @Test
   public void testSimpleSynthesis() throws Exception {
@@ -144,10 +204,6 @@ public class TestMicrofluidicsBackend {
         new String(encoded, Charset.defaultCharset()));
     }
 
-    if (Files.exists(actualOutputPath)) {
-      Files.delete(actualOutputPath);
-    }
-
     if (expectedFileContents != null) {
       if (!expectedFileContents.equals(actualFileContents)) {
         FileWriter fileWriter = new FileWriter(errorPath.toFile());
@@ -188,66 +244,5 @@ public class TestMicrofluidicsBackend {
   private String normalizeLineEndings(String fileContents) {
     return fileContents.replaceAll("\\r\\n?", "\n");
   }
-  
-  // TODO update test for new interface
-  /*
-  @Test
-  public void testOptionProcessParameters_FromCLI() 
-      throws ParseException, IOException {
-    MicrofluidicsBackend backend = new MicrofluidicsBackend();
-    String[] args = {
-      "-bProcessMinimumNodeDistance", "0.0001",
-      "-bProcessMinimumChannelLength", "0.0001",
-      "-bProcessMaximumChipSizeX", "0.04",
-      "-bProcessMaximumChipSizeY", "0.04",
-      // both single and double dash are correct
-      "--bProcessCriticalCrossingAngle", "0.0872664626"
-    };
-    backend.readArguments(args);
-  }
-  
-  @Test(expected = IllegalArgumentException.class)
-  public void testOptionProcessParameters_FromCLI_MissingOptions() 
-      throws ParseException, IOException {
-    MicrofluidicsBackend backend = new MicrofluidicsBackend();
-    String[] args = {
-      "-bProcessMinimumNodeDistance", "0.0001",
-      "-bProcessMinimumChannelLength", "0.0001",
-      "-bProcessMaximumChipSizeX", "0.04",
-      "-bProcessMaximumChipSizeY", "0.04",
-      //"-bProcessCriticalCrossingAngle", "0.0872664626" // leave out
-    };
-    backend.readArguments(args);
-  }
-  
-  @Test(expected = IllegalArgumentException.class)
-  public void testOptionProcessParameters_FromCLI_NotANumber() 
-      throws ParseException, IOException {
-    MicrofluidicsBackend backend = new MicrofluidicsBackend();
-    String[] args = {
-      "-bProcessMinimumNodeDistance", "foo",
-      "-bProcessMinimumChannelLength", "bar",
-      "-bProcessMaximumChipSizeX", "baz",
-      "-bProcessMaximumChipSizeY", "doge",
-      "-bProcessCriticalCrossingAngle", "wow"
-    };
-    backend.readArguments(args);
-  }
-  
-  @Test
-  public void testInvokeBackend_EmptySchematic() 
-      throws Exception {
-    MicrofluidicsBackend backend = new MicrofluidicsBackend();
-    String[] args = {
-      "-bProcessMinimumNodeDistance", "0.0001",
-      "-bProcessMinimumChannelLength", "0.0001",
-      "-bProcessMaximumChipSizeX", "0.04",
-      "-bProcessMaximumChipSizeY", "0.04",
-      "-bProcessCriticalCrossingAngle", "0.0872664626"
-    };
-    Schematic schematic = UtilSchematicConstruction
-        .instantiateSchematic("test");
-    backend.invokeBackend(schematic, args); 
-  }
-  */
+
 }
