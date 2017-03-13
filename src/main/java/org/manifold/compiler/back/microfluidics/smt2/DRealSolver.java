@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class DRealSolver implements AutoCloseable {
 
-  class RealRange {
+  public class RealRange {
     public final double lowerBound;
     public final double upperBound;
     
@@ -25,7 +25,7 @@ public class DRealSolver implements AutoCloseable {
     }
   }
   
-  class Result {
+  public class Result {
     private final boolean satisfiable;
     public boolean isSatisfiable() {
       return this.satisfiable;
@@ -89,6 +89,7 @@ public class DRealSolver implements AutoCloseable {
     command.add(pathToDReal);
     command.add("--in");
     command.add("--model");
+    command.add("--suppress-warning");
     ProcessBuilder builder = new ProcessBuilder(command);
     builder.redirectErrorStream(true);
     dRealProcess = builder.start();
@@ -100,8 +101,6 @@ public class DRealSolver implements AutoCloseable {
     InputStream is = dRealProcess.getInputStream();
     InputStreamReader isr = new InputStreamReader(is);
     reader = new BufferedReader(isr);
-    
-    write("(set-logic QF_NRA)");
   }
   
   public void write(String data) throws IOException {
@@ -157,8 +156,6 @@ public class DRealSolver implements AutoCloseable {
   }
   
   public Result solve() throws IOException {
-    write("(check-sat)");
-    write("(exit)");
     writer.flush();
     writer.close();
     String result = reader.readLine();

@@ -24,9 +24,12 @@ public class TestDRealSolver {
   public void testResultUnsat() throws IOException {
     try (DRealSolver dReal = new DRealSolver()) {
       dReal.open();
+      dReal.write("(set-logic QF_NRA)");
       dReal.write("(declare-fun x () Real)");
       dReal.write("(assert (= x 1.0))");
       dReal.write("(assert (= x 2.0))");
+      dReal.write("(check-sat)");
+      dReal.write("(exit)");
       DRealSolver.Result res = dReal.solve();
       assertFalse(res.isSatisfiable());
     } catch (IllegalStateException e) {
@@ -38,8 +41,11 @@ public class TestDRealSolver {
   public void testResultSat() throws IOException {
     try (DRealSolver dReal = new DRealSolver()) {
       dReal.open();
+      dReal.write("(set-logic QF_NRA)");
       dReal.write("(declare-fun x () Real)");
       dReal.write("(assert (= x 1.0))");
+      dReal.write("(check-sat)");
+      dReal.write("(exit)");
       DRealSolver.Result res = dReal.solve();
       assertTrue(res.isSatisfiable());
     } catch (IllegalStateException e) {
@@ -51,8 +57,11 @@ public class TestDRealSolver {
   public void testResultRange() throws IOException {
     try (DRealSolver dReal = new DRealSolver()) {
       dReal.open();
+      dReal.write("(set-logic QF_NRA)");
       dReal.write("(declare-fun x () Real)");
       dReal.write("(assert (= x 1.0))");
+      dReal.write("(check-sat)");
+      dReal.write("(exit)");
       DRealSolver.Result res = dReal.solve();
       assertTrue(res.isSatisfiable());
       // now actually get the range of x

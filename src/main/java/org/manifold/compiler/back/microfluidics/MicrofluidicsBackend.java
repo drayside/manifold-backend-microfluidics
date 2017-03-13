@@ -14,12 +14,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
 import org.manifold.compiler.back.microfluidics.modelica.*;
-import org.manifold.compiler.back.microfluidics.smt2.Decimal;
-import org.manifold.compiler.back.microfluidics.smt2.ParenList;
-import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
-import org.manifold.compiler.back.microfluidics.smt2.SExpression;
-import org.manifold.compiler.back.microfluidics.smt2.Symbol;
-import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
+import org.manifold.compiler.back.microfluidics.smt2.*;
 import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
@@ -166,11 +161,35 @@ public class MicrofluidicsBackend implements Backend {
   public void run(Schematic schematic) throws IOException {
     primitiveTypes = constructTypeTable(schematic);
 
-    generateDReal(schematic);
+    List<SExpression> smtExprs = generateSMT2(schematic);
+
+    DRealSolver dReal;
+    try {
+      dReal = new DRealSolver();
+    } catch (IllegalStateException e) {
+      err("dReal executable not found on this computer. " +
+          "Make sure dReal is in your system path.\n" + 
+          "Aborting.");
+      return;
+    }
+
+    dReal.open();
+    for (SExpression expr : smtExprs) {
+      dReal.write(expr);
+    }
+
+    DRealSolver.Result res = dReal.solve();
+    if (!res.isSatisfiable()) {
+      log.error("dReal has determined that this system is unsatisfiable.");
+      log.error("Aborting.");
+      return;
+    }
+
     generateModelica(schematic);
   }
 
-  public void generateDReal(Schematic schematic) throws IOException {
+  public List<SExpression> generateSMT2(Schematic schematic)
+      throws IOException {
     // translation step
     // for now: one pass
     List<SExpression> exprs = new LinkedList<>();
@@ -204,6 +223,7 @@ public class MicrofluidicsBackend implements Backend {
     exprs.add(new ParenList(new SExpression[] {
       new Symbol("exit")
     }));
+
     // write to "schematic-name.smt2"
     String filename = schematic.getName() + ".smt2";
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
@@ -212,6 +232,8 @@ public class MicrofluidicsBackend implements Backend {
         writer.newLine();
       }
     }
+
+    return exprs;
   }
 
   public void generateModelica(Schematic schematic) throws IOException {
