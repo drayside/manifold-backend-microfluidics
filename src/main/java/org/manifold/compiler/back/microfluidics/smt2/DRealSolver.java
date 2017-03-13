@@ -89,6 +89,7 @@ public class DRealSolver implements AutoCloseable {
     command.add(pathToDReal);
     command.add("--in");
     command.add("--model");
+    command.add("--suppress-warning");
     ProcessBuilder builder = new ProcessBuilder(command);
     builder.redirectErrorStream(true);
     dRealProcess = builder.start();
