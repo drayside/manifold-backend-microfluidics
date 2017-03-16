@@ -38,11 +38,11 @@ public class TestMicrofluidicsBackend {
       throws Exception {
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     String[] args = {
-        "-bProcessMinimumNodeDistance", "0.0001",
-        "-bProcessMinimumChannelLength", "0.0001",
-        "-bProcessMaximumChipSizeX", "0.04",
-        "-bProcessMaximumChipSizeY", "0.04",
-        //"-bProcessCriticalCrossingAngle", "0.0872664626" // leave out
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      //"-bProcessCriticalCrossingAngle", "0.0872664626" // leave out
     };
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("empty");
@@ -56,14 +56,14 @@ public class TestMicrofluidicsBackend {
 
   @Test(expected = IllegalArgumentException.class)
   public void testOptionProcessParameters_FromCLI_NotANumber()
-          throws Exception {
+      throws Exception {
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     String[] args = {
-        "-bProcessMinimumNodeDistance", "foo",
-        "-bProcessMinimumChannelLength", "bar",
-        "-bProcessMaximumChipSizeX", "baz",
-        "-bProcessMaximumChipSizeY", "doge",
-        "-bProcessCriticalCrossingAngle", "wow"
+      "-bProcessMinimumNodeDistance", "foo",
+      "-bProcessMinimumChannelLength", "bar",
+      "-bProcessMaximumChipSizeX", "baz",
+      "-bProcessMaximumChipSizeY", "doge",
+      "-bProcessCriticalCrossingAngle", "wow"
     };
     Schematic schematic = UtilSchematicConstruction
         .instantiateSchematic("empty");
@@ -80,12 +80,12 @@ public class TestMicrofluidicsBackend {
       throws Exception {
     MicrofluidicsBackend backend = new MicrofluidicsBackend();
     String[] args = {
-        "-bProcessMinimumNodeDistance", "0.0001",
-        "-bProcessMinimumChannelLength", "0.0001",
-        "-bProcessMaximumChipSizeX", "0.04",
-        "-bProcessMaximumChipSizeY", "0.04",
-        // both single and double dash are correct
-        "--bProcessCriticalCrossingAngle", "0.0872664626"
+      "-bProcessMinimumNodeDistance", "0.0001",
+      "-bProcessMinimumChannelLength", "0.0001",
+      "-bProcessMaximumChipSizeX", "0.04",
+      "-bProcessMaximumChipSizeY", "0.04",
+      // both single and double dash are correct
+      "--bProcessCriticalCrossingAngle", "0.0872664626"
     };
     Schematic schematic = UtilSchematicConstruction
             .instantiateSchematic("empty");
