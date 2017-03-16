@@ -14,6 +14,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.manifold.compiler.Backend;
 import org.manifold.compiler.back.microfluidics.modelica.*;
+import org.manifold.compiler.back.microfluidics.modelica.maple.OpenMapleExecutor;
 import org.manifold.compiler.back.microfluidics.smt2.*;
 import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
@@ -184,8 +185,9 @@ public class MicrofluidicsBackend implements Backend {
       log.error("Aborting.");
       return;
     }
-
-    generateModelica(schematic);
+    String fileName = schematic.getName();
+    generateModelica(schematic, fileName);
+    runSimulation(fileName);
   }
 
   public List<SExpression> generateSMT2(Schematic schematic)
@@ -236,7 +238,8 @@ public class MicrofluidicsBackend implements Backend {
     return exprs;
   }
 
-  public void generateModelica(Schematic schematic) throws IOException {
+  public void generateModelica(Schematic schematic,
+                               String fileName) throws IOException {
 
     ComponentGenerator componentGenerator = new ComponentGenerator();
     List<ModelicaComponent> components =
@@ -246,8 +249,8 @@ public class MicrofluidicsBackend implements Backend {
     List<ModelicaConnection> connections =
       connectionGenerator.connectionList(schematic);
 
-    String filename = schematic.getName() + ".mo";
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+    try (BufferedWriter writer = new BufferedWriter(
+            new FileWriter(fileName + ".mo"))) {
       writer.write("model Main");
       writer.newLine();
 
@@ -284,5 +287,23 @@ public class MicrofluidicsBackend implements Backend {
       writer.newLine();
     }
   }
-  
+  public void runSimulation(String fileName) {
+    OpenMapleExecutor executor = new OpenMapleExecutor();
+    try {
+      executor.writeLine(String.format(
+        "MapleSim:-CreateModel(\"%s.mo\", 'output' = %s.msim);"
+        , fileName, fileName));
+      executor.execute();
+
+      //TODO: Automate simulation as part of CEGAR loop
+      /*
+      executor.writeLine(
+        String.format("m:=MapleSim:-LinkModel('filename'=%s.msim);",fileName));
+      executor.writeLine("m:-Simulate(SET PARAMS);");
+      executor.execute();
+      */
+    } catch (RuntimeException e) {
+      System.err.println(e.toString());
+    }
+  }
 }
