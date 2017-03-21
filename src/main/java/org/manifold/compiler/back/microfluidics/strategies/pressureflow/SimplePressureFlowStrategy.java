@@ -6,10 +6,7 @@ import java.util.List;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
-import org.manifold.compiler.back.microfluidics.smt2.QFNRA;
-import org.manifold.compiler.back.microfluidics.smt2.SExpression;
-import org.manifold.compiler.back.microfluidics.smt2.Symbol;
-import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
+import org.manifold.compiler.back.microfluidics.smt2.*;
 import org.manifold.compiler.middle.Schematic;
 
 public class SimplePressureFlowStrategy extends PressureFlowStrategy {
@@ -47,6 +44,10 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     
     exprs.add(QFNRA.assertEqual(QFNRA.subtract(p1, p2),
         QFNRA.multiply(chV, chR)));
+
+    // Set lenient bounds on flowRate to make sure it is not infinity
+    exprs.add(QFNRA.assertGreaterEqual(chV, new Decimal(-1000.0)));
+    exprs.add(QFNRA.assertLessThanEqual(chV, new Decimal(1000.0)));
     
     if (performWorstCaseAnalysis) {
       // now declare a "worst case" flow rate, i.e. with maximum # of droplets

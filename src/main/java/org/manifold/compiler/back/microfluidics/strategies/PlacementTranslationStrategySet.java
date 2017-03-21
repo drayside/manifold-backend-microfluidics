@@ -7,15 +7,7 @@ import org.manifold.compiler.back.microfluidics.PrimitiveTypeTable;
 import org.manifold.compiler.back.microfluidics.ProcessParameters;
 import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
-import org.manifold.compiler.back.microfluidics.strategies.placement.ChannelPlacementConstraintStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.ChipAreaRuleStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.ControlPointPlacementConstraintStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.CosineLawCriticalAngleStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.CriticalAngleStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.FiniteChipAreaRuleStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.LengthRuleStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.MinimumChannelLengthStrategy;
-import org.manifold.compiler.back.microfluidics.strategies.placement.PythagoreanLengthRuleStrategy;
+import org.manifold.compiler.back.microfluidics.strategies.placement.*;
 import org.manifold.compiler.middle.Schematic;
 
 public class PlacementTranslationStrategySet extends TranslationStrategy {
@@ -30,7 +22,7 @@ public class PlacementTranslationStrategySet extends TranslationStrategy {
   private ControlPointPlacementConstraintStrategy controlPointPlacementStrategy;
   private CriticalAngleStrategy criticalAngleStrategy;
   private LengthRuleStrategy lengthRuleStrategy;
-  private MinimumChannelLengthStrategy minimumChannelLengthStrategy;
+  private ChannelLengthStrategy channelLengthStrategy;
   
   public void useChannelPlacementStrategy(
       ChannelPlacementConstraintStrategy cps) {
@@ -60,8 +52,8 @@ public class PlacementTranslationStrategySet extends TranslationStrategy {
   }
   
   public void useMinimumChannelLengthStrategy(
-      MinimumChannelLengthStrategy mls) {
-    this.minimumChannelLengthStrategy = mls;
+      ChannelLengthStrategy mls) {
+    this.channelLengthStrategy = mls;
   }
   
   public PlacementTranslationStrategySet() {
@@ -72,7 +64,7 @@ public class PlacementTranslationStrategySet extends TranslationStrategy {
         new ControlPointPlacementConstraintStrategy();
     criticalAngleStrategy = new CosineLawCriticalAngleStrategy();
     lengthRuleStrategy = new PythagoreanLengthRuleStrategy();
-    minimumChannelLengthStrategy = new MinimumChannelLengthStrategy();
+    channelLengthStrategy = new ChannelLengthStrategy();
   }
   
   @Override
@@ -90,7 +82,7 @@ public class PlacementTranslationStrategySet extends TranslationStrategy {
         schematic, processParams, typeTable));
     exprs.addAll(lengthRuleStrategy.translate(
         schematic, processParams, typeTable));
-    exprs.addAll(minimumChannelLengthStrategy.translate(
+    exprs.addAll(channelLengthStrategy.translate(
         schematic, processParams, typeTable));
     return exprs;
   }

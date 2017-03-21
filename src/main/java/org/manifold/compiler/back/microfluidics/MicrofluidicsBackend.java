@@ -168,8 +168,7 @@ public class MicrofluidicsBackend implements Backend {
       dReal = new DRealSolver();
     } catch (IllegalStateException e) {
       err("dReal executable not found on this computer. " +
-          "Make sure dReal is in your system path.\n" + 
-          "Aborting.");
+          "Make sure dReal is in your system path.");
       return;
     }
 

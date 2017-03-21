@@ -17,10 +17,10 @@ import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 import org.manifold.compiler.middle.SchematicException;
 
-public class TestMinimumChannelLengthStrategy {
+public class TestChannelLengthStrategy {
   @Test
   public void testViolation_ZeroLength() throws SchematicException {
- // create this schematic:
+    // create this schematic:
     // (n1) --- (n2)
     Schematic sch = UtilSchematicConstruction.instantiateSchematic("test");
     NodeValue n1 = UtilSchematicConstruction.instantiatePressureControlPoint(
@@ -36,14 +36,43 @@ public class TestMinimumChannelLengthStrategy {
     ProcessParameters params = ProcessParameters.loadTestData();
     PrimitiveTypeTable typeTable = MicrofluidicsBackend.constructTypeTable(sch);
     
-    MinimumChannelLengthStrategy strat = new MinimumChannelLengthStrategy();
+    ChannelLengthStrategy strat = new ChannelLengthStrategy();
     List<SExpression> exprs = strat.translationStep(sch, params, typeTable);
     
     AssertionChecker check = new AssertionChecker();
     check.addBinding(SymbolNameGenerator.getsym_ChannelLength(sch, ch0), 0.0);
     
     if (check.verify(exprs)) {
-      fail("failed to detect rule violation");
+      fail("Failed to detect rule violation for minimum length.");
+    }
+  }
+
+  @Test
+  public void testViolation_ExcessLength() throws SchematicException {
+    // create this schematic:
+    // (n1) --- (n2)
+    Schematic sch = UtilSchematicConstruction.instantiateSchematic("test");
+    NodeValue n1 = UtilSchematicConstruction.instantiatePressureControlPoint(
+      sch, 1);
+    sch.addNode("n1", n1);
+    NodeValue n2 = UtilSchematicConstruction.instantiatePressureControlPoint(
+      sch, 1);
+    sch.addNode("n2", n2);
+    ConnectionValue ch0 = UtilSchematicConstruction.instantiateChannel(
+      n1.getPort("channel0"), n2.getPort("channel0"));
+    sch.addConnection("ch0", ch0);
+
+    ProcessParameters params = ProcessParameters.loadTestData();
+    PrimitiveTypeTable typeTable = MicrofluidicsBackend.constructTypeTable(sch);
+
+    ChannelLengthStrategy strat = new ChannelLengthStrategy();
+    List<SExpression> exprs = strat.translationStep(sch, params, typeTable);
+
+    AssertionChecker check = new AssertionChecker();
+    check.addBinding(SymbolNameGenerator.getsym_ChannelLength(sch, ch0), 100.0);
+
+    if (check.verify(exprs)) {
+      fail("Failed to detect rule violation for maximum length.");
     }
   }
 }
