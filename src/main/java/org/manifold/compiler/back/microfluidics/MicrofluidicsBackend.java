@@ -168,8 +168,7 @@ public class MicrofluidicsBackend implements Backend {
       dReal = new DRealSolver();
     } catch (IllegalStateException e) {
       err("dReal executable not found on this computer. " +
-          "Make sure dReal is in your system path.\n" + 
-          "Aborting.");
+          "Make sure dReal is in your system path.");
       return;
     }
 
@@ -178,12 +177,14 @@ public class MicrofluidicsBackend implements Backend {
       dReal.write(expr);
     }
 
-    DRealSolver.Result res = dReal.solve();
-    if (!res.isSatisfiable()) {
+    DRealSolver.Result result = dReal.solve();
+    if (!result.isSatisfiable()) {
       log.error("dReal has determined that this system is unsatisfiable.");
       log.error("Aborting.");
       return;
     }
+
+    InferredAttributeFiller.populateFromDrealResults(schematic, result);
 
     generateModelica(schematic);
   }

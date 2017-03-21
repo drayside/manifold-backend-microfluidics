@@ -1,5 +1,7 @@
 package org.manifold.compiler.back.microfluidics.smt2;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +36,9 @@ public class DRealSolver implements AutoCloseable {
     private Map<Symbol, RealRange> ranges;
     public RealRange getRange(Symbol sym) {
       return ranges.get(sym);
+    }
+    public Map<Symbol, RealRange> getRanges() {
+      return ImmutableMap.copyOf(ranges);
     }
     public void addResult(String symbolName, 
         String lowerBound, String upperBound) {
