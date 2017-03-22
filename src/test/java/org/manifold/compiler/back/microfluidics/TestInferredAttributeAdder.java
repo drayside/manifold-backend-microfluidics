@@ -11,7 +11,7 @@ import org.manifold.compiler.middle.Schematic;
 
 import static org.manifold.compiler.back.microfluidics.TestMicrofluidicsBackend.viscosityOfWater;
 
-public class TestInferredAttributeFiller {
+public class TestInferredAttributeAdder {
 
   @BeforeClass
   public static void setupClass() {
@@ -35,13 +35,13 @@ public class TestInferredAttributeFiller {
 
     // Fake dReal result with fake ranges.
     DRealSolver.Result drealResult = new DRealSolver().new Result(true);
-    drealResult.addResult("channel0_flowrate", "-0.5", "0.5");
-    drealResult.addResult("channel0_viscosity", "0.3", "0.6");
-    drealResult.addResult("in0_pos_x", "0.0", "0.04");
-    drealResult.addResult("out0_input_pressure", "10000", "20000");
+    drealResult.addResult("channel0.flowrate", "-0.5", "0.5");
+    drealResult.addResult("channel0.viscosity", "0.3", "0.6");
+    drealResult.addResult("in0.pos_x", "0.0", "0.04");
+    drealResult.addResult("out0.input.pressure", "10000", "20000");
 
-    InferredAttributeFiller attributeFiller = new InferredAttributeFiller();
-    attributeFiller.populateFromDrealResults(schematic, drealResult);
+    schematic = InferredAttributeAdder.populateFromDrealResults(
+      schematic, drealResult);
 
     double flowRate = Double.parseDouble(schematic.getConnection("channel0")
       .getAttribute("flowrate").toString());

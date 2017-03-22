@@ -19,6 +19,7 @@ import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
 import org.manifold.compiler.middle.Schematic;
+import org.manifold.compiler.middle.SchematicException;
 
 public class MicrofluidicsBackend implements Backend {
 
@@ -158,7 +159,7 @@ public class MicrofluidicsBackend implements Backend {
     return retval;
   }
   
-  public void run(Schematic schematic) throws IOException {
+  public void run(Schematic schematic) throws IOException, SchematicException {
     primitiveTypes = constructTypeTable(schematic);
 
     List<SExpression> smtExprs = generateSMT2(schematic);
@@ -184,9 +185,10 @@ public class MicrofluidicsBackend implements Backend {
       return;
     }
 
-    InferredAttributeFiller.populateFromDrealResults(schematic, result);
+    Schematic annotatedSchematic = InferredAttributeAdder
+      .populateFromDrealResults(schematic, result);
 
-    generateModelica(schematic);
+    generateModelica(annotatedSchematic);
   }
 
   public List<SExpression> generateSMT2(Schematic schematic)

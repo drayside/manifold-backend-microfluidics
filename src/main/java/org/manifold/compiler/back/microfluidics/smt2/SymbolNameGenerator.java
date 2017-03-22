@@ -208,41 +208,4 @@ public class SymbolNameGenerator {
     String jName = schematic.getNodeName(junc);
     return new Symbol(jName.concat(".epsilon"));
   }
-
-  /**
-   *  The inverse of the getSym_* family of functions.
-   *  Given a symbol and schematic, find the Value (node, port, connection)
-   *  that the symbol is meant to reference.
-   *  Returns null if no suitable match is found
-   */
-  public static Value getSchematicSymbolLocation(Symbol symbol, Schematic schematic) {
-    String[] splitSymbol = symbol.toString().split("\\.");
-
-    if (splitSymbol.length == 2) {
-      try {
-        NodeValue node = schematic.getNode(splitSymbol[0]);
-        return node;
-      } catch (UndeclaredIdentifierException e) {}
-
-      try {
-        ConnectionValue connection = schematic.getConnection(splitSymbol[0]);
-        return connection;
-      } catch (UndeclaredIdentifierException e) {}
-
-      return null;
-
-    } else if (splitSymbol.length == 3) {
-      // A node.port.property combination.
-      try {
-        NodeValue node = schematic.getNode(splitSymbol[0]);
-        PortValue port = node.getPort(splitSymbol[1]);
-        return port;
-      } catch (UndeclaredIdentifierException e) {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-  
 }
