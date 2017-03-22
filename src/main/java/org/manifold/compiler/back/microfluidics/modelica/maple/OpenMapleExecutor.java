@@ -25,13 +25,15 @@ public class OpenMapleExecutor {
     sb.append('\n');
   }
 
-  public void execute() throws RuntimeException {
+  public Algebraic execute() throws RuntimeException {
+    Algebraic result;
     try {
-      mapleEngine.evaluate(sb.toString());
+      result = mapleEngine.evaluate(sb.toString());
       sb.setLength(0);
     } catch (MapleException e) {
       System.err.println(e.toString());
       throw new RuntimeException(e);
     }
+    return result;
   }
 }
