@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class InferredAttributeAdder {
 
-  private enum ComponentType {INVALID, NODE, CONNECTION, PORT, CONSTRAINT};
+  private enum ComponentType { INVALID, NODE, CONNECTION, PORT, CONSTRAINT };
 
   public static Schematic populateFromDrealResults(Schematic schematic,
     DRealSolver.Result drealResult) throws SchematicException {
@@ -43,27 +43,27 @@ public class InferredAttributeAdder {
       String attributeName = splitSymbol[splitSymbol.length - 1];
 
       switch (componentType) {
-        case NODE:
-          String nodeName = splitSymbol[0];
-          annotationBuilder.annotateNodeAttribute(nodeName, attributeName,
-            new RealValue(attributeValue));
-          break;
-        case CONNECTION:
-          String connectionName = splitSymbol[0];
-          annotationBuilder.annotateConnectionAttribute(connectionName,
-            attributeName, new RealValue(attributeValue));
-          break;
-        case PORT:
-          nodeName = splitSymbol[0];
-          String portName = splitSymbol[1];
-          annotationBuilder.annotatePortAttribute(nodeName, portName,
-            attributeName, new RealValue(attributeValue));
-          break;
-        case CONSTRAINT:
-          String constraintName = splitSymbol[0];
-          annotationBuilder.annotateConstraintAttribute(constraintName,
-            attributeName, new RealValue(attributeValue));
-          break;
+          case NODE:
+            String nodeName = splitSymbol[0];
+            annotationBuilder.annotateNodeAttribute(nodeName, attributeName,
+              new RealValue(attributeValue));
+            break;
+          case CONNECTION:
+            String connectionName = splitSymbol[0];
+            annotationBuilder.annotateConnectionAttribute(connectionName,
+              attributeName, new RealValue(attributeValue));
+            break;
+          case PORT:
+            nodeName = splitSymbol[0];
+            String portName = splitSymbol[1];
+            annotationBuilder.annotatePortAttribute(nodeName, portName,
+              attributeName, new RealValue(attributeValue));
+            break;
+          case CONSTRAINT:
+            String constraintName = splitSymbol[0];
+            annotationBuilder.annotateConstraintAttribute(constraintName,
+              attributeName, new RealValue(attributeValue));
+            break;
       }
     }
 
@@ -78,17 +78,17 @@ public class InferredAttributeAdder {
       try {
         NodeValue node = schematic.getNode(componentName);
         return ComponentType.NODE;
-      } catch (UndeclaredIdentifierException e) {}
+      } catch (UndeclaredIdentifierException e) { }
 
       try {
         ConnectionValue connection = schematic.getConnection(componentName);
         return ComponentType.CONNECTION;
-      } catch (UndeclaredIdentifierException e) {}
+      } catch (UndeclaredIdentifierException e) { }
 
       try {
         ConstraintValue constraint = schematic.getConstraint(componentName);
         return ComponentType.CONSTRAINT;
-      } catch (UndeclaredIdentifierException e) {}
+      } catch (UndeclaredIdentifierException e) { }
 
       return ComponentType.INVALID;
 

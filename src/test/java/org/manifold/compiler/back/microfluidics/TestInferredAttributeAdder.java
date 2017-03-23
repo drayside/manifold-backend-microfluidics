@@ -34,7 +34,7 @@ public class TestInferredAttributeAdder {
     schematic.addConnection("channel0", entryToExit);
 
     // Fake dReal result with fake ranges.
-    DRealSolver.Result drealResult = new DRealSolver().new Result(true);
+    DRealSolver.Result drealResult = new DRealSolver.Result(true);
     drealResult.addResult("channel0.flowrate", "-0.5", "0.5");
     drealResult.addResult("channel0.viscosity", "0.3", "0.6");
     drealResult.addResult("in0.pos_x", "0.0", "0.04");
