@@ -5,7 +5,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
+import org.manifold.compiler.InferredValue;
 import org.manifold.compiler.NodeValue;
+import org.manifold.compiler.Value;
 import org.manifold.compiler.back.microfluidics.smt2.DRealSolver;
 import org.manifold.compiler.middle.Schematic;
 
@@ -43,20 +45,27 @@ public class TestInferredAttributeAdder {
     schematic = InferredAttributeAdder.populateFromDrealResults(
       schematic, drealResult);
 
-    double flowRate = Double.parseDouble(schematic.getConnection("channel0")
-      .getAttribute("flowrate").toString());
+    // TODO: We may want convenience methods for unwrapping InferValues. Most
+    //       notably, a method that will delegate to the underlying value if
+    //       it is assigned
+    Value flowRateValue = ((InferredValue) schematic.getConnection("channel0")
+            .getAttribute("flowrate")).get();
+    double flowRate = Double.parseDouble(flowRateValue.toString());
     Assert.assertTrue(flowRate >= -0.5 || flowRate <= 0.5);
 
-    double viscosity = Double.parseDouble(schematic.getConnection("channel0")
-      .getAttribute("viscosity").toString());
+    Value viscosityValue = ((InferredValue) schematic.getConnection("channel0")
+            .getAttribute("viscosity")).get();
+    double viscosity = Double.parseDouble(viscosityValue.toString());
     Assert.assertTrue(viscosity >= 0.3 && viscosity <= 0.6);
 
-    double posX = Double.parseDouble(schematic.getNode("in0")
-      .getAttribute("pos_x").toString());
+    Value posXValue = ((InferredValue) schematic.getNode("in0")
+            .getAttribute("pos_x")).get();
+    double posX = Double.parseDouble(posXValue.toString());
     Assert.assertTrue(posX >= 0 && posX <= 0.04);
 
-    double pressure = Double.parseDouble(schematic.getNode("out0")
-      .getPort("input").getAttribute("pressure").toString());
+    Value pressureValue = ((InferredValue) schematic.getNode("out0")
+            .getPort("input").getAttribute("pressure")).get();
+    double pressure = Double.parseDouble(pressureValue.toString());
     Assert.assertTrue(pressure >= 10000 && pressure <= 20000);
   }
 

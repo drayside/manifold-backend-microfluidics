@@ -14,6 +14,17 @@ public class InferredAttributeAdder {
 
   private enum ComponentType { INVALID, NODE, CONNECTION, PORT, CONSTRAINT };
 
+  private static InferredValue constructInferredRealValue(double val) {
+    InferredTypeValue inferredRealType =
+            new InferredTypeValue(RealTypeValue.getInstance());
+    InferredValue inferredReal = null;
+    try {
+      inferredReal = new InferredValue(inferredRealType, new RealValue(val));
+    } catch (TypeMismatchException e) { }
+
+    return inferredReal;
+  }
+
   public static Schematic populateFromDrealResults(Schematic schematic,
     DRealSolver.Result drealResult) throws SchematicException {
 
@@ -46,23 +57,23 @@ public class InferredAttributeAdder {
           case NODE:
             String nodeName = splitSymbol[0];
             annotationBuilder.annotateNodeAttribute(nodeName, attributeName,
-              new RealValue(attributeValue));
+              constructInferredRealValue(attributeValue));
             break;
           case CONNECTION:
             String connectionName = splitSymbol[0];
             annotationBuilder.annotateConnectionAttribute(connectionName,
-              attributeName, new RealValue(attributeValue));
+              attributeName, constructInferredRealValue(attributeValue));
             break;
           case PORT:
             nodeName = splitSymbol[0];
             String portName = splitSymbol[1];
             annotationBuilder.annotatePortAttribute(nodeName, portName,
-              attributeName, new RealValue(attributeValue));
+              attributeName, constructInferredRealValue(attributeValue));
             break;
           case CONSTRAINT:
             String constraintName = splitSymbol[0];
             annotationBuilder.annotateConstraintAttribute(constraintName,
-              attributeName, new RealValue(attributeValue));
+              attributeName, constructInferredRealValue(attributeValue));
             break;
       }
     }
