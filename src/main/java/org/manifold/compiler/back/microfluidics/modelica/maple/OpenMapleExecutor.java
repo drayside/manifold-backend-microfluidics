@@ -4,7 +4,7 @@ import com.maplesoft.openmaple.*;
 import com.maplesoft.externalcall.MapleException;
 
 public class OpenMapleExecutor {
-  static private Engine mapleEngine;
+  private static Engine mapleEngine;
   private StringBuilder sb;
 
   static {
