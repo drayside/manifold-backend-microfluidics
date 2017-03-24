@@ -4,10 +4,10 @@ import com.maplesoft.openmaple.*;
 import com.maplesoft.externalcall.MapleException;
 
 public class OpenMapleExecutor {
-  private Engine mapleEngine;
+  static private Engine mapleEngine;
   private StringBuilder sb;
 
-  public OpenMapleExecutor() throws RuntimeException {
+  static {
     String a[];
     a = new String[1];
     a[0] = "java";
@@ -17,6 +17,9 @@ public class OpenMapleExecutor {
       System.err.println(e.toString());
       throw new RuntimeException(e);
     }
+  }
+
+  public OpenMapleExecutor() throws RuntimeException {
     sb = new StringBuilder();
   }
 
