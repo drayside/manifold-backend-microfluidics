@@ -10,20 +10,22 @@ import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.middle.Schematic;
 
 
+// TODO: Only used by TJunctionDeviceStrategy. This should be moved there. MP
 public class Macros {
-  
+
   // generate an expression that describes the constraint
   // "total flow in = total flow out"
   // this is difficult because the actual flow direction may be backwards
   // with respect to the expected direction
   public static List<SExpression> generateConservationOfFlow(
-      Schematic schematic, List<PortValue> connectedPorts) {
+      Schematic schematic, List<PortValue> connectedPorts,
+      boolean performWorstCaseAnalysis) {
     List<SExpression> flowRatesIn = new LinkedList<SExpression>();
     List<SExpression> flowRatesOut = new LinkedList<SExpression>();
-    
+
     List<SExpression> flowRatesInWorstCase = new LinkedList<SExpression>();
     List<SExpression> flowRatesOutWorstCase = new LinkedList<SExpression>();
-    
+
     for (PortValue port : connectedPorts) {
       ConnectionValue channel = SchematicUtil.getConnection(schematic, port);
       boolean connectedIntoJunction;
@@ -54,8 +56,10 @@ public class Macros {
     List<SExpression> exprs = new LinkedList<>();
     exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn),
         QFNRA.add(flowRatesOut)));
-    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesInWorstCase),
+    if (performWorstCaseAnalysis){
+      exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesInWorstCase),
         QFNRA.add(flowRatesOutWorstCase)));
+    }
     return exprs;
   }
   
