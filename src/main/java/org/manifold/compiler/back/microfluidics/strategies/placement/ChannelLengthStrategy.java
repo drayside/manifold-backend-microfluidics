@@ -14,7 +14,7 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
-// Enforce a minimum and maximum channel length as defined by process parameters.
+// Enforce a minimum and maximum channel length as defined by process parameters
 public class ChannelLengthStrategy extends TranslationStrategy {
 
   @Override

@@ -235,7 +235,7 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                 QFNRA.divide(l, QFNRA.multiply(w,
                     QFNRA.pow(h, new Numeral(3))))))));
   }
-  
+
   private List<SExpression> translateTJunction(Schematic schematic,
       NodeValue junction,
       ConnectionValue chContinuous, ConnectionValue chDispersed,
@@ -321,7 +321,8 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     connectedPorts.add(pContinuous);
     connectedPorts.add(pDispersed);
     connectedPorts.add(pOutput);
-    exprs.addAll(Macros.generateConservationOfFlow(schematic, connectedPorts));
+    exprs.addAll(Macros.generateConservationOfFlow(schematic, connectedPorts,
+            performWorstCaseAnalysis));
     
     // constraint: viscosity of output = viscosity of continuous
     Symbol dispersedViscosity = SymbolNameGenerator.getsym_ChannelViscosity(
