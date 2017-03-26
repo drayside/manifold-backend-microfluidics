@@ -20,6 +20,7 @@ import org.manifold.compiler.back.microfluidics.strategies.MultiPhaseStrategySet
 import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationStrategySet;
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
 import org.manifold.compiler.middle.Schematic;
+import org.manifold.compiler.middle.SchematicException;
 
 public class MicrofluidicsBackend implements Backend {
 
@@ -159,7 +160,7 @@ public class MicrofluidicsBackend implements Backend {
     return retval;
   }
   
-  public void run(Schematic schematic) throws IOException {
+  public void run(Schematic schematic) throws IOException, SchematicException {
     primitiveTypes = constructTypeTable(schematic);
 
     List<SExpression> smtExprs = generateSMT2(schematic);
@@ -178,14 +179,18 @@ public class MicrofluidicsBackend implements Backend {
       dReal.write(expr);
     }
 
-    DRealSolver.Result res = dReal.solve();
-    if (!res.isSatisfiable()) {
+    DRealSolver.Result result = dReal.solve();
+    if (!result.isSatisfiable()) {
       log.error("dReal has determined that this system is unsatisfiable.");
       log.error("Aborting.");
       return;
     }
+
+    Schematic annotatedSchematic = InferredAttributeAdder
+      .populateFromDrealResults(schematic, result);
+
     String fileName = schematic.getName();
-    generateModelica(schematic, fileName);
+    generateModelica(annotatedSchematic, fileName);
     runSimulation(fileName);
   }
 
@@ -295,12 +300,11 @@ public class MicrofluidicsBackend implements Backend {
       executor.execute();
 
       //TODO: Automate simulation as part of CEGAR loop
-      /*
-      executor.writeLine(
-        String.format("m:=MapleSim:-LinkModel('filename'=%s.msim);",fileName));
-      executor.writeLine("m:-Simulate(SET PARAMS);");
-      executor.execute();
-      */
+      //executor.writeLine(
+      //  String.format("m:=MapleSim:-LinkModel('filename'=%s.msim);",fileName));
+      //executor.writeLine("m:-Simulate(SET PARAMS);");
+      //executor.execute();
+
     } catch (RuntimeException e) {
       System.err.println(e.toString());
     }

@@ -3,24 +3,7 @@ package org.manifold.compiler.back.microfluidics;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.manifold.compiler.ConnectionTypeValue;
-import org.manifold.compiler.ConnectionValue;
-import org.manifold.compiler.ConstraintType;
-import org.manifold.compiler.ConstraintValue;
-import org.manifold.compiler.InvalidAttributeException;
-import org.manifold.compiler.MultipleDefinitionException;
-import org.manifold.compiler.NilTypeValue;
-import org.manifold.compiler.NodeTypeValue;
-import org.manifold.compiler.NodeValue;
-import org.manifold.compiler.PortTypeValue;
-import org.manifold.compiler.PortValue;
-import org.manifold.compiler.RealTypeValue;
-import org.manifold.compiler.RealValue;
-import org.manifold.compiler.TypeMismatchException;
-import org.manifold.compiler.TypeValue;
-import org.manifold.compiler.UndeclaredAttributeException;
-import org.manifold.compiler.UndeclaredIdentifierException;
-import org.manifold.compiler.Value;
+import org.manifold.compiler.*;
 import org.manifold.compiler.middle.Schematic;
 import org.manifold.compiler.middle.SchematicException;
 
@@ -28,6 +11,11 @@ import org.manifold.compiler.middle.SchematicException;
 public class UtilSchematicConstruction {
 
   private static boolean setUp = false;
+
+  private static InferredTypeValue inferredRealType
+    = new InferredTypeValue(RealTypeValue.getInstance());
+  private static  InferredValue inferredReal
+    = new InferredValue(inferredRealType);
 
   private static final Map<String, TypeValue> noTypeAttributes 
     = new HashMap<>();
@@ -53,14 +41,17 @@ public class UtilSchematicConstruction {
   public static void setupIntermediateTypes() {
 
     // TODO which signal type do we want here?
-    microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(), 
-        noTypeAttributes);
+    Map<String, TypeValue> microfluidPortAttributes = new HashMap<>();
+    microfluidPortAttributes.put("pressure", inferredRealType);
+    microfluidPortType = new PortTypeValue(NilTypeValue.getInstance(),
+            microfluidPortAttributes);
     
     // multi-phase
     Map<String, PortTypeValue> fluidEntryPorts = new HashMap<>();
     fluidEntryPorts.put("output", microfluidPortType);
     Map<String, TypeValue> fluidEntryAttributes = new HashMap<>();
     fluidEntryAttributes.put("viscosity", RealTypeValue.getInstance());
+    fluidEntryAttributes.put("pos_x", inferredRealType);
     fluidEntryNodeType = new NodeTypeValue(
         fluidEntryAttributes, fluidEntryPorts);
     
@@ -154,6 +145,9 @@ public class UtilSchematicConstruction {
   public static ConnectionValue instantiateChannel(PortValue from, PortValue to)
       throws UndeclaredAttributeException, InvalidAttributeException,
       TypeMismatchException {
+    Map<String, Value> attrsMap = new HashMap<>();
+    attrsMap.put("flowrate", inferredReal);
+    attrsMap.put("viscosity", inferredReal);
     ConnectionValue channel = new ConnectionValue(from, to, noAttributes);
     return channel;
   }
@@ -164,8 +158,11 @@ public class UtilSchematicConstruction {
     Map<String, Value> attrsMap = new HashMap<>();
     RealValue mu = new RealValue(viscosity);
     attrsMap.put("viscosity", mu);
+    attrsMap.put("pos_x", inferredReal);
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
-    portAttrsMap.put("output", noAttributes);
+    Map<String, Value> portAttrs = new HashMap<>();
+    portAttrs.put("pressure", inferredReal);
+    portAttrsMap.put("output", portAttrs);
     NodeValue exit = new NodeValue(schematic.getNodeType("fluidEntry"),
         attrsMap, portAttrsMap);
     return exit;
@@ -174,7 +171,9 @@ public class UtilSchematicConstruction {
   public static NodeValue instantiateFluidExit(Schematic schematic)
       throws SchematicException {
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
-    portAttrsMap.put("input", noAttributes);
+    Map<String, Value> attrsMap = new HashMap<>();
+    attrsMap.put("pressure", inferredReal);
+    portAttrsMap.put("input", attrsMap);
     NodeValue exit = new NodeValue(schematic.getNodeType("fluidExit"),
         noAttributes, portAttrsMap);
     return exit;
