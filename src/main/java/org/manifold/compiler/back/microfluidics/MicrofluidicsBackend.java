@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -190,7 +191,7 @@ public class MicrofluidicsBackend implements Backend {
       .populateFromDrealResults(schematic, result);
 
     String fileName = schematic.getName();
-    generateModelica(annotatedSchematic, fileName);
+    generateModelica(annotatedSchematic, primitiveTypes, fileName);
     runSimulation(fileName);
   }
 
@@ -243,15 +244,15 @@ public class MicrofluidicsBackend implements Backend {
   }
 
   public void generateModelica(Schematic schematic,
-                               String fileName) throws IOException {
+      PrimitiveTypeTable typeTable, String fileName) throws IOException {
 
     ComponentGenerator componentGenerator = new ComponentGenerator();
-    List<ModelicaComponent> components =
-      componentGenerator.componentList(schematic);
+    Map<String, ModelicaComponent> components =
+      componentGenerator.componentList(schematic, typeTable);
 
     ConnectionGenerator connectionGenerator = new ConnectionGenerator();
     List<ModelicaConnection> connections =
-      connectionGenerator.connectionList(schematic);
+      connectionGenerator.connectionList(schematic, typeTable);
 
     try (BufferedWriter writer = new BufferedWriter(
             new FileWriter(fileName + ".mo"))) {
@@ -269,7 +270,7 @@ public class MicrofluidicsBackend implements Backend {
       writer.newLine();
       writer.newLine();
 
-      for (ModelicaComponent component : components) {
+      for (ModelicaComponent component : components.values()) {
         writer.write("\t");
         component.write(writer);
         writer.newLine();
@@ -291,6 +292,7 @@ public class MicrofluidicsBackend implements Backend {
       writer.newLine();
     }
   }
+
   public void runSimulation(String fileName) {
     OpenMapleExecutor executor = new OpenMapleExecutor();
     try {
