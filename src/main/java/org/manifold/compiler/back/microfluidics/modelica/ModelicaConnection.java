@@ -1,10 +1,5 @@
 package org.manifold.compiler.back.microfluidics.modelica;
 
-import org.manifold.compiler.ConnectionValue;
-import org.manifold.compiler.NodeValue;
-import org.manifold.compiler.back.microfluidics.SchematicUtil;
-import org.manifold.compiler.middle.Schematic;
-
 import java.io.IOException;
 import java.io.Writer;
 
@@ -14,33 +9,23 @@ public class ModelicaConnection {
     "annotation(Line(points={{0,0},{0,0},{0,0},{0,0}},color={0,0,255}," +
       "smooth=Smooth.None));";
 
-  private Schematic schematic;
-  private ConnectionValue connection;
+  private String fromNodeName;
+  private String fromPortName;
+  private String toNodeName;
+  private String toPortName;
 
-  public ModelicaConnection(Schematic schematic, ConnectionValue connection) {
-    this.schematic = schematic;
-    this.connection = connection;
+  public ModelicaConnection(String fromNodeName,
+      String fromPortName, String toNodeName, String toPortName) {
+    this.fromNodeName = fromNodeName;
+    this.fromPortName = fromPortName;
+    this.toNodeName = toNodeName;
+    this.toPortName = toPortName;
   }
 
   public void write(Writer writer) throws IOException {
-    NodeValue fromNode = connection.getFrom().getParent();
-    String fromNodeName = SchematicUtil.getNodeName(schematic, fromNode);
-
-    NodeValue toNode = connection.getTo().getParent();
-    String toNodeName = SchematicUtil.getNodeName(schematic, toNode);
-
-    String fromPortName = SchematicUtil.getPortName(
-      fromNode, connection.getFrom());
-    String toPortName = SchematicUtil.getPortName(toNode, connection.getTo());
-
-    //writer.write(String.format(
-    //  "connect(%s.%s, %s.%s) ",
-    //  fromNodeName, fromPortName, toNodeName, toPortName));
-
-    // TODO: replace with above once we're no longer using electrical library
     writer.write(String.format(
-      "connect(%s.n, %s.p) ",
-      fromNodeName, toNodeName));
+      "connect(%s.%s, %s.%s) ",
+      fromNodeName, fromPortName, toNodeName, toPortName));
 
     writer.write(CONNECTION_ANNOTATION);
   }

@@ -12,15 +12,12 @@ public abstract class ModelicaComponent {
       "extent={{0,0},{0,0}},rotation=0)));";
 
   protected String componentName;
-  protected NodeValue schematicNode;
-
 
   protected abstract void writeComponentDeclaration(Writer writer)
       throws IOException;
 
-  public ModelicaComponent(String name, NodeValue node) {
+  public ModelicaComponent(String name) {
     this.componentName = name;
-    this.schematicNode = node;
   }
 
   public void write(Writer writer) throws IOException {
