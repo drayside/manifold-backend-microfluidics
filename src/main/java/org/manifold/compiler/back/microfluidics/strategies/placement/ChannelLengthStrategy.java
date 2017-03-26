@@ -14,8 +14,8 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
-// Enforce a minimum channel length as defined by process parameters.
-public class MinimumChannelLengthStrategy extends TranslationStrategy {
+// Enforce a minimum and maximum channel length as defined by process parameters
+public class ChannelLengthStrategy extends TranslationStrategy {
 
   @Override
   protected List<SExpression> translationStep(Schematic schematic,
@@ -29,6 +29,14 @@ public class MinimumChannelLengthStrategy extends TranslationStrategy {
       exprs.add(QFNRA.assertGreaterEqual(
           channelLengthSym, 
           new Decimal(processParams.getMinimumChannelLength())));
+
+      // Channel length must not be larger than chip.
+      double maxChipDimension = Math.max(processParams.getMaximumChipSizeX(),
+          processParams.getMaximumChipSizeY());
+      exprs.add(QFNRA.assertLessThanEqual(
+          channelLengthSym,
+          new Decimal(maxChipDimension)
+      ));
     }
     return exprs;
   }
