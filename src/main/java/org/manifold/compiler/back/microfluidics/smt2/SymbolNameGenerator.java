@@ -2,14 +2,17 @@ package org.manifold.compiler.back.microfluidics.smt2;
 
 import java.util.Map;
 
-import org.manifold.compiler.ConnectionValue;
-import org.manifold.compiler.NodeValue;
-import org.manifold.compiler.PortValue;
+import org.manifold.compiler.*;
 import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.middle.Schematic;
 
-// Helper class to generate consistent symbol names from
-// schematic nodes/connections/etc.
+/**
+ * Helper class to generate consistent symbol names from
+ * schematic nodes/connections/etc.
+ *
+ * Typical symbol format: schematic_value.property
+ * For ports, the format is nodename.portname.property
+ */
 public class SymbolNameGenerator {
 
   /**
@@ -24,7 +27,7 @@ public class SymbolNameGenerator {
    */
   public static Symbol getsym_NodeX(Schematic schematic, NodeValue node) {
     String nodeName = schematic.getNodeName(node);
-    return new Symbol(nodeName.concat("_pos_x"));
+    return new Symbol(nodeName.concat(".pos_x"));
   }
   
   /**
@@ -32,7 +35,7 @@ public class SymbolNameGenerator {
    */
   public static Symbol getsym_NodeY(Schematic schematic, NodeValue node) {
     String nodeName = schematic.getNodeName(node);
-    return new Symbol(nodeName.concat("_pos_y"));
+    return new Symbol(nodeName.concat(".pos_y"));
   }
   
   /**
@@ -42,7 +45,7 @@ public class SymbolNameGenerator {
   public static Symbol getSym_NodePressure(
       Schematic schematic, NodeValue node) {
     String nodeName = schematic.getNodeName(node);
-    return new Symbol(nodeName.concat("_pressure"));
+    return new Symbol(nodeName.concat(".pressure"));
   }
   
   /**
@@ -64,7 +67,7 @@ public class SymbolNameGenerator {
       throw new CodeGenerationError("could not map port to name for node '"
           + nodeName + "'");
     }
-    return new Symbol(nodeName + "_" + portName + "_pressure");
+    return new Symbol(nodeName + "." + portName + ".pressure");
   }
   
   /**
@@ -73,7 +76,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelLength(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_length"));
+    return new Symbol(chName.concat(".length"));
   }
   
   /**
@@ -84,13 +87,13 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelFlowRate(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_flowrate"));
+    return new Symbol(chName.concat(".flowrate"));
   }
   
   public static Symbol getsym_ChannelFlowRate_WorstCase(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_flowrate_worst_case"));
+    return new Symbol(chName.concat(".flowrate_worst_case"));
   }
   
   /**
@@ -100,7 +103,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelViscosity(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_viscosity"));
+    return new Symbol(chName.concat(".viscosity"));
   }
   
   /**
@@ -110,7 +113,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelResistance(Schematic schematic, 
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_resistance"));
+    return new Symbol(chName.concat(".resistance"));
   }
 
   /**
@@ -120,13 +123,13 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelDropletVolume(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_volume"));
+    return new Symbol(chName.concat(".droplet_volume"));
   }
   
   public static Symbol getsym_ChannelDropletVolume_WorstCase(
       Schematic schematic, ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_volume_worst_case"));
+    return new Symbol(chName.concat(".droplet_volume_worst_case"));
   }
   
   /**
@@ -136,7 +139,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelDropletResistance(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_resistance"));
+    return new Symbol(chName.concat(".droplet_resistance"));
   }
 
   /**
@@ -145,7 +148,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelDropletVelocity(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_velocity"));
+    return new Symbol(chName.concat(".droplet_velocity"));
   }
   
   /**
@@ -155,7 +158,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelDropletFrequency(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_frequency"));
+    return new Symbol(chName.concat(".droplet_frequency"));
   }
   
   /**
@@ -165,7 +168,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelDropletSpacing(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_droplet_spacing"));
+    return new Symbol(chName.concat(".droplet_spacing"));
   }
   
   /**
@@ -175,7 +178,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelMaxDroplets(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_max_droplets"));
+    return new Symbol(chName.concat(".max_droplets"));
   }
   
   /**
@@ -184,7 +187,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelHeight(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_height"));
+    return new Symbol(chName.concat(".height"));
   }
 
   /**
@@ -193,7 +196,7 @@ public class SymbolNameGenerator {
   public static Symbol getsym_ChannelWidth(Schematic schematic,
       ConnectionValue ch) {
     String chName = schematic.getConnectionName(ch);
-    return new Symbol(chName.concat("_width"));
+    return new Symbol(chName.concat(".width"));
   }
 
   /**
@@ -203,7 +206,6 @@ public class SymbolNameGenerator {
   public static Symbol getsym_TJunctionEpsilon(Schematic schematic,
       NodeValue junc) {
     String jName = schematic.getNodeName(junc);
-    return new Symbol(jName.concat("_epsilon"));
+    return new Symbol(jName.concat(".epsilon"));
   }
-  
 }
