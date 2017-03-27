@@ -61,14 +61,14 @@ public class InferredAttributeAdder {
             break;
           case CONNECTION:
             String connectionName = splitSymbol[0];
-            annotationBuilder.annotateConnectionAttribute(connectionName,
-              attributeName, constructInferredRealValue(attributeValue));
+            //annotationBuilder.annotateConnectionAttribute(connectionName,
+              //attributeName, constructInferredRealValue(attributeValue));
             break;
           case PORT:
             nodeName = splitSymbol[0];
             String portName = splitSymbol[1];
-            annotationBuilder.annotatePortAttribute(nodeName, portName,
-              attributeName, constructInferredRealValue(attributeValue));
+            //annotationBuilder.annotatePortAttribute(nodeName, portName,
+              //attributeName, constructInferredRealValue(attributeValue));
             break;
           case CONSTRAINT:
             String constraintName = splitSymbol[0];

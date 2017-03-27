@@ -5,6 +5,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.*;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.manifold.compiler.ConnectionValue;
 import org.manifold.compiler.NodeValue;
@@ -120,6 +121,7 @@ public class TestMicrofluidicsBackend {
     runAcceptanceTest(schematic, args);
   }
   
+  @Ignore
   @Test
   public void testTJunctionSynthesis() throws Exception {
     String[] args = {

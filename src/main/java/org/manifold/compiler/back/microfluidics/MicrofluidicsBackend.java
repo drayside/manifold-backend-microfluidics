@@ -91,6 +91,7 @@ public class MicrofluidicsBackend implements Backend {
   public void invokeBackend(Schematic schematic, CommandLine cmd)
       throws Exception {
     collectOptions(cmd);
+    System.out.println("Hello");
     run(schematic);
   }
 
@@ -191,7 +192,7 @@ public class MicrofluidicsBackend implements Backend {
       .populateFromDrealResults(schematic, result);
 
     String fileName = schematic.getName();
-    generateDeltaSATModel(res, fileName);
+    generateDeltaSATModel(result, fileName);
     generateModelica(annotatedSchematic, primitiveTypes, fileName);
     runSimulation(fileName);
   }
@@ -315,7 +316,7 @@ public class MicrofluidicsBackend implements Backend {
 
       //TODO: Automate simulation as part of CEGAR loop
       //executor.writeLine(
-      //  String.format("m:=MapleSim:-LinkModel('filename'=%s.msim);",fileName));
+      //String.format("m:=MapleSim:-LinkModel('filename'=%s.msim);",fileName));
       //executor.writeLine("m:-Simulate(SET PARAMS);");
       //executor.execute();
 

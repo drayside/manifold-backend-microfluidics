@@ -30,7 +30,7 @@ public class ComponentGenerator {
             nodeName, pressure);
           components.put(nodeName, voltageSource);
 
-        } catch (UndeclaredIdentifierException e) {}
+        } catch (UndeclaredIdentifierException e) { }
 
       } else if (node.getType().isSubtypeOf(typeTable.getFluidExitNodeType())) {
         GroundComponent groundComponent = new GroundComponent(nodeName);

@@ -18,7 +18,7 @@ public class VoltageSourceComponent extends ModelicaComponent {
   protected void writeComponentDeclaration(Writer writer) throws IOException {
     writer.write(
       "Maplesoft.Electrical.Analog.Sources.Voltage.ConstantVoltage ");
-    writer.write(String.format("%s(V=(start=%f, fixed=true))",
+    writer.write(String.format("%s(V=%f)",
       this.componentName, this.voltage));
   }
 }

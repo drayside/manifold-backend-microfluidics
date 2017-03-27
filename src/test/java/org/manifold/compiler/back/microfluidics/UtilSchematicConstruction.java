@@ -178,7 +178,8 @@ public class UtilSchematicConstruction {
         noAttributes, portAttrsMap);
     return exit;
   }
-  
+
+
   public static NodeValue instantiateTJunction(Schematic schematic)
       throws SchematicException {
     Map<String, Map<String, Value>> portAttrsMap = new HashMap<>();
