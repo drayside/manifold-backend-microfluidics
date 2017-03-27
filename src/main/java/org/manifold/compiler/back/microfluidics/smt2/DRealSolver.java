@@ -8,14 +8,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DRealSolver implements AutoCloseable {
 
-  public class RealRange {
+  public static class RealRange {
     public final double lowerBound;
     public final double upperBound;
     
@@ -25,13 +22,14 @@ public class DRealSolver implements AutoCloseable {
     }
   }
   
-  public class Result {
+  public static class Result {
     private final boolean satisfiable;
     public boolean isSatisfiable() {
       return this.satisfiable;
     }
     
     private Map<Symbol, RealRange> ranges;
+    private List<String> results;
     public RealRange getRange(Symbol sym) {
       return ranges.get(sym);
     }
@@ -43,10 +41,15 @@ public class DRealSolver implements AutoCloseable {
       RealRange range = new RealRange(lb, ub);
       ranges.put(sym, range);
     }
+
+    public List<String> getResults() {
+      return this.results;
+    }
     
     public Result(boolean satisfiable) {
       this.satisfiable = satisfiable;
       this.ranges = new HashMap<>();
+      this.results = new ArrayList<>();
     }
   }
   
@@ -163,6 +166,7 @@ public class DRealSolver implements AutoCloseable {
       return new Result(false);
     } else if (result.startsWith("Solution:")) {
       Result model = new Result(true);
+      model.getResults().add(result);
       // parse lines until we see the final one
       while (!((result = reader.readLine()).startsWith("delta-sat"))) {
         // skip blank lines
@@ -170,6 +174,7 @@ public class DRealSolver implements AutoCloseable {
           continue;
         }
         interpretResultLine(model, result);
+        model.getResults().add(result);
       }
       return model;
     } else {

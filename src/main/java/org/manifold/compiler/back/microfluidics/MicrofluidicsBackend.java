@@ -99,14 +99,14 @@ public class MicrofluidicsBackend implements Backend {
   public static PrimitiveTypeTable constructTypeTable(Schematic schematic) {
     PrimitiveTypeTable typeTable = new PrimitiveTypeTable();
     typeTable.retrieveBaseTypes(schematic);
-    checkTypeHierarchy(typeTable);
+    //checkTypeHierarchy(typeTable);
     typeTable.addDerivedPressureControlPointNodeTypes(
         typeTable.retrieveDerivedNodeTypes(schematic, 
             typeTable.getPressureControlPointNodeType()));
     typeTable.addDerivedVoltageControlPointNodeTypes(
         typeTable.retrieveDerivedNodeTypes(schematic, 
             typeTable.getVoltageControlPointNodeType()));
-    typeTable.retrieveConstraintTypes(schematic);
+    //typeTable.retrieveConstraintTypes(schematic);
     return typeTable;
   }
   
@@ -185,6 +185,7 @@ public class MicrofluidicsBackend implements Backend {
       return;
     }
     String fileName = schematic.getName();
+    generateDeltaSATModel(res, fileName);
     generateModelica(schematic, fileName);
     runSimulation(fileName);
   }
@@ -235,6 +236,17 @@ public class MicrofluidicsBackend implements Backend {
     }
 
     return exprs;
+  }
+
+  public void generateDeltaSATModel(DRealSolver.Result result,
+                                    String fileName) throws IOException {
+    try (BufferedWriter writer = new BufferedWriter(
+            new FileWriter(fileName + ".dsm"))) {
+      for (String line : result.getResults()) {
+        writer.write(line);
+        writer.newLine();
+      }
+    }
   }
 
   public void generateModelica(Schematic schematic,
@@ -290,7 +302,7 @@ public class MicrofluidicsBackend implements Backend {
     OpenMapleExecutor executor = new OpenMapleExecutor();
     try {
       executor.writeLine(String.format(
-        "MapleSim:-CreateModel(\"%s.mo\", 'output' = %s.msim);"
+        "MapleSim:-CreateModel(\"%s.mo\", 'output' = \"%s.msim\");"
         , fileName, fileName));
       executor.execute();
 
