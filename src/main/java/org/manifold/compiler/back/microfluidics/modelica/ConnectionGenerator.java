@@ -34,7 +34,7 @@ public class ConnectionGenerator {
       String toNodeName = SchematicUtil.getNodeName(schematic, toNode);
 
       ModelicaConnection connectionBeforeResistor = new ModelicaConnection(
-        fromNodeName, "n", connectionName, "p");
+        fromNodeName, "p", connectionName, "p");
       connections.add(connectionBeforeResistor);
 
       ModelicaConnection connectionAfterResistor = new ModelicaConnection(
