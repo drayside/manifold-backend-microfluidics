@@ -91,7 +91,6 @@ public class MicrofluidicsBackend implements Backend {
   public void invokeBackend(Schematic schematic, CommandLine cmd)
       throws Exception {
     collectOptions(cmd);
-    System.out.println("Hello");
     run(schematic);
   }
 
