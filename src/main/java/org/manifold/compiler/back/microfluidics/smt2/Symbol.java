@@ -12,10 +12,14 @@ public class Symbol extends SExpression {
   
   private static String otherLegalChars = "+-/*=%?!.%_!&^<>@";
   
+  /**
+   * A symbol is a non-empty sequence of letters, digits, and the characters
+   * + - / * = % ? ! . $ _ ~ & ^ < > @ that does not start with a digit.
+   * 
+   * @param name  A string that is the name of this symbol
+   */
   private void validateName(String name) {
-    // A symbol is a non-empty sequence of letters, digits, and the characters
-    // + - / * = % ? ! . $ _ ~ & ^ < > @
-    // that does not start with a digit.
+    // 
     if (name.isEmpty()) {
       throw new IllegalArgumentException(
           "symbol name cannot be empty");
@@ -26,6 +30,8 @@ public class Symbol extends SExpression {
     }
     for (int i = 0; i < name.length(); ++i) {
       char c = name.charAt(i);
+      // Iterate through every character in name, if its a letter or digit or
+      // present in otherLegalChars then continue, else throw exception
       if (Character.isAlphabetic(c)) {
         continue;
       } else if (Character.isDigit(c)) {
@@ -37,6 +43,12 @@ public class Symbol extends SExpression {
     }
   }
   
+  /**
+   * Checks that the symbol name is valid by calling validateName(name),
+   * valid means it contains only letters, numbers or certain symbols
+   * 
+   * @param name  A string that is the name of this symbol
+   */
   public Symbol(String name) {
     validateName(name);
     this.name = name;

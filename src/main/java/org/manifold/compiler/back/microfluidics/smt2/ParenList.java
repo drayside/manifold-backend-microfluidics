@@ -7,6 +7,13 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ * List of expressions that are in valid QF_NRA form including Parentheses around each
+ * expression that dReal solver can read
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class ParenList extends SExpression {
 
   private List<SExpression> exprs = new ArrayList<>();

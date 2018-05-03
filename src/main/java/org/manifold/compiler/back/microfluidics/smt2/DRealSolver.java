@@ -13,8 +13,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Sends valid QF_NRA expression to dReal through the command line for it 
+ * to solve
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class DRealSolver implements AutoCloseable {
-
+  //TODO: Consider switching to a library instead of command line  to reduce
+  // having dReal installed as a dependency https://github.com/sosy-lab/java-smt
   class RealRange {
     public final double lowerBound;
     public final double upperBound;
