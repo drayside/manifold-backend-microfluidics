@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Sends valid QF_NRA expression to dReal through the command line for it 
- * to solve
+ * to return us if that expression has a solution or not
  * 
  * @author Murphy? Comments by Josh
  *
@@ -23,26 +23,67 @@ import java.util.Map;
 public class DRealSolver implements AutoCloseable {
   //TODO: Consider switching to a library instead of command line  to reduce
   // having dReal installed as a dependency https://github.com/sosy-lab/java-smt
+
+  /**
+   * Provides range of values (lower and upper) for a Symbol object contained within a RealRange method 
+   * 
+   * @author Murphy? Comments by Josh
+   *
+   */
   class RealRange {
     public final double lowerBound;
     public final double upperBound;
     
+    /**
+     * Stores the range of values a Symbol can take
+     * 
+     * @param lower  Lower value in the range
+     * @param upper  Upper value in the range
+     */
     public RealRange(double lower, double upper) {
       this.lowerBound = lower;
       this.upperBound = upper;
     }
   }
   
+  /**
+   * Stores the result (satisfiable or not satisfiable)returned from dReal
+   * @author Murphy? Comments by Josh
+   *
+   */
   class Result {
     private final boolean satisfiable;
+    /**
+     * If this expression is satisfiable this returns true, this is 
+     * @return
+     */
     public boolean isSatisfiable() {
       return this.satisfiable;
     }
     
+    /**
+     * Provides the range of values (lower, upper) allowed for any Symbol object as a RealRange object
+     */
     private Map<Symbol, RealRange> ranges;
+    
+    /**
+     * Returns the range of a Symbol object
+     * 
+     * @param sym  Symbol object
+     * @return RealRange object for that Symbol with lower and upper attributes
+     */
     public RealRange getRange(Symbol sym) {
       return ranges.get(sym);
     }
+    
+    /**
+     * Add a new Symbol with a range of values to be bounded by lowerBound and upperBound, used to contain the result
+     * returned by dReal
+     * 
+     * @param symbolName  Name of the symbol tested by dReal
+     * @param lowerBound  Lower bound of the range of values that the Symbol can take to be true
+     * @param upperBound  Upper bound of the range of values that the Symbol can take to be true
+     */
     public void addResult(String symbolName, 
         String lowerBound, String upperBound) {
       Symbol sym = new Symbol(symbolName);
@@ -60,6 +101,10 @@ public class DRealSolver implements AutoCloseable {
   
   private static String pathToDReal = null;
   
+  /**
+   * Finds the path to the dReal solver on your computer to send expressions to solve for, if found
+   * it saves the path to pathToDReal
+   */
   private void findDReal() {
     Map<String, String> env = System.getenv();
     if (env.containsKey("PATH")) {
@@ -82,6 +127,9 @@ public class DRealSolver implements AutoCloseable {
     }
   }
   
+  /**
+   * Gets the path to dReal solver by calling pathToDReal
+   */
   public DRealSolver() {
     if (pathToDReal == null) {
       findDReal();
@@ -92,6 +140,10 @@ public class DRealSolver implements AutoCloseable {
   private BufferedWriter writer;
   private BufferedReader reader;
   
+  /**
+   * Creates writer and reader objects that send a receive data from dReal installed on your computer
+   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   */
   public void open() throws IOException {
     List<String> command = new LinkedList<>();
     command.add(pathToDReal);
@@ -109,9 +161,17 @@ public class DRealSolver implements AutoCloseable {
     InputStreamReader isr = new InputStreamReader(is);
     reader = new BufferedReader(isr);
     
+    // TODO: If an SExpression is written (which already adds this line to expression head when created) then it is 
+    //       sent twice which is unnecessary
     write("(set-logic QF_NRA)");
   }
   
+  /**
+   * Sends an expression to dReal for it to solve
+   * 
+   * @param data - The expression to be sent to dReal
+   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   */
   public void write(String data) throws IOException {
     if (dRealProcess == null) {
       throw new IllegalStateException("dReal session has not been opened");
@@ -120,10 +180,25 @@ public class DRealSolver implements AutoCloseable {
     writer.newLine();
   }
   
+  /**
+   * Sends an SExpression to dReal for it to solve, already in correct QF_NRA form
+   * 
+   * @param data - The SEpression to be sent to dReal
+   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   */
   public void write(SExpression expr) throws IOException {
+    if (dRealProcess == null) {
+      throw new IllegalStateException("dReal session has not been opened");
+    }
     write(expr.toString());
   }
   
+  /**
+   * Parses the response from dReal to extract the upper and lower bounds on that Symbol determined by dReal
+   * 
+   * @param model  Result object that contains the Symbol name and bounds returned by dReal
+   * @param line  The response from dReal
+   */
   protected void interpretResultLine(Result model, String line) {
     // expect a line of the form
     // x : [ ****** ] = [999.99, 999.99]
@@ -164,6 +239,14 @@ public class DRealSolver implements AutoCloseable {
     model.addResult(symbolName, lowerBound, upperBound);
   }
   
+  /**
+   * Runs the dReal solver on the given expression written to writer by calling the write method
+   * 
+   * @return model - A Result object with attribute satisfiable = True if dReal determines the expression to be
+   *                 satisfiable, False otherwise
+   * @throws IOException - If input or output exception occurs when communicating with dRealProcess or if it
+   *                       returns an unexpected result (besides 'unsat' or 'Solution:')
+   */
   public Result solve() throws IOException {
     write("(check-sat)");
     write("(exit)");
