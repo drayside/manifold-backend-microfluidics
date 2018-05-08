@@ -3,6 +3,12 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.io.IOException;
 import java.io.Writer;
 
+/**
+ * Stores a valid variable name or operator for use in a QF_NRA expression
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class Symbol extends SExpression {
  
   private final String name;
