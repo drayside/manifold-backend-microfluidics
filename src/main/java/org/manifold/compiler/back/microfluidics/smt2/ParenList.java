@@ -8,8 +8,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 /**
- * List of expressions that are in valid QF_NRA form including Parentheses around each
- * expression that dReal solver can read
+ * List of SExpressions that contain expression in valid QF_NRA form. When write is called, parentheses are put around
+ * each expression that dReal solver can read
  * 
  * @author Murphy? Comments by Josh
  *
@@ -21,18 +21,38 @@ public class ParenList extends SExpression {
     return ImmutableList.copyOf(exprs);
   }
   
+  /**
+   * Empty ParenList constructor to allow for void ParenLists to be created 
+   */
   public ParenList() { }
   
+
+  /**
+   * Constructs a ParenList from an SExpression containing a single expression
+   * 
+   * @param expr  SExpression containing a single expr
+   */
   public ParenList(SExpression expr) {
     this.exprs.add(expr);
   }
   
+  /**
+   * Constructs a ParenList from an SExpression containing multiple expressions, adding each of them to the
+   * ParenList.exprs
+   * 
+   * @param exprs  SExpression containing a multiple exprs
+   */
   public ParenList(SExpression exprs[]) {
     for (SExpression expr : exprs) {
       this.exprs.add(expr);
     }
   }
   
+  /**
+   * Constructs a ParenList from a list of SExpressions, adding all of them to the ParenList.exprs
+   * 
+   * @param exprs  List of multiple SExpressions
+   */
   public ParenList(List<SExpression> exprs) {
     this.exprs.addAll(exprs);
   }
