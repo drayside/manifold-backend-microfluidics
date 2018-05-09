@@ -3,14 +3,13 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.util.List;
 
 /**
- * 
+ * Checks that an (in)equality assertion is formed correctly and returns boolean result by calling verify
  * 
  * @author Murphy? Comments by Josh
  *
  */
 public class AssertionChecker {
 
-  // 
   private boolean nonAssertionsAreErrors = false;
   /**
    * If nonAssertionsAreErrors is true, and an expression that does not match (assert (x)) is found, 
