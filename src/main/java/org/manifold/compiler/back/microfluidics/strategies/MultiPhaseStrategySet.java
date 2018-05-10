@@ -11,30 +11,70 @@ import org.manifold.compiler.back.microfluidics.strategies.multiphase.DropletCon
 import org.manifold.compiler.back.microfluidics.strategies.multiphase.TJunctionDeviceStrategy;
 import org.manifold.compiler.middle.Schematic;
 
-// Contains strategies for generation of multi-phase circuits
+/**
+ * Contains strategies for generation of multi-phase circuits, uses the
+ * translation methods for each of the respective strategies contained within
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class MultiPhaseStrategySet extends TranslationStrategy {
 
   private boolean worstCaseAnalysis = false;
+  /**
+   * Toggle whether worst case analysis should be performed by different
+   * strategies
+   * 
+   * @param b  True if worst case analysis should be performed
+   */
   public void performWorstCastAnalysis(boolean b) {
     this.worstCaseAnalysis = b;
   }
   
+  // TODO need test cases for constructing multiPhaseStrategySet from each
+  // of these separate strategies, currently only the default constructor
+  // (MultiPhaseStrategySet) has a test case
   private DropletConstraintStrategy dropletConstraintStrategy;
+  /**
+   * Provide the multiPhaseStrategySet with a non-default
+   * dropletConstraintStrategy, must also provide a TJunctionDeviceStrategy
+   * using useTJunctionDeviceStrategy in order to be a MULTIPhaseStrategy
+   * 
+   * @param strat  The DropletConstraintStrategy for use in the
+   * multiPhaseStrategy
+   */
   public void useDropletConstraintStrategy(DropletConstraintStrategy strat) {
     this.dropletConstraintStrategy = strat;
   }
   
   private TJunctionDeviceStrategy tjunctionDeviceStrategy;
+  /**
+   * Provide the multiPhaseStrategySet with a non-default
+   * TJunctionDeviceStrategy, must also provide a dropletConstraintStrategy
+   * using useDropletConstraintStrategy in order to be a MULTIPhaseStrategy
+   * 
+   * @param strat  The DropletConstraintStrategy for use in the
+   * multiPhaseStrategy
+   */
   public void useTJunctionDeviceStrategy(TJunctionDeviceStrategy strat) {
     this.tjunctionDeviceStrategy = strat;
   }
   
+  /**
+   * Constructs default DropletConstraintStrategy and TJunctionDeviceStrategy
+   * to make a default MultiPhaseStrategySet
+   */
   public MultiPhaseStrategySet() {
     // initialize default strategies
     dropletConstraintStrategy = new DropletConstraintStrategy();
     tjunctionDeviceStrategy = new TJunctionDeviceStrategy(worstCaseAnalysis);
   }
   
+  /**
+   * Translation of multiPhaseStrategySet uses the translationStep methods for
+   * dropletConstraintStrategy and tjunctionDeviceStrategy on their
+   * respective types within the schematic
+   */
   @Override
   protected List<SExpression> translationStep(Schematic schematic, 
       ProcessParameters processParams,
