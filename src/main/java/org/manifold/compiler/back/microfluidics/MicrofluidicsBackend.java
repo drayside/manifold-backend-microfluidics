@@ -24,22 +24,42 @@ import org.manifold.compiler.back.microfluidics.strategies.PlacementTranslationS
 import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategySet;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Prepares and converts SEcpression into proper SMT2 equation in QF_NRA form
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class MicrofluidicsBackend implements Backend {
 
   private static final Logger log =
       LogManager.getLogger("MicrofluidicsBackend");
 
+  /**
+   * Prints error message input to a log
+   * 
+   * @param message  Text to be printed to error log
+   */
   private void err(String message) {
     log.error(message);
     log.error("stopping code generation due to error");
     throw new CodeGenerationError(message);
   }
   
+  /**
+   * Returns the name of this backend, 'microfluidics'
+   */
   @Override
   public String getBackendName() {
     return "microfluidics";
   }
 
+  /**
+   * Initializes the options used by ProcessParameters to retrieve parameters
+   * from a JSON file
+   * 
+   * @param options  
+   */
   @SuppressWarnings("static-access")
   private void createOptionProcessParameters(Options options) {
     Option processFile = OptionBuilder.withArgName("file")
@@ -51,6 +71,9 @@ public class MicrofluidicsBackend implements Backend {
   }
   
   private ProcessParameters processParams;
+  /**
+   * @return ProcessParameters used to 
+   */
   public ProcessParameters getProcessParameters() {
     return processParams;
   }
@@ -99,6 +122,12 @@ public class MicrofluidicsBackend implements Backend {
   public PrimitiveTypeTable getPrimitiveTypes() {
     return primitiveTypes;
   }
+  /**
+   * Initialize typeTable for pressure, voltage and misc constraints
+   * 
+   * @param schematic  Outlines the microchannel parameters and values
+   * @return typeTable of options
+   */
   public static PrimitiveTypeTable constructTypeTable(Schematic schematic) {
     PrimitiveTypeTable typeTable = new PrimitiveTypeTable();
     typeTable.retrieveBaseTypes(schematic);
@@ -112,7 +141,11 @@ public class MicrofluidicsBackend implements Backend {
     typeTable.retrieveConstraintTypes(schematic);
     return typeTable;
   }
-  
+
+  /**
+   * Ensures that voltage and pressure nodes are of type controlPoint
+   * @param typeTable  contains values from typeTable if all are controlPoints
+   */
   private static void checkTypeHierarchy(PrimitiveTypeTable typeTable) {
     // Look for subtypes of controlPointNode
     if (!typeTable.getPressureControlPointNodeType()
@@ -127,8 +160,13 @@ public class MicrofluidicsBackend implements Backend {
     }
   }
   
-  // Sort a list of unsorted expressions so that all declarations (declare-fun)
-  // come before all assertions (assert).
+  /**
+   * Sort a list of unsorted expressions so that all declarations (declare-fun)
+   * come before all assertions (assert).
+   * 
+   * @param unsorted  List of SExpressions that are each in an unsorted state
+   * @return sorted list of decls., asserts and other functions (respectively)
+   */
   public List<SExpression> sortExprs(List<SExpression> unsorted) {
     List<SExpression> retval = new LinkedList<>();
     List<SExpression> decls = new LinkedList<>();
@@ -161,7 +199,14 @@ public class MicrofluidicsBackend implements Backend {
     retval.addAll(others);
     return retval;
   }
-  
+  /**
+   * Gather all terms from schematic to put into SMT2 equation in QF_NRA form
+   * in sorted order such that all decls -> assert -> others and write to a
+   * separate file to later be read for solving by dReal
+   * 
+   * @param schematic  Outlines the microchannel parameters and values
+   * @throws IOException  Raised if writing output to mst2 file fails
+   */
   public void run(Schematic schematic) throws IOException {
     primitiveTypes = constructTypeTable(schematic);
     // translation step
@@ -170,13 +215,15 @@ public class MicrofluidicsBackend implements Backend {
     exprs.add(QFNRA.useQFNRA());
     
     List<SExpression> unsortedExprs = new LinkedList<>();
-    // define constant pi
+    // define pi
     unsortedExprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_constant_pi()));
     unsortedExprs.add(QFNRA.assertEqual(
         SymbolNameGenerator.getsym_constant_pi(), 
         new Decimal(Math.PI)));
     
+    // Gather all expressions from placementTranslation, multiPhase and
+    // pressureFlow
     PlacementTranslationStrategySet placeSet = 
         new PlacementTranslationStrategySet();
     unsortedExprs.addAll(placeSet.translate(

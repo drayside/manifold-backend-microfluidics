@@ -82,7 +82,7 @@ public class ProcessParameters {
    * @param minimumChannelLength  Minimum length of channel (meters)
    * @param maximumChipSizeX  X side of the maximum size of chip (meters)
    * @param maximumChipSizeY  Y side of the maximum size of chip (meters)
-   * @param criticalCrossingAngle  Critical angle for channel crossings (radians)
+   * @param criticalCrossingAngle  Critical angle for channel crossings(radians)
    */
   private ProcessParameters(
       double minimumNodeDistance, double minimumChannelLength,
@@ -109,7 +109,8 @@ public class ProcessParameters {
   }
   
   /**
-   * Gets a number from JSON files at location defined by key, used to get chip dimension values
+   * Gets a number from JSON files at location defined by key, used to get chip
+   * dimension values
    * 
    * @param input  JSON file object
    * @param key  Location of number in JSON
@@ -150,6 +151,12 @@ public class ProcessParameters {
     }
   }
   
+  /**
+   * Allows for assigning of values from the command line
+   * @param opts
+   * @param key
+   * @param description
+   */
   @SuppressWarnings("static-access")
   private static void createDoubleOption(Options opts, String key, 
       String description) {
@@ -180,11 +187,12 @@ public class ProcessParameters {
 
   /**
    * Initializes process parameters with values from JSON file located at path,
-   * Searches for parameters with keys minimumNodeDistance, minimumChannelLength, maximumChipSizeX, maximumChipSizeY,
+   * Searches for parameters with keys minimumNodeDistance,
+   * minimumChannelLength, maximumChipSizeX, maximumChipSizeY,
    * and criticalCrossingAngle
    * 
    * @param path  Path to the JSON file to be read
-   * @return ProcessParameters object constructed with values read from JSON file
+   * @return ProcessParameters object constructed with values read from JSON
    * @throws IOException  if JSON files cannot be read
    */
   public static ProcessParameters loadFromFile(String path) throws IOException {
@@ -203,11 +211,13 @@ public class ProcessParameters {
   
   /**
    * Initializes process parameters with values from command line
-   * Searches for parameters with keys minimumNodeDistance, minimumChannelLength, maximumChipSizeX, maximumChipSizeY,
+   * Searches for parameters with keys minimumNodeDistance,
+   * minimumChannelLength, maximumChipSizeX, maximumChipSizeY,
    * and criticalCrossingAngle
    * 
    * @param cli  CommandLine object containing parameter values
-   * @return ProcessParameters object constructed with values read from command line
+   * @return ProcessParameters object constructed with values read from command
+   * line
    * @throws IllegalArgumentException if command line cannot be read
    */
   public static ProcessParameters loadFromCommandLine(CommandLine cli) 

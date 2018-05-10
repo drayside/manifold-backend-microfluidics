@@ -9,20 +9,42 @@ import org.manifold.compiler.PortValue;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Translates schematic of microfluidic chip layout 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public abstract class TranslationStrategy { 
   private List<SExpression> cachedExprs = new LinkedList<SExpression>();
   protected final List<SExpression> getCachedExprs() {
     return cachedExprs;
   }
+
   private boolean cacheValid = false;
+  /**
+   * When the schematic, process parameters and typeTable are added this will
+   * return true, otherwise its false which means cachedExprs is empty
+   */
   protected final void cacheIsValid() {
     cacheValid = true;
   }
+  /**
+   * Clear the stored microfluidic chip schematic and parameters
+   */
   protected final void invalidateCache() {
     cachedExprs = new LinkedList<SExpression>();
     cacheValid = false;
   }
   
+  /**
+   * Calls translationStep on the inputs, translationStep is overridden by
+   * difference implementors that translate the schematic into QF_NRA form for
+   * SMT2 equations to be solved by dReal 
+   * @param schematic  Outlines the connections within the microfluidic chip
+   * @param processParams  Outlines the dimensions of the chip 
+   * @param typeTable  Outlines the types of components within the chip
+   * @return Translated schematic and parameters
+   */
   public final List<SExpression> translate(Schematic schematic, 
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable) {
@@ -32,11 +54,22 @@ public abstract class TranslationStrategy {
     return cachedExprs;
   }
   
-  // Cache-oblivious "real" translation step, overridden by implementors.
+  /**
+   * Cache-oblivious "real" translation step, overridden by implementors that
+   * provide case specific translation strategies into QF_NRA form for SMT2
+   * equations to be solved by dReal.
+   * 
+   * @param schematic  Outlines the connections within the microfluidic chip
+   * @param processParams  Outlines the dimensions of the chip 
+   * @param typeTable  Outlines the types of components within the chip
+   */
   protected abstract List<SExpression> translationStep(Schematic schematic,
       ProcessParameters processParams,
       PrimitiveTypeTable typeTable);
   
+  /**
+   * @return List of translated expressions if present in cache
+   */
   public final List<SExpression> getTranslatedExprs() {
     if (cacheValid) {
       return cachedExprs;
