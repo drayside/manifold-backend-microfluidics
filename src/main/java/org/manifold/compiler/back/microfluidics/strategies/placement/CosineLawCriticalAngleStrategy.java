@@ -11,6 +11,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Provides a method to calculate the angle between three unique points using
+ * cosine law, cos(theta) = (a dot b) / (||a||*||b||)
+ * 
+ * @author Murphy?
+ *
+ */
 public class CosineLawCriticalAngleStrategy extends CriticalAngleStrategy {
 
   @Override

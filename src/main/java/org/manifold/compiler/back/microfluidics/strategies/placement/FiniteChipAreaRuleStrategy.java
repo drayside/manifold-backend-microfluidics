@@ -13,6 +13,14 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Microfluidic chip is constrained to being a finite area, so assert that
+ * the position of each node is between 0 and the maximum chip size defined in
+ * processParameters
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class FiniteChipAreaRuleStrategy extends ChipAreaRuleStrategy {
 
   @Override

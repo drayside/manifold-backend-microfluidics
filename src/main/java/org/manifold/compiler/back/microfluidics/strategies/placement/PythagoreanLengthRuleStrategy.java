@@ -14,6 +14,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Asserts that a channel's ChannelLength is as long as the distance between
+ * the edge nodes as calculated using Pythagorean Theorem 
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class PythagoreanLengthRuleStrategy extends LengthRuleStrategy {
   
   @Override

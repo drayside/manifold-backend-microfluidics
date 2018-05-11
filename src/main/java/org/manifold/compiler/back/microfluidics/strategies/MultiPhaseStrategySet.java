@@ -37,8 +37,7 @@ public class MultiPhaseStrategySet extends TranslationStrategy {
   private DropletConstraintStrategy dropletConstraintStrategy;
   /**
    * Provide the multiPhaseStrategySet with a non-default
-   * dropletConstraintStrategy, must also provide a TJunctionDeviceStrategy
-   * using useTJunctionDeviceStrategy in order to be a MULTIPhaseStrategy
+   * dropletConstraintStrategy
    * 
    * @param strat  The DropletConstraintStrategy for use in the
    * multiPhaseStrategy
@@ -50,8 +49,7 @@ public class MultiPhaseStrategySet extends TranslationStrategy {
   private TJunctionDeviceStrategy tjunctionDeviceStrategy;
   /**
    * Provide the multiPhaseStrategySet with a non-default
-   * TJunctionDeviceStrategy, must also provide a dropletConstraintStrategy
-   * using useDropletConstraintStrategy in order to be a MULTIPhaseStrategy
+   * TJunctionDeviceStrategy
    * 
    * @param strat  The DropletConstraintStrategy for use in the
    * multiPhaseStrategy
