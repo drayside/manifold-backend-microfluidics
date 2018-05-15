@@ -9,7 +9,13 @@ import org.manifold.compiler.PortTypeValue;
 import org.manifold.compiler.UndeclaredIdentifierException;
 import org.manifold.compiler.middle.Schematic;
 
-// Identifies correspondence between TypeValues and specific domain primitives.
+/**
+ * Identifies correspondence between TypeValues and specific domain primitives
+ * i.e. 'fluidEntry' becomes fluidEntryNodeType 
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class PrimitiveTypeTable {
   private PortTypeValue microfluidPortType = null;
   public PortTypeValue getMicrofluidPortType() {
@@ -72,6 +78,11 @@ public class PrimitiveTypeTable {
     return channelCrossingNodeType;
   }
   
+  /**
+   * Retrieve port and nodes from the schematic and assign them to variables
+   * 
+   * @param schematic  Outlines the microchannel parameters and values
+   */
   public void retrieveBaseTypes(Schematic schematic) {
     try {
       microfluidPortType = schematic.getPortType("microfluidPort");
@@ -126,6 +137,10 @@ public class PrimitiveTypeTable {
     return channelDropletVolumeConstraintType;
   }
   
+  /**
+   * Gathers misc constraints needed to simulate droplet generator
+   * @param schematic  Outlines the microchannel parameters and values 
+   */
   public void retrieveConstraintTypes(Schematic schematic) {
     try {
       controlPointPlacementConstraintType =

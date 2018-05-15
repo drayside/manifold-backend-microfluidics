@@ -9,13 +9,24 @@ import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.back.microfluidics.SchematicUtil;
 import org.manifold.compiler.middle.Schematic;
 
-
+/**
+ * Performs calculation to ensure that fluid flow in channel in conserved
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class Macros {
   
-  // generate an expression that describes the constraint
-  // "total flow in = total flow out"
-  // this is difficult because the actual flow direction may be backwards
-  // with respect to the expected direction
+  /**
+   * Generate an expression that describes the constraint "total flow in = total flow out"
+   * this is complicated a bit by the fact that the actual flow direction may be backwards with 
+   * respect to the expected direction so its value must be subtracted instead of added
+   * 
+   * @param schematic
+   * @param connectedPorts
+   * @return List of 2 SExpressions containing equality assertions between the flow rate in and flow rate out
+   *         and between the worst case flow rate in and flow rate out as determined by 
+   */
   public static List<SExpression> generateConservationOfFlow(
       Schematic schematic, List<PortValue> connectedPorts) {
     List<SExpression> flowRatesIn = new LinkedList<SExpression>();
@@ -24,6 +35,7 @@ public class Macros {
     List<SExpression> flowRatesInWorstCase = new LinkedList<SExpression>();
     List<SExpression> flowRatesOutWorstCase = new LinkedList<SExpression>();
     
+    // Iterate through all ports and determine if port is flowing into channel, if so then flow rate is positive
     for (PortValue port : connectedPorts) {
       ConnectionValue channel = SchematicUtil.getConnection(schematic, port);
       boolean connectedIntoJunction;
@@ -52,10 +64,8 @@ public class Macros {
       }
     }
     List<SExpression> exprs = new LinkedList<>();
-    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn),
-        QFNRA.add(flowRatesOut)));
-    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesInWorstCase),
-        QFNRA.add(flowRatesOutWorstCase)));
+    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesIn), QFNRA.add(flowRatesOut)));
+    exprs.add(QFNRA.assertEqual(QFNRA.add(flowRatesInWorstCase), QFNRA.add(flowRatesOutWorstCase)));
     return exprs;
   }
   

@@ -12,6 +12,13 @@ import org.manifold.compiler.back.microfluidics.TranslationStrategy;
 import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Overrides translationStep to make it find the angle between every triplet
+ * of unique nodes in the schematic
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public abstract class CriticalAngleStrategy extends TranslationStrategy {
 
   @Override

@@ -20,10 +20,15 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
-// Constrain a channel to pass through a given point P.
-// The way this is done is by looking at the endpoints of the channel
-// (call them I and J) and constraining the triangle IPJ to have zero area:
-// x_i (y_p − y_j ) + x_p (y_j − y_i ) + x_j (y_i − y_p ) = 0
+/**
+ * Constrain a channel to pass through a given point P.
+ * The way this is done is by looking at the endpoints of the channel
+ * (call them I and J) and constraining the triangle IPJ to have zero area:
+ * x_i (y_p − y_j ) + x_p (y_j − y_i ) + x_j (y_i − y_p ) = 0
+ * 
+ * @author Murphy?
+ * 
+ */
 public class ChannelPlacementConstraintStrategy extends TranslationStrategy {
 
   @Override

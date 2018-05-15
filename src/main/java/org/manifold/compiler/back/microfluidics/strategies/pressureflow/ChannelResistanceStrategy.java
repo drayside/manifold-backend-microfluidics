@@ -14,6 +14,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Creates SMT2 equations for bounding resistance in each channel within the
+ * microfluidic circuit outlined in schematic's connections
+ * 
+ * @author Murphy? Comments partially by Josh
+ *
+ */
 public class ChannelResistanceStrategy extends TranslationStrategy {
 
   @Override
@@ -40,6 +47,14 @@ public class ChannelResistanceStrategy extends TranslationStrategy {
     return exprs;
   }
 
+  /**
+   * Calculates the resistance given the parameters of each channel assuming
+   * it is a rectangular channel
+   * 
+   * @param schematic  Microfluidic circuit to analyze
+   * @param channel  Channel within the circuit to calculate resistance of
+   * @return SMT2 expression asserting the resistance
+   */
   private List<SExpression> translateRectangularChannel(
       Schematic schematic, ConnectionValue channel) {
     List<SExpression> exprs = new LinkedList<>();

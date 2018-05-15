@@ -14,7 +14,12 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
-// Enforce a minimum channel length as defined by process parameters.
+/**
+ * Strategy to enforce a minimum channel length as defined by process parameters
+ * 
+ * @author Murphy?
+ *
+ */
 public class MinimumChannelLengthStrategy extends TranslationStrategy {
 
   @Override

@@ -18,6 +18,14 @@ import org.manifold.compiler.back.microfluidics.smt2.SExpression;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Get the NodeValue, x and y positions for the control point from the input
+ * PrimitiveTypeTable under getControlPointPlacementConstraintType and assert
+ * that its equal to the x and y position outlined in schematic for that node 
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class ControlPointPlacementConstraintStrategy 
   extends TranslationStrategy {
 

@@ -3,6 +3,12 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Gets the values of each term within an SExpression, will be either a Symbol, Numeral or operator from a function
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class ExprEvalVisitor implements SExpressionVisitor {
 
   private double value = 0.0;
@@ -10,12 +16,17 @@ public class ExprEvalVisitor implements SExpressionVisitor {
     return value;
   }
   
-  // variable bindings
+  /**
+   * Maps each Symbol to its numerical value
+   */
   private Map<Symbol, Double> bindings = new HashMap<>();
   public void addBinding(Symbol var, Double value) {
     bindings.put(var, value);
   }
   
+  /**
+   * Checks to see if this Symbol is in the map connecting them to their value
+   */
   @Override
   public void visit(Symbol s) {
     if (bindings.containsKey(s)) {
@@ -26,16 +37,25 @@ public class ExprEvalVisitor implements SExpressionVisitor {
     }
   }
 
+  /**
+   * Get the value of a Numeral object
+   */
   @Override
   public void visit(Numeral n) {
     value = n.getValue();
   }
 
+  /**
+   * Get the value of a Decimal object
+   */
   @Override
   public void visit(Decimal d) {
     value = d.getValue();
   }
 
+  /**
+   * Get the left and right values of a function inside a ParenList
+   */
   @Override
   public void visit(ParenList l) {
     if (l.getExprs().isEmpty()) {
@@ -63,6 +83,13 @@ public class ExprEvalVisitor implements SExpressionVisitor {
     }
   }
   
+  /**
+   * Extract the left and right values from a valid function and perform the correct operation on it
+   * 
+   * @param func  The operator in the expression
+   * @param l  List of the two values from the expression
+   * @return True if successful and sets value to be the result of the function, False if the operator isn't found
+   */
   private boolean evalBinaryExpr(Symbol func, ParenList l) {
     if (l.getExprs().size() != 3) {
       return false;

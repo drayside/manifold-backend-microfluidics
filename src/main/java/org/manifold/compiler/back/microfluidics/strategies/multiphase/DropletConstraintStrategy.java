@@ -18,6 +18,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Asserts that droplets in the channel to be equal to the volume outlined for
+ * the channel in the schematic under channelDropletVolumnContraintType
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class DropletConstraintStrategy extends TranslationStrategy {
 
   @Override

@@ -22,6 +22,14 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Applies equations to calculate droplet generation in a T-Junction
+ * configuration to get an SMT2 equation for dReal to determine solvability
+ * to determine if droplets would be produced or not
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class TJunctionDeviceStrategy extends TranslationStrategy {
 
   private static boolean calculateDropletDerivedQuantities = false;
@@ -96,14 +104,14 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     }
   }
   
+  /* Predictive model for the size of bubbles and droplets 
+   * created in microfluidic T-junctions.
+   * van Steijn, Kleijn, and Kreutzer.
+   * Lab Chip, 2010, 10, 2513.
+   * doi:10.1039/c002625e
+   */
   private SExpression calculatedDropletVolume(SExpression h, SExpression w,
       SExpression wIn, SExpression epsilon, SExpression qD, SExpression qC) {
-    /* Predictive model for the size of bubbles and droplets 
-     * created in microfluidic T-junctions.
-     * van Steijn, Kleijn, and Kreutzer.
-     * Lab Chip, 2010, 10, 2513.
-     * doi:10.1039/c002625e
-     */
     
     SExpression qGutterByQC = new Decimal(0.1);
     Symbol pi = SymbolNameGenerator.getsym_constant_pi();
@@ -114,8 +122,10 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
      * This requires a conditional expression to do correctly.
      */
     
-    // for the case where wIn <= w:
-    // normalizedVFill = 3pi/8 - (pi/2)(1 - pi/4)(h/w)
+    /**
+     * The case where wIn <= w:
+     * normalizedVFill = 3pi/8 - (pi/2)(1 - pi/4)(h/w)
+     */
     SExpression vFillSimple = QFNRA.subtract(
         QFNRA.multiply(new Decimal(3.0 / 8.0), pi), 
         QFNRA.multiply(QFNRA.multiply(
@@ -125,8 +135,9 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                 QFNRA.divide(h, w)));
     
     
-    // for the case where wIn > w:
-    // things get a lot more interesting
+    /**
+     * More complex case where wIn > w
+     */
     SExpression vFillComplex = QFNRA.add(
         QFNRA.add(
             QFNRA.multiply(
@@ -173,8 +184,10 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
     
     SExpression normalizedVFill = vFillSimple;
     
-    // alpha depends on these intermediate expressions
-    // this first one appears at least three times as a subexpression of rPinch
+    /**
+     * Alpha depends on these intermediate expressions
+     * this first one appears at least three times as a subexpression of rPinch
+     */
     SExpression hwParallel = 
         QFNRA.divide(QFNRA.multiply(h, w), QFNRA.add(h, w));
     SExpression rPinch = QFNRA.add(
@@ -215,13 +228,21 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
             QFNRA.multiply(alpha, QFNRA.divide(qD, qC))));
   }
   
-  // R1: channel resistance with no droplets
-  // alpha: experimentally-determined constant
-  // Ca: capillary number
-  // sigma: interfacial tension
-  // muD: viscosity of dispersed medium
-  // muC: viscosity of continuous medium
-  // L, w, h: channel length/width/height
+  /** 
+   * Calculated the droplet resistance using the formula:
+   * R1*((alpha/ca)+(sigma*(((muD/muC)-1)*(l/(w*h^3)))))
+   * 
+   * @param r1  channel resistance with no droplets
+   * @param alpha  experimentally-determined constant
+   * @param ca  capillary number
+   * @param sigma  interfacial tension
+   * @param muD  viscosity of dispersed medium
+   * @param muC  viscosity of continuous medium
+   * @param l  channel length
+   * @param w  channel width
+   * @param h  channel height
+   * @return SMT2 equation in QF_NRA form
+   */
   private SExpression calculatedDropletResistance(
       SExpression r1, SExpression alpha, SExpression ca,
       SExpression sigma,
@@ -236,9 +257,27 @@ public class TJunctionDeviceStrategy extends TranslationStrategy {
                     QFNRA.pow(h, new Numeral(3))))))));
   }
   
+  /**
+   * Translate the connections in a T-Junction for a droplet generator into
+   * a SMT2 equation in QF_NRA form
+   * 
+   * @param schematic  Outlines connections in microfluidic circuit
+   * @param junction  Where the two channels in the T meet
+   * @param chContinuous  Channel with the continuous phase that shears droplets
+   * off of the dispersed phase
+   * @param chDispersed  Channel with the dispersed phase containing the
+   * material of interest that is being turned into droplets
+   * @param chOutput  Output from where both channels meet, droplets travel
+   * down this channel after breaking off from the dispersed phase
+   * @return SMT2 equation with expressions representing this system to be
+   * solved by dReal to determine solvability
+   * @throws UndeclaredIdentifierException  If one of the necessary parameters
+   * of the channel is not defined
+   */
   private List<SExpression> translateTJunction(Schematic schematic,
       NodeValue junction,
-      ConnectionValue chContinuous, ConnectionValue chDispersed,
+      ConnectionValue chContinuous,
+      ConnectionValue chDispersed,
       ConnectionValue chOutput) throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
 

@@ -22,6 +22,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Creates SMT2 equations for bounding pressure for each node within the
+ * microfluidic circuit outlined in schematic
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
   
   @Override
@@ -51,6 +58,17 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     return exprs;
   }
 
+  /**
+   * Fluid entry node, pressure must be greater than 0 and viscosity within
+   * the channel connected to this port must be equal to the viscosity in this
+   * port 
+   * 
+   * @param schematic  Microfluidic circuit to analyze
+   * @param node  Node (input) to create assertions for
+   * @return SMT2 expression asserting the pressure and viscosity in the port
+   * @throws UndeclaredIdentifierException if port is not found
+   * @throws UndeclaredAttributeException if pressure or viscosity are not found
+   */
   private List<SExpression> translateFluidEntryNode(
       Schematic schematic, NodeValue node) 
       throws UndeclaredIdentifierException, UndeclaredAttributeException {
@@ -77,7 +95,16 @@ public class FluidEntryExitDeviceStrategy extends TranslationStrategy {
     return exprs;
   }
   
+  /**
+   * Fluid exit node, pressure must be greater than 0 
+   * 
+   * @param schematic  Microfluidic circuit to analyze
+   * @param node  Node (output) to create assertions for
+   * @return SMT2 expression asserting the pressure and viscosity in the port
+   * @throws UndeclaredIdentifierException if port is not found
+   */
   private List<SExpression> translateFluidExitNode(
+      //TODO: Why is viscosity not equal like in entry?
       Schematic schematic, NodeValue node) 
       throws UndeclaredIdentifierException {
     List<SExpression> exprs = new LinkedList<>();
