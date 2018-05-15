@@ -215,7 +215,7 @@ public class MicrofluidicsBackend implements Backend {
     exprs.add(QFNRA.useQFNRA());
     
     List<SExpression> unsortedExprs = new LinkedList<>();
-    // define pi
+    // define constant pi
     unsortedExprs.add(QFNRA.declareRealVariable(
         SymbolNameGenerator.getsym_constant_pi()));
     unsortedExprs.add(QFNRA.assertEqual(
