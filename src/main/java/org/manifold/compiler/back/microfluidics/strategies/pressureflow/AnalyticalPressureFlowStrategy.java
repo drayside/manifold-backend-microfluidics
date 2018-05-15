@@ -22,6 +22,13 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Creates SMT2 equations for bounding pressure at each node in the microfluidic
+ * circuit outlined in schematic
+ * 
+ * @author Murphy? Comments partially by Josh
+ *
+ */
 public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
   
   @Override
@@ -113,6 +120,13 @@ public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
     return exprs;
   }
 
+  /**
+   * Stores connections and ports found from running expandThrough to find 
+   * all connection to a single port
+   * 
+   * @author Murphy? Comments by Josh
+   *
+   */
   class ExpandedPath {
     public List<ConnectionValue> connections;
     public List<PortValue> ports;
@@ -123,6 +137,15 @@ public class AnalyticalPressureFlowStrategy extends TranslationStrategy {
     }
   }
   
+  /**
+   * Find all connections and ports connected to a given port
+   * 
+   * @param port  Port to expand and find all connected ports and connections
+   * @param schematic  Microfluidic circuit to anaylze
+   * @param typeTable  Used to determine type of port connected to the input
+   * port to determine if its a crossing, pressure control point or other
+   * @return ExpandedPath object with list of connections and ports
+   */
   private ExpandedPath expandThrough(
       PortValue port, Schematic schematic, PrimitiveTypeTable typeTable) {
     ExpandedPath expansion = new ExpandedPath();

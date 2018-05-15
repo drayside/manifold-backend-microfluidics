@@ -12,10 +12,24 @@ import org.manifold.compiler.back.microfluidics.smt2.Symbol;
 import org.manifold.compiler.back.microfluidics.smt2.SymbolNameGenerator;
 import org.manifold.compiler.middle.Schematic;
 
+/**
+ * Creates SMT2 equations for bounding pressure at each node in the microfluidic
+ * circuit outlined in schematic, no expansion is performed on each port to
+ * search ports down the channel. Use AnalyticalPressureFlowStrategy for this
+ * 
+ * @author Murphy? Comments by Josh
+ *
+ */
 public class SimplePressureFlowStrategy extends PressureFlowStrategy {
 
   private final boolean performWorstCaseAnalysis;
   
+  /**
+   * Toggle adding a worst case assertion to the expression that forces a
+   * minimum flow rate 
+   * 
+   * @param performWorstCaseAnalysis True if this assertion is to be added
+   */
   public SimplePressureFlowStrategy(boolean performWorstCaseAnalysis) {
     this.performWorstCaseAnalysis = performWorstCaseAnalysis;
   }
@@ -30,6 +44,13 @@ public class SimplePressureFlowStrategy extends PressureFlowStrategy {
     return exprs;
   }
 
+  /** 
+   * Assert that the difference in pressure in a channel from beginning to end
+   * must be the same as the flow rate * resistance
+   * 
+   * @param conn  Channel within the circuit to calculate resistance of
+   * @param schematic  Microfluidic circuit to analyze
+   * @return SMT2 expression asserting the resistance   */
   private List<SExpression> translate(ConnectionValue conn, 
       Schematic schematic) {
     List<SExpression> exprs = new LinkedList<>();
