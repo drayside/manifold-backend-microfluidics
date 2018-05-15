@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Helper class for generating valid QF_NRA S-expressions which are the format read
- * by dReal when performing SMT solving 
- * QF_NRA stands for Quantifier-Free Nonlinear Real Arithmetic
+ * Helper class for generating valid QF_NRA S-expressions which are the format
+ * read by dReal when performing SMT solving QF_NRA stands for Quantifier-Free
+ * Nonlinear Real Arithmetic
  * 
  * @author Murphy? Comments by Josh
  *
@@ -86,7 +86,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a subtraction statement into the SMT expression to be passed into dReal
+   * Inserts a subtraction statement into SMT expression passed into dReal
    * 
    * @param e1  First expression
    * @param e2  Second expression
@@ -97,7 +97,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a multiplication statement into the SMT expression to be passed into dReal
+   * Inserts a multiplication statement into SMT expression passed into dReal
    * 
    * @param e1  First expression
    * @param e2  Second expression
@@ -108,7 +108,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a division statement into the SMT expression to be passed into dReal
+   * Inserts a division statement into SMT expression passed into dReal
    * 
    * @param e1  First expression
    * @param e2  Second expression
@@ -119,7 +119,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts an exponential statement into the SMT expression to be passed into dReal
+   * Inserts an exponential statement into SMT expression passed into dReal
    * 
    * @param base  Base of the exponential
    * @param exp  Exponent of the exponential
@@ -130,7 +130,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts an arcsin expression to be passed into dReal
+   * Inserts an arcsin expression into SMT expression passed into dReal
    * 
    * @param argument  Angle to have the arcsin calculated for
    * @return ParenList containing the arcsin expression
@@ -209,9 +209,9 @@ public class QFNRA {
   }
   
   /**
-   * Inserts an if-then-else (ite) condition, the form of the output is as follows:
-   * (ite (and (= x!1 11) (= x!2 false)) 21 0), so if variable x!1 = 11 AND x!2 = False
-   * then 21 is output, otherwise 0 is output
+   * Inserts an if-then-else (ite) condition, the form of the output is as
+   * follows: (ite (and (= x!1 11) (= x!2 false)) 21 0), so if variable
+   * x!1 = 11 AND x!2 = False then 21 is output, otherwise 0 is output
    * 
    * 
    * @param cond  Condition to be met to do t, if not met then do f
@@ -231,7 +231,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts an equality statement into the SMT expression to be passed into dReal
+   * Inserts an equality statement into the SMT expression passed into dReal
    * 
    * @param e1  First expression
    * @param e2  Second expression
@@ -242,7 +242,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a less than inequality statement into the SMT expression to be
+   * Inserts a less than inequality statement into the SMT expression
    * passed into dReal
    * 
    * @param e1  First expression
@@ -254,7 +254,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a greater than inequality statement into the SMT expression to be
+   * Inserts a greater than inequality statement into SMT expression
    * passed into dReal
    * 
    * @param e1  First expression
@@ -266,7 +266,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a less than or equal inequality statement into the SMT expression to be
+   * Inserts a less than or equal inequality statement into SMT expression
    * passed into dReal
    * 
    * @param e1  First expression
@@ -278,7 +278,7 @@ public class QFNRA {
   }
   
   /**
-   * Inserts a greater than or equal inequality statement into the SMT expression to be
+   * Inserts a greater than or equal inequality statement into SMT expression
    * passed into dReal
    * 
    * @param e1  First expression

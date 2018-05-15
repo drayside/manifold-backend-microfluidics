@@ -25,7 +25,8 @@ public class DRealSolver implements AutoCloseable {
   // having dReal installed as a dependency https://github.com/sosy-lab/java-smt
 
   /**
-   * Provides range of values (lower and upper) for a Symbol object contained within a RealRange method 
+   * Provides range of values (lower and upper) for a Symbol object contained
+   * within a RealRange method 
    * 
    * @author Murphy? Comments by Josh
    *
@@ -62,7 +63,8 @@ public class DRealSolver implements AutoCloseable {
     }
     
     /**
-     * Provides the range of values (lower, upper) allowed for any Symbol object as a RealRange object
+     * Provides the range of values (lower, upper) allowed for any Symbol object
+     * as a RealRange object
      */
     private Map<Symbol, RealRange> ranges;
     
@@ -77,12 +79,14 @@ public class DRealSolver implements AutoCloseable {
     }
     
     /**
-     * Add a new Symbol with a range of values to be bounded by lowerBound and upperBound, used to contain the result
-     * returned by dReal
+     * Add a new Symbol with a range of values to be bounded by lowerBound and
+     * upperBound, used to contain the result returned by dReal
      * 
      * @param symbolName  Name of the symbol tested by dReal
-     * @param lowerBound  Lower bound of the range of values that the Symbol can take to be true
-     * @param upperBound  Upper bound of the range of values that the Symbol can take to be true
+     * @param lowerBound  Lower bound of the range of values that the Symbol can
+     * take to be true
+     * @param upperBound  Upper bound of the range of values that the Symbol can
+     * take to be true
      */
     public void addResult(String symbolName, 
         String lowerBound, String upperBound) {
@@ -102,8 +106,8 @@ public class DRealSolver implements AutoCloseable {
   private static String pathToDReal = null;
   
   /**
-   * Finds the path to the dReal solver on your computer to send expressions to solve for, if found
-   * it saves the path to pathToDReal
+   * Finds the path to the dReal solver on your computer to send expressions to
+   * solve for, if found it saves the path to pathToDReal
    */
   private void findDReal() {
     Map<String, String> env = System.getenv();
@@ -141,8 +145,10 @@ public class DRealSolver implements AutoCloseable {
   private BufferedReader reader;
   
   /**
-   * Creates writer and reader objects that send a receive data from dReal installed on your computer
-   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   * Creates writer and reader objects that send a receive data from dReal
+   * installed on your computer
+   * @throws IOException  If input or output exception occurs when communicating
+   * with dRealProcess
    */
   public void open() throws IOException {
     List<String> command = new LinkedList<>();
@@ -161,8 +167,8 @@ public class DRealSolver implements AutoCloseable {
     InputStreamReader isr = new InputStreamReader(is);
     reader = new BufferedReader(isr);
     
-    // TODO: If an SExpression is written (which already adds this line to expression head when created) then it is 
-    //       sent twice which is unnecessary
+    // TODO: If an SExpression is written (which already adds this line to
+    // expression head when created) then it is sent twice which is unnecessary
     write("(set-logic QF_NRA)");
   }
   
@@ -170,7 +176,8 @@ public class DRealSolver implements AutoCloseable {
    * Sends an expression to dReal for it to solve
    * 
    * @param data - The expression to be sent to dReal
-   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   * @throws IOException  If input or output exception occurs when communicating
+   * with dRealProcess
    */
   public void write(String data) throws IOException {
     if (dRealProcess == null) {
@@ -181,10 +188,11 @@ public class DRealSolver implements AutoCloseable {
   }
   
   /**
-   * Sends an SExpression to dReal for it to solve, already in correct QF_NRA form
+   * Sends an SExpression to dReal to solve, already in correct QF_NRA form
    * 
    * @param data - The SEpression to be sent to dReal
-   * @throws IOException  If input or output exception occurs when communicating with dRealProcess
+   * @throws IOException  If input or output exception occurs when communicating
+   * with dRealProcess
    */
   public void write(SExpression expr) throws IOException {
     if (dRealProcess == null) {
@@ -194,9 +202,11 @@ public class DRealSolver implements AutoCloseable {
   }
   
   /**
-   * Parses the response from dReal to extract the upper and lower bounds on that Symbol determined by dReal
+   * Parses the response from dReal to extract the upper and lower bounds on
+   * that Symbol determined by dReal
    * 
-   * @param model  Result object that contains the Symbol name and bounds returned by dReal
+   * @param model  Result object that contains the Symbol name and bounds
+   * returned by dReal
    * @param line  The response from dReal
    */
   protected void interpretResultLine(Result model, String line) {
@@ -240,12 +250,14 @@ public class DRealSolver implements AutoCloseable {
   }
   
   /**
-   * Runs the dReal solver on the given expression written to writer by calling the write method
+   * Runs the dReal solver on the given expression written to writer by calling
+   * the write method
    * 
-   * @return model - A Result object with attribute satisfiable = True if dReal determines the expression to be
-   *                 satisfiable, False otherwise
-   * @throws IOException - If input or output exception occurs when communicating with dRealProcess or if it
-   *                       returns an unexpected result (besides 'unsat' or 'Solution:')
+   * @return model - A Result object with attribute satisfiable = True if dReal
+   * determines the expression to be satisfiable, False otherwise
+   * @throws IOException - If input or output exception occurs when
+   * communicating with dRealProcess or if it returns an unexpected result
+   * (besides 'unsat' or 'Solution:')
    */
   public Result solve() throws IOException {
     write("(check-sat)");

@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Gets the values of each term within an SExpression, will be either a Symbol, Numeral or operator from a function
+ * Gets the values of each term within an SExpression, will be either a Symbol,
+ * Numeral or operator from a function
  * 
  * @author Murphy? Comments by Josh
  *
@@ -84,11 +85,13 @@ public class ExprEvalVisitor implements SExpressionVisitor {
   }
   
   /**
-   * Extract the left and right values from a valid function and perform the correct operation on it
+   * Extract the left and right values from a valid function and perform the
+   * correct operation on it
    * 
    * @param func  The operator in the expression
    * @param l  List of the two values from the expression
-   * @return True if successful and sets value to be the result of the function, False if the operator isn't found
+   * @return True if successful and sets value to be the result of the function,
+   * False if the operator isn't found
    */
   private boolean evalBinaryExpr(Symbol func, ParenList l) {
     if (l.getExprs().size() != 3) {

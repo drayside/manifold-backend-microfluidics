@@ -9,7 +9,8 @@ import org.manifold.compiler.back.microfluidics.CodeGenerationError;
 import org.manifold.compiler.middle.Schematic;
 
 /**
- * Helper class to generate consistent symbol names from schematic nodes/connections/etc.
+ * Helper class to generate consistent symbol names from schematic
+ * nodes/connections/etc.
  * 
  * @author Murphy? Comments by Josh and other contributors
  *

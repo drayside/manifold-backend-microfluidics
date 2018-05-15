@@ -3,7 +3,8 @@ package org.manifold.compiler.back.microfluidics.smt2;
 import java.util.List;
 
 /**
- * Checks that an (in)equality assertion is formed correctly and returns boolean result by calling verify
+ * Checks that an (in)equality assertion is formed correctly and returns boolean
+ * result by calling verify
  * 
  * @author Murphy? Comments by Josh
  *
@@ -12,8 +13,8 @@ public class AssertionChecker {
 
   private boolean nonAssertionsAreErrors = false;
   /**
-   * If nonAssertionsAreErrors is true, and an expression that does not match (assert (x)) is found, 
-   * verification automatically fails. Otherwise, ignore it.
+   * If nonAssertionsAreErrors is true, and an expression that does not match
+   * (assert (x)) is found, verification automatically fails. Otherwise, ignore
    * 
    * @param b  Set to true if terms without assertions 
    */
@@ -23,8 +24,8 @@ public class AssertionChecker {
   
   private double delta = 0.000001;
   /**
-   * Change the value of delta, that value between two numbers for them to be considered equivalent.
-   * Default value is 0.000001
+   * Change the value of delta, that value between two numbers for them to be
+   * considered equivalent. Default value is 0.000001
    * 
    * @param d  Value to set delta equal to
    */
@@ -35,8 +36,8 @@ public class AssertionChecker {
   private ExprEvalVisitor evaluator = new ExprEvalVisitor();
   
   /**
-   * Bind a variable to a value, will be visited while verifying to confirm that variable is
-   * still equal to this value
+   * Bind a variable to a value, will be visited while verifying to confirm that
+   * variable is still equal to this value
    * 
    * @param var  Symbol to be bound to a value
    * @param value  Value that this Symbol is bound to
@@ -51,7 +52,8 @@ public class AssertionChecker {
   /**
    * Gets the last expression verified
    * 
-   * @return The last SExpression verified, whether or not it was verified correctly or not 
+   * @return The last SExpression verified, whether or not it was verified
+   * correctly or not 
    */
   public SExpression getLastExpression() {
     return lastExpression;
@@ -62,7 +64,8 @@ public class AssertionChecker {
   /**
    * Gets the left hand side of the last expression verified
    * 
-   * @return The LHS of the last SExpression verified, whether or not it was verified correctly or not 
+   * @return The LHS of the last SExpression verified, whether or not it was
+   * verified correctly or not 
    */
   public double getLastLHS() {
     return lastLHS;
@@ -70,7 +73,8 @@ public class AssertionChecker {
   /**
    * Gets the right hand side of the last expression verified
    * 
-   * @return The RHS of the last SExpression verified, whether or not it was verified correctly or not 
+   * @return The RHS of the last SExpression verified, whether or not it was
+   * verified correctly or not 
    */
   public double getLastRHS() {
     return lastRHS;
@@ -94,7 +98,8 @@ public class AssertionChecker {
   /**
    * Verifies that all expressions in the SExpressions are 
    * @param expr
-   * @return False if malformed or (in)equality is false, True if (in)equality is true
+   * @return False if malformed or (in)equality is false, True if (in)equality
+   * is true
    */
   public boolean verify(SExpression expr) {
     lastExpression = expr;
@@ -107,7 +112,8 @@ public class AssertionChecker {
         return true;
       }
     }
-    // Check to make sure term is in the form 'operator var/val var/val' where var/val is either a variable or value
+    // Check to make sure term is in the form 'operator var/val var/val' where
+    // var/val is either a variable or value
     SExpression term = ((ParenList) expr).getExprs().get(1);
     if (((ParenList) term).getExprs().size() != 3) {
       // malformed
@@ -149,16 +155,19 @@ public class AssertionChecker {
   }
   
   /**
-   * Checks that an SExpression is an assertion, which is when a variable is forced to be related to another
-   * in some way, either equality or inequality. Relation can also be to a number, i.e. x > 5
+   * Checks that an SExpression is an assertion, which is when a variable is
+   * forced to be related to another in some way, either equality or inequality.
+   * Relation can also be to a number, i.e. x > 5
    * 
-   * @param assertion  The expression that needs to be determined if its an assertion
+   * @param assertion  The expression that needs to be determined if its an
+   * assertion
    * @return True or False
    */
   public static boolean isNonAssertion(SExpression assertion) {
-    // TODO: I think this can be entirely replaced by an instanceof call if assertions were made into a superclass
-    // assertion and each specific assertion extended this
-    // Assertion must be a ParenList to possibly be an assertion since it requires at least 2 expressions
+    // TODO: I think this can be entirely replaced by an instanceof call if
+    // assertions were made into a superclass assertion and each specific 
+    // assertion extended this Assertion must be a ParenList to possibly be an
+    // assertion since it requires at least 2 expressions
     if (!(assertion instanceof ParenList)) {
       return true;
     }

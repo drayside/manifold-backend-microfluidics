@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Defines an real decimal value in the as an SExpression that is in QF_NRA form that is
- * required for dReal to determine if a solution is possible
+ * Defines an real decimal value in the as an SExpression that is in QF_NRA form
+ * that is required for dReal to determine if a solution is possible
  * 
  * @author Murphy? Comments by Josh
  *
@@ -24,7 +24,7 @@ public class Decimal extends SExpression {
   }
   
   /**
-   * Converts the string of the decimal representation in QF_NRA form to a Double
+   * Convert the string of the decimal representation in QF_NRA form to a Double
    * 
    * @return Double of the value of this decimal
    */
@@ -33,7 +33,7 @@ public class Decimal extends SExpression {
   }
   
   /**
-   * Checks value entered if its a string to ensure that it is actually a decimal
+   * Check value entered if its a string to ensure that it is actually a decimal
    * 
    * @param repr - Input string representing a decimal
    */
@@ -46,7 +46,8 @@ public class Decimal extends SExpression {
           "decimal representation cannot be empty");
     }
     int decimalIdx = repr.indexOf('.');
-    // if there is no decimal then the number entered is an integer, so append a .0 to it to make it a decimal
+    // if there is no decimal then the number entered is an integer, so append a
+    // .0 to it to make it a decimal
     if (decimalIdx == -1) {
       decimalIdx = repr.length();
       repr = repr.concat(".0");

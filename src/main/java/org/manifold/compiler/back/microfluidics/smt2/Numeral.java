@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Defines an real numerical integer value in the form of an SExpression to allow for it to be compatible with the 
- * QF_NRA form required for dReal
+ * Defines an real numerical integer value in the form of an SExpression to
+ * allow for it to be compatible with the QF_NRA form required for dReal
  * 
  * @author Murphy? Comments by Josh
  *
