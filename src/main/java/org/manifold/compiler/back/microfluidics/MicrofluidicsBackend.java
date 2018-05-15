@@ -25,7 +25,7 @@ import org.manifold.compiler.back.microfluidics.strategies.PressureFlowStrategyS
 import org.manifold.compiler.middle.Schematic;
 
 /**
- * Prepares and converts SEcpression into proper SMT2 equation in QF_NRA form
+ * Prepares and converts SExpression into proper SMT2 equation in QF_NRA form
  * 
  * @author Murphy? Comments by Josh
  *
